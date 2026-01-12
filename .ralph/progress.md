@@ -4,9 +4,17 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Delete planned item"
+- Implement "Record purchase date"
 
 ## Recently Completed
+
+### Delete planned item
+- Feature was already implemented as part of the item detail page
+- Delete button visible at the bottom of `PantryItemDetailScreen.tsx`
+- Confirmation dialog shows before deleting with Cancel/Delete options
+- Works for both planned items and staples
+- Backend DELETE endpoint at `/api/pantry-items/:id` with tests
+- Uses `useDeletePantryItem()` hook with React Query cache invalidation
 
 ### Edit pantry item name
 - Updated backend API (`PantryItemUpdate` type) to accept optional `name` field alongside `status`

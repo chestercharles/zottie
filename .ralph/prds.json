@@ -2,7 +2,7 @@
   {
     "name": "Pantry screen shows planned items in a collapsible section",
     "description": "The pantry screen displays planned items in a separate collapsible section at the top of the screen. This section is collapsed by default. Staple items are displayed below in the main list. This allows users to focus on 'what I have now' (staples) while keeping planned items accessible.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Shopping tab empty state",
@@ -12,27 +12,27 @@
   {
     "name": "Add planned item from shopping tab",
     "description": "Users can add a planned item directly from the shopping tab by entering a name. The planned item immediately appears on the shopping list (unchecked) and in the pantry's planned section with status 'planned'. Planned items represent one-time purchases that will be removed from the pantry once used up.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Mark checked items as purchased",
     "description": "Users can mark all checked-off items as purchased with a single action. When purchased: staple items have their status changed to 'in stock', and planned items have their status changed to 'in stock'. All purchased items are removed from the shopping list. Unchecked items remain on the shopping list for the next shopping trip.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Reset shopping list checkmarks",
     "description": "Users can reset the shopping list to uncheck all items. A confirmation dialog is shown before resetting. This is useful if the user wants to start fresh without marking anything as purchased.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Item detail page accessible from shopping list",
     "description": "Users can tap on any item in the shopping list to navigate to that item's detail page. This is the same detail page accessible from the pantry. From the detail page, users can edit the item name, change status, or delete the item.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Planned item lifecycle and removal",
     "description": "Planned items follow this lifecycle: Planned (not yet purchased) -> In Stock (purchased) -> Running Low -> Out of Stock (removed). When a user changes a planned item's status to 'out of stock', a confirmation dialog appears asking if they want to remove the item from their pantry. Upon confirmation, the planned item is permanently deleted. This differs from staples, which remain in the pantry and cycle back to the shopping list when out of stock.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Edit pantry item name",
@@ -42,7 +42,7 @@
   {
     "name": "Delete planned item",
     "description": "Users can delete a planned item entirely from the item detail page. This removes it from both the pantry and the shopping list. A confirmation dialog is shown before deletion.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Record purchase date",
@@ -117,6 +117,6 @@
   {
     "name": "Purchased planned items display in pantry list",
     "description": "Planned items that have been purchased and are now in stock should display in the main pantry list alongside staples, not in the collapsible planned items section. Only planned items that haven't yet been purchased (status 'planned') should appear in the compressed planned items section at the top of the pantry screen.",
-    "completed": false
+    "completed": true
   }
 ]
