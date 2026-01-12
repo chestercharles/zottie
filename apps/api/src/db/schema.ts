@@ -23,6 +23,7 @@ export const pantryItems = sqliteTable('pantry_items', {
     .default('staple'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  purchasedAt: integer('purchased_at', { mode: 'timestamp' }),
 })
 
 export type PantryItem = typeof pantryItems.$inferSelect

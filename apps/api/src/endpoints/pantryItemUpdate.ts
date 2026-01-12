@@ -85,12 +85,21 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
     }
 
     const now = new Date()
+    const existingItem = existingItems[0]
 
-    const updateData: { updatedAt: Date; status?: PantryItemStatus; name?: string } = {
+    const updateData: {
+      updatedAt: Date
+      status?: PantryItemStatus
+      name?: string
+      purchasedAt?: Date
+    } = {
       updatedAt: now,
     }
     if (status !== undefined) {
       updateData.status = status as PantryItemStatus
+      if (status === 'in_stock' && existingItem.status !== 'in_stock') {
+        updateData.purchasedAt = now
+      }
     }
     if (name !== undefined) {
       updateData.name = name
@@ -119,6 +128,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
           itemType: updatedItem.itemType,
           createdAt: updatedItem.createdAt.getTime(),
           updatedAt: updatedItem.updatedAt.getTime(),
+          purchasedAt: updatedItem.purchasedAt?.getTime() ?? null,
         },
       },
     }

@@ -1,0 +1,1 @@
+ALTER TABLE `pantry_items` ADD `purchased_at` integer;

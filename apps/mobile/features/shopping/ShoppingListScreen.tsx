@@ -259,6 +259,7 @@ export function ShoppingListScreen() {
                     itemType: item.itemType,
                     createdAt: item.createdAt.toString(),
                     updatedAt: item.updatedAt.toString(),
+                    purchasedAt: item.purchasedAt?.toString() ?? '',
                   },
                 })
               }

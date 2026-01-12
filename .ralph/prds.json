@@ -47,7 +47,7 @@
   {
     "name": "Record purchase date",
     "description": "When items are marked as purchased, the current date is recorded as the 'last purchased' date. This date is stored in the database and displayed on the item detail page.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Pull to refresh pantry screen",

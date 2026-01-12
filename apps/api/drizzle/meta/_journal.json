@@ -15,6 +15,13 @@
       "when": 1768198841165,
       "tag": "0001_glorious_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1768205871547,
+      "tag": "0002_daffy_liz_osborn",
+      "breakpoints": true
     }
   ]
 }

@@ -41,4 +41,5 @@ export const PantryItem = z.object({
   itemType: PantryItemTypeEnum,
   createdAt: z.number(),
   updatedAt: z.number(),
+  purchasedAt: z.number().nullable(),
 })

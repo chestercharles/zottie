@@ -81,6 +81,7 @@ export class PantryItemCreateEndpoint extends OpenAPIRoute {
           itemType: newItem.itemType,
           createdAt: newItem.createdAt.getTime(),
           updatedAt: newItem.updatedAt.getTime(),
+          purchasedAt: null,
         },
       },
     }

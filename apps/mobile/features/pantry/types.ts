@@ -10,6 +10,7 @@ export interface PantryItem {
   itemType: ItemType
   createdAt: number
   updatedAt: number
+  purchasedAt: number | null
 }
 
 export interface CreatePantryItemRequest {

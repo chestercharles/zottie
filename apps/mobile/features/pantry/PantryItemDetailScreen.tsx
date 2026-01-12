@@ -47,6 +47,7 @@ export function PantryItemDetailScreen() {
     itemType: ItemType
     createdAt: string
     updatedAt: string
+    purchasedAt: string
   }>()
   const router = useRouter()
   const updateMutation = useUpdatePantryItem()
@@ -61,6 +62,7 @@ export function PantryItemDetailScreen() {
 
   const createdAt = parseInt(params.createdAt || '0', 10)
   const updatedAt = parseInt(params.updatedAt || '0', 10)
+  const purchasedAt = params.purchasedAt ? parseInt(params.purchasedAt, 10) : null
 
   const handleSaveName = () => {
     const trimmedName = editedName.trim()
@@ -277,6 +279,13 @@ export function PantryItemDetailScreen() {
               {statusLabels[currentStatus]}
             </Text>
           </View>
+
+          {purchasedAt && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Last Purchased</Text>
+              <Text style={styles.detailValue}>{formatDate(purchasedAt)}</Text>
+            </View>
+          )}
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Created</Text>

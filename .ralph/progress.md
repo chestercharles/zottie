@@ -4,9 +4,20 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Record purchase date"
+- Implement "Pull to refresh pantry screen"
 
 ## Recently Completed
+
+### Record purchase date
+- Added `purchased_at` column to the database schema (nullable timestamp)
+- Generated Drizzle migration `0002_daffy_liz_osborn.sql`
+- Updated backend API types to include `purchasedAt` in `PantryItem` response
+- Modified `pantryItemUpdate` endpoint to set `purchasedAt` when status changes to 'in_stock'
+- Updated `pantryItemList` and `pantryItemCreate` endpoints to return `purchasedAt`
+- Updated frontend types to include `purchasedAt: number | null` in PantryItem and ShoppingItem
+- Added "Last Purchased" row in PantryItemDetailScreen Details section (only shown when date exists)
+- Navigation from both pantry and shopping screens now passes `purchasedAt` param
+- Purchase date is recorded automatically when items are marked as purchased (either individually or in batch)
 
 ### Delete planned item
 - Feature was already implemented as part of the item detail page
