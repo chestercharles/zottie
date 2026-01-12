@@ -7,7 +7,7 @@
   {
     "name": "Shopping tab empty state",
     "description": "When the shopping tab has no items to display (all staples are in stock and no planned items exist), show a friendly empty state message like 'You're all set!' with a prompt to add planned items.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add planned item from shopping tab",

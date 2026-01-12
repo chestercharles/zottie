@@ -4,9 +4,14 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Shopping tab empty state"
+- Implement "Edit pantry item name"
 
 ## Recently Completed
+
+### Shopping tab empty state
+- Empty state was already implemented as part of the "Add planned item from shopping tab" feature
+- When shopping list is empty, displays "You're all set!" message with helpful subtext
+- Add planned item input remains visible above the empty state message
 
 ### Planned item lifecycle and removal
 - Modified `handleStatusChange` in `PantryItemDetailScreen.tsx` to detect when a planned item is being set to "out of stock"
