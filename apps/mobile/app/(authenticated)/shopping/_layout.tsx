@@ -11,6 +11,8 @@ export default function ShoppingLayout() {
           fontWeight: '600',
         },
       }}
-    />
+    >
+      <Stack.Screen name="index" options={{ title: 'Shopping' }} />
+    </Stack>
   )
 }
