@@ -4,11 +4,20 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Pantry screen shows planned items in a collapsible section"
 - Implement "Item detail page accessible from shopping list"
 - Implement "Planned item lifecycle and removal"
+- Implement "Shopping tab empty state"
 
 ## Recently Completed
+
+### Pantry screen shows planned items in a collapsible section
+- Separated pantry items into two groups: planned items (`itemType === 'planned'`) and staple items (`itemType === 'staple'`)
+- Added collapsible "Planned Items" section at the top of the pantry screen
+- Section shows item count badge and is collapsed by default
+- Tapping the header expands/collapses to show/hide planned items
+- Uses purple color scheme (#9B59B6) consistent with planned items elsewhere
+- Staple items display below the planned section in the main list
+- Also passes `itemType` when navigating to item detail for future features
 
 ### Add planned item from shopping tab
 - Added `item_type` column to database schema ('staple' | 'planned')

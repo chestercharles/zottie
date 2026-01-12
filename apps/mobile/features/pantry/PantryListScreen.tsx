@@ -3,11 +3,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
@@ -60,6 +60,16 @@ export function PantryListScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
+
+  const plannedItems = useMemo(
+    () => items.filter((item) => item.itemType === 'planned'),
+    [items]
+  )
+  const stapleItems = useMemo(
+    () => items.filter((item) => item.itemType === 'staple'),
+    [items]
+  )
 
   const fetchItems = useCallback(async () => {
     if (!user?.id) return
@@ -114,6 +124,20 @@ export function PantryListScreen() {
     )
   }
 
+  const navigateToItem = (item: PantryItem) => {
+    router.push({
+      pathname: '/pantry/[id]',
+      params: {
+        id: item.id,
+        name: item.name,
+        status: item.status,
+        itemType: item.itemType,
+        createdAt: item.createdAt.toString(),
+        updatedAt: item.updatedAt.toString(),
+      },
+    })
+  }
+
   return (
     <View style={styles.container}>
       {items.length === 0 ? (
@@ -130,31 +154,51 @@ export function PantryListScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <PantryItemRow
-              item={item}
-              onPress={() =>
-                router.push({
-                  pathname: '/pantry/[id]',
-                  params: {
-                    id: item.id,
-                    name: item.name,
-                    status: item.status,
-                    createdAt: item.createdAt.toString(),
-                    updatedAt: item.updatedAt.toString(),
-                  },
-                })
-              }
-            />
-          )}
+        <ScrollView
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
           }
-        />
+        >
+          {plannedItems.length > 0 && (
+            <View style={styles.plannedSection}>
+              <TouchableOpacity
+                style={styles.plannedHeader}
+                onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
+              >
+                <View style={styles.plannedHeaderLeft}>
+                  <Text style={styles.plannedHeaderText}>Planned Items</Text>
+                  <View style={styles.plannedCountBadge}>
+                    <Text style={styles.plannedCountText}>
+                      {plannedItems.length}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.chevron}>
+                  {isPlannedExpanded ? '▼' : '▶'}
+                </Text>
+              </TouchableOpacity>
+              {isPlannedExpanded && (
+                <View style={styles.plannedContent}>
+                  {plannedItems.map((item) => (
+                    <PantryItemRow
+                      key={item.id}
+                      item={item}
+                      onPress={() => navigateToItem(item)}
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+          {stapleItems.map((item) => (
+            <PantryItemRow
+              key={item.id}
+              item={item}
+              onPress={() => navigateToItem(item)}
+            />
+          ))}
+        </ScrollView>
       )}
       {items.length > 0 && (
         <TouchableOpacity
@@ -277,5 +321,46 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '400',
     lineHeight: 30,
+  },
+  plannedSection: {
+    marginBottom: 16,
+    backgroundColor: '#F5F0FA',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  plannedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+  },
+  plannedHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  plannedHeaderText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#9B59B6',
+  },
+  plannedCountBadge: {
+    backgroundColor: '#9B59B6',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+  plannedCountText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  chevron: {
+    fontSize: 12,
+    color: '#9B59B6',
+  },
+  plannedContent: {
+    paddingHorizontal: 12,
+    paddingBottom: 12,
   },
 })
