@@ -14,7 +14,8 @@
 		{
 			"binding": "db",
 			"database_name": "zottie-db",
-			"database_id": "74e93dcc-7cc9-4dea-a007-88a122958dc2"
+			"database_id": "74e93dcc-7cc9-4dea-a007-88a122958dc2",
+			"migrations_dir": "drizzle"
 		}
 	],
 	/**

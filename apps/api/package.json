@@ -8,16 +8,21 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types",
     "tsc": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply zottie-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply zottie-db --remote"
   },
   "dependencies": {
     "chanfana": "^2.6.3",
+    "drizzle-orm": "^0.45.1",
     "hono": "^4.6.20",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "22.13.0",
     "@types/service-worker-mock": "^2.0.4",
+    "drizzle-kit": "^0.31.8",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16",
     "wrangler": "^4.58.0"

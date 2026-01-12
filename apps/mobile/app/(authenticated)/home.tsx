@@ -1,8 +1,7 @@
 import { HomeScreen } from '@/features/home/HomeScreen'
 
 export const options = {
-  headerShown: true,
-  title: 'Zottie',
+  headerShown: false,
 }
 
 export default function Home() {

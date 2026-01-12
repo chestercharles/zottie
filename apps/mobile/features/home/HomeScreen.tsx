@@ -1,14 +1,22 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { useRouter } from 'expo-router'
 import { useAuth } from '@/features/auth'
 
 export function HomeScreen() {
   const { user, signOut } = useAuth()
+  const router = useRouter()
 
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Welcome, {user?.name || user?.email}!</Text>
-      <TouchableOpacity style={styles.button} onPress={signOut}>
-        <Text style={styles.buttonText}>Sign Out</Text>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() => router.push('/pantry')}
+      >
+        <Text style={styles.primaryButtonText}>View Pantry</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
+        <Text style={styles.signOutButtonText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
   )
@@ -28,13 +36,25 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
   },
-  button: {
+  primaryButton: {
+    backgroundColor: '#2ECC71',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  signOutButton: {
     backgroundColor: '#E74C3C',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
   },
-  buttonText: {
+  signOutButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

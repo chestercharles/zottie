@@ -14,6 +14,7 @@ export default function RootLayout() {
     <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
       </Stack>
     </Auth0Provider>
   )
