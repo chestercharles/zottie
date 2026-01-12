@@ -11,7 +11,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAuth0 } from 'react-native-auth0'
 import type { PantryItemStatus } from './types'
-import { updatePantryItem } from './api'
+import { deletePantryItem, updatePantryItem } from './api'
 import { useAuth } from '../auth'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -53,6 +53,7 @@ export function PantryItemDetailScreen() {
     params.status
   )
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const createdAt = parseInt(params.createdAt || '0', 10)
   const updatedAt = parseInt(params.updatedAt || '0', 10)
@@ -92,6 +93,50 @@ export function PantryItemDetailScreen() {
     } finally {
       setIsUpdating(false)
     }
+  }
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Item',
+      `Are you sure you want to delete "${params.name}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            if (!user?.id) {
+              Alert.alert('Error', 'You must be logged in to delete items')
+              return
+            }
+
+            setIsDeleting(true)
+
+            try {
+              const credentials = await getCredentials()
+              if (!credentials?.accessToken) {
+                throw new Error('No access token available')
+              }
+
+              await deletePantryItem(
+                params.id,
+                credentials.accessToken,
+                user.id
+              )
+              router.back()
+            } catch (error) {
+              Alert.alert(
+                'Error',
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to delete pantry item'
+              )
+              setIsDeleting(false)
+            }
+          },
+        },
+      ]
+    )
   }
 
   const statuses: PantryItemStatus[] = ['in_stock', 'running_low', 'out_of_stock']
@@ -172,6 +217,18 @@ export function PantryItemDetailScreen() {
             <Text style={styles.detailValue}>{formatDate(updatedAt)}</Text>
           </View>
         </View>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDelete}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.deleteButtonText}>Delete Item</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </ScrollView>
   )
@@ -268,6 +325,18 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: 14,
     color: '#333',
+    fontWeight: '600',
+  },
+  deleteButton: {
+    backgroundColor: '#E74C3C',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
 })

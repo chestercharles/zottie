@@ -38,3 +38,7 @@ export interface UpdatePantryItemResponse {
     pantryItem: PantryItem
   }
 }
+
+export interface DeletePantryItemResponse {
+  success: boolean
+}

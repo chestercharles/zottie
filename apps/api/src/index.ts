@@ -2,6 +2,7 @@ import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { authMiddleware, type AuthVariables } from './middleware/auth'
 import { PantryItemCreateEndpoint } from './endpoints/pantryItemCreate'
+import { PantryItemDeleteEndpoint } from './endpoints/pantryItemDelete'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
 import { PantryItemUpdateEndpoint } from './endpoints/pantryItemUpdate'
 
@@ -20,6 +21,7 @@ const openapi = fromHono(app, {
 openapi.get('/api/pantry-items', PantryItemListEndpoint)
 openapi.post('/api/pantry-items', PantryItemCreateEndpoint)
 openapi.patch('/api/pantry-items/:id', PantryItemUpdateEndpoint)
+openapi.delete('/api/pantry-items/:id', PantryItemDeleteEndpoint)
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))

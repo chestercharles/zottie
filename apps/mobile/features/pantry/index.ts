@@ -6,4 +6,9 @@ export type {
   PantryItemStatus,
   CreatePantryItemRequest,
 } from './types'
-export { createPantryItem, listPantryItems, updatePantryItem } from './api'
+export {
+  createPantryItem,
+  deletePantryItem,
+  listPantryItems,
+  updatePantryItem,
+} from './api'

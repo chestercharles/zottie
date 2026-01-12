@@ -1,6 +1,7 @@
 import type {
   CreatePantryItemRequest,
   CreatePantryItemResponse,
+  DeletePantryItemResponse,
   ListPantryItemsResponse,
   PantryItem,
   UpdatePantryItemRequest,
@@ -83,4 +84,25 @@ export async function updatePantryItem(
 
   const result = (await response.json()) as UpdatePantryItemResponse
   return result.result.pantryItem
+}
+
+export async function deletePantryItem(
+  itemId: string,
+  authToken: string,
+  userId: string
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/pantry-items/${itemId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to delete pantry item' }))
+    throw new Error(error.error || 'Failed to delete pantry item')
+  }
 }
