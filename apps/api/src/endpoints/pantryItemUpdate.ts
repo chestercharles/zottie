@@ -2,7 +2,12 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, PantryItem, PantryItemUpdate } from '../types'
-import { getDb, pantryItems, type PantryItemStatus } from '../db'
+import {
+  getDb,
+  pantryItems,
+  getOrCreateHouseholdId,
+  type PantryItemStatus,
+} from '../db'
 
 export class PantryItemUpdateEndpoint extends OpenAPIRoute {
   schema = {
@@ -62,17 +67,20 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const db = getDb(c.env.db)
+
+    const householdId = await getOrCreateHouseholdId(db, userId)
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params
     const { status, name } = data.body
 
-    const db = getDb(c.env.db)
-
     const existingItems = await db
       .select()
       .from(pantryItems)
-      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
+      .where(
+        and(eq(pantryItems.id, id), eq(pantryItems.householdId, householdId))
+      )
 
     if (existingItems.length === 0) {
       return c.json(
@@ -108,12 +116,16 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
     await db
       .update(pantryItems)
       .set(updateData)
-      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
+      .where(
+        and(eq(pantryItems.id, id), eq(pantryItems.householdId, householdId))
+      )
 
     const updatedItems = await db
       .select()
       .from(pantryItems)
-      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
+      .where(
+        and(eq(pantryItems.id, id), eq(pantryItems.householdId, householdId))
+      )
 
     const updatedItem = updatedItems[0]
 
@@ -123,6 +135,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
         pantryItem: {
           id: updatedItem.id,
           userId: updatedItem.userId,
+          householdId: updatedItem.householdId,
           name: updatedItem.name,
           status: updatedItem.status,
           itemType: updatedItem.itemType,

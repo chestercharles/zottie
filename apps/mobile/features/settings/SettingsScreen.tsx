@@ -1,29 +1,59 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native'
 import { useAuth } from '@/features/auth'
+import { useHousehold, useUpdateHousehold } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
 
 export function SettingsScreen() {
   const { user, signOut } = useAuth()
+  const { household, isLoading: isLoadingHousehold } = useHousehold()
+  const updateHouseholdMutation = useUpdateHousehold()
+
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editedName, setEditedName] = useState('')
 
   const handleLogout = () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: async () => {
-            setIsLoggingOut(true)
-            queryClient.clear()
-            await signOut()
-          },
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          setIsLoggingOut(true)
+          queryClient.clear()
+          await signOut()
         },
-      ]
-    )
+      },
+    ])
+  }
+
+  const handleStartEditing = () => {
+    setEditedName(household?.name ?? '')
+    setIsEditingName(true)
+  }
+
+  const handleSaveName = async () => {
+    if (!editedName.trim()) return
+    try {
+      await updateHouseholdMutation.mutateAsync({ name: editedName.trim() })
+      setIsEditingName(false)
+    } catch {
+      Alert.alert('Error', 'Failed to update household name')
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false)
+    setEditedName('')
   }
 
   return (
@@ -31,13 +61,50 @@ export function SettingsScreen() {
       <View style={styles.content}>
         <View style={styles.accountSection}>
           <Text style={styles.sectionTitle}>Account</Text>
-          {user?.email && (
-            <Text style={styles.emailText}>{user.email}</Text>
-          )}
+          {user?.email && <Text style={styles.emailText}>{user.email}</Text>}
         </View>
 
-        <View style={styles.placeholder}>
-          <Text style={styles.subtext}>Household settings coming soon</Text>
+        <View style={styles.householdSection}>
+          <Text style={styles.sectionTitle}>Household</Text>
+          {isLoadingHousehold ? (
+            <ActivityIndicator size="small" color="#3498DB" />
+          ) : isEditingName ? (
+            <View style={styles.editContainer}>
+              <TextInput
+                style={styles.nameInput}
+                value={editedName}
+                onChangeText={setEditedName}
+                placeholder="Household name"
+                autoFocus
+              />
+              <View style={styles.editButtons}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={handleCancelEdit}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSaveName}
+                  disabled={
+                    updateHouseholdMutation.isPending || !editedName.trim()
+                  }
+                >
+                  <Text style={styles.saveButtonText}>
+                    {updateHouseholdMutation.isPending ? 'Saving...' : 'Save'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={handleStartEditing}>
+              <Text style={styles.householdName}>
+                {household?.name ?? 'My Household'}
+              </Text>
+              <Text style={styles.tapToEdit}>Tap to edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -68,6 +135,9 @@ const styles = StyleSheet.create({
   accountSection: {
     marginBottom: 32,
   },
+  householdSection: {
+    marginBottom: 32,
+  },
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
@@ -80,15 +150,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  placeholder: {
+  householdName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  tapToEdit: {
+    fontSize: 13,
+    color: '#3498DB',
+    marginTop: 4,
+  },
+  editContainer: {
+    gap: 12,
+  },
+  nameInput: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelButton: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    paddingVertical: 10,
     alignItems: 'center',
   },
-  subtext: {
-    fontSize: 14,
+  cancelButtonText: {
     color: '#666',
-    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  saveButton: {
+    flex: 1,
+    backgroundColor: '#3498DB',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   footer: {
     padding: 24,

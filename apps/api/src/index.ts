@@ -1,6 +1,8 @@
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { authMiddleware, type AuthVariables } from './middleware/auth'
+import { HouseholdGetEndpoint } from './endpoints/householdGet'
+import { HouseholdUpdateEndpoint } from './endpoints/householdUpdate'
 import { PantryItemCreateEndpoint } from './endpoints/pantryItemCreate'
 import { PantryItemDeleteEndpoint } from './endpoints/pantryItemDelete'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
@@ -16,6 +18,10 @@ app.use('/api/*', authMiddleware())
 const openapi = fromHono(app, {
   docs_url: '/',
 })
+
+// Household endpoints
+openapi.get('/api/household', HouseholdGetEndpoint)
+openapi.patch('/api/household', HouseholdUpdateEndpoint)
 
 // Pantry endpoints
 openapi.get('/api/pantry-items', PantryItemListEndpoint)

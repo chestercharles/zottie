@@ -4,9 +4,33 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Create a household" (first of the household features)
+- Implement "Generate household invite link" (next household feature)
 
 ## Recently Completed
+
+### Create a household
+- Created `households` and `household_members` database tables with Drizzle schema
+- Generated migration `0003_good_wild_child.sql` for new tables and `household_id` column on `pantry_items`
+- Created `GET /api/household` endpoint that gets or creates a household for the current user
+  - If user has no household, creates one with default name "My Household"
+  - Returns household info and list of members
+- Created `PATCH /api/household` endpoint to update household name
+- Updated all pantry endpoints to use `householdId` instead of `userId` for scoping:
+  - `pantryItemList`: filters by household
+  - `pantryItemCreate`: assigns new items to user's household
+  - `pantryItemUpdate`: verifies item belongs to user's household
+  - `pantryItemDelete`: verifies item belongs to user's household
+- Added helper function `getOrCreateHouseholdId()` in `db/helpers.ts`
+- Created mobile `features/household/` module with:
+  - Types (`Household`, `HouseholdMember`, API request/response types)
+  - API functions (`getHousehold`, `updateHousehold`)
+  - React Query hooks (`useHousehold`, `useUpdateHousehold`)
+- Added `household` query key to `lib/query/keys.ts`
+- Updated `SettingsScreen.tsx` to display and edit household name:
+  - Shows household name with "Tap to edit" hint
+  - Tapping reveals inline text input with Save/Cancel buttons
+  - Saves update via `useUpdateHousehold` mutation
+- Updated `PantryItem` type to include `householdId` field
 
 ### Log out from settings page
 - Updated `SettingsScreen.tsx` to include a "Log Out" button in the footer

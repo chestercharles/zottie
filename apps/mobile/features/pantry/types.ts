@@ -5,6 +5,7 @@ export type ItemType = 'staple' | 'planned'
 export interface PantryItem {
   id: string
   userId: string
+  householdId: string | null
   name: string
   status: PantryItemStatus
   itemType: ItemType

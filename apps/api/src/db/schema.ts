@@ -1,5 +1,27 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 
+export const households = sqliteTable('households', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type Household = typeof households.$inferSelect
+export type NewHousehold = typeof households.$inferInsert
+
+export const householdMembers = sqliteTable('household_members', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
+  userId: text('user_id').notNull().unique(),
+  joinedAt: integer('joined_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type HouseholdMember = typeof householdMembers.$inferSelect
+export type NewHouseholdMember = typeof householdMembers.$inferInsert
+
 export const pantryItemStatus = [
   'in_stock',
   'running_low',
@@ -13,6 +35,7 @@ export type PantryItemType = (typeof pantryItemType)[number]
 
 export const pantryItems = sqliteTable('pantry_items', {
   id: text('id').primaryKey(),
+  householdId: text('household_id').references(() => households.id),
   userId: text('user_id').notNull(),
   name: text('name').notNull(),
   status: text('status', { enum: pantryItemStatus })

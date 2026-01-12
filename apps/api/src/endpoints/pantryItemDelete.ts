@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext } from '../types'
-import { getDb, pantryItems } from '../db'
+import { getDb, pantryItems, getOrCreateHouseholdId } from '../db'
 
 export class PantryItemDeleteEndpoint extends OpenAPIRoute {
   schema = {
@@ -52,16 +52,19 @@ export class PantryItemDeleteEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const db = getDb(c.env.db)
+
+    const householdId = await getOrCreateHouseholdId(db, userId)
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params
 
-    const db = getDb(c.env.db)
-
     const existingItems = await db
       .select()
       .from(pantryItems)
-      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
+      .where(
+        and(eq(pantryItems.id, id), eq(pantryItems.householdId, householdId))
+      )
 
     if (existingItems.length === 0) {
       return c.json(
@@ -75,7 +78,9 @@ export class PantryItemDeleteEndpoint extends OpenAPIRoute {
 
     await db
       .delete(pantryItems)
-      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
+      .where(
+        and(eq(pantryItems.id, id), eq(pantryItems.householdId, householdId))
+      )
 
     return {
       success: true,

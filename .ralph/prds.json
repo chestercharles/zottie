@@ -57,7 +57,7 @@
   {
     "name": "Create a household",
     "description": "When a user signs up or first uses the app, a household is automatically created for them. The user can set a household name from the settings page. The household name defaults to a sensible default like 'My Household'. Solo users operate within their own household - the data model is the same whether solo or shared.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Generate household invite link",
@@ -77,12 +77,12 @@
   {
     "name": "Pantry items scoped to household",
     "description": "Pantry items belong to a household rather than an individual user. All members of a household see the same pantry items. Any member can create, update, or delete pantry items. This replaces the current user-scoped pantry item model.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Shopping list scoped to household",
     "description": "The shopping list is derived from household pantry data. All members see the same shopping list. Any member can check off items and mark items as purchased. Changes are visible to other members on refresh.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "[Future] Receipt upload for price tracking",
