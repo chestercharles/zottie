@@ -4,9 +4,17 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Pull to refresh pantry screen"
+- Implement "Settings page accessible from pantry screen"
 
 ## Recently Completed
+
+### Pull to refresh pantry screen
+- Feature was already implemented
+- `PantryListScreen.tsx` uses `RefreshControl` from react-native wrapped around the `ScrollView`
+- `usePantryItems` hook exposes `isRefreshing` state and `refetch` function
+- Pulling down on the pantry list triggers a data refresh from the backend
+
+
 
 ### Record purchase date
 - Added `purchased_at` column to the database schema (nullable timestamp)

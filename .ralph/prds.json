@@ -52,7 +52,7 @@
   {
     "name": "Pull to refresh pantry screen",
     "description": "Users can pull down on the pantry screen to refresh the list of pantry items from the database.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Create a household",
