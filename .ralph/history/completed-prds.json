@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Landing page",
+    "description": "Unauthenticated users are presented with a landing page when the open the application. The landing page should have a sign up and sign in button.",
+    "completed": true
+  },
+  {
+    "name": "Sign up",
+    "description": "Users can sign up for an account using SSO (Google, Apple, etc.). We can use Auth0's universal login page for this - there is a react-native-auth0 package that can be used to authenticate users.",
+    "completed": true
+  },
+  {
+    "name": "Sign in",
+    "description": "Users can sign in using SSO (Google, Apple, etc.). We can use Auth0's universal login page for this - there is a react-native-auth0 package that can be used to authenticate users.",
+    "completed": true
+  },
+  {
+    "name": "Create a staple pantry item",
+    "description": "Users can create a staple pantry item by entering a name and status. The status defaults to 'in stock' but can be changed to 'running low' or 'out of stock'. The staple pantry item is added to the user's list of staple pantry items.",
+    "completed": true
+  },
+  {
+    "name": "View all staple pantry items",
+    "description": "Users can view a list of all staple pantry items. The staple pantry items are displayed in a list.",
+    "completed": true
+  },
+  {
+    "name": "View a staple pantry item",
+    "description": "Users can view a staple pantry item clicking on the item from the list of staple pantry items. The staple pantry item is displayed in a detail view. The user can easily return to the list of staple pantry items.",
+    "completed": true
+  },
+  {
+    "name": "Update a staple pantry item",
+    "description": "Users can update the status of a staple pantry item on the staple panty item detail page. The status can be changed from 'in stock' to 'running low' to 'out of stock' and vice versa.",
+    "completed": true
+  },
+  {
+    "name": "Delete a staple pantry item",
+    "description": "Users can delete a staple pantry item by entering a name. The staple pantry item is deleted from the user's list of staple pantry items.",
+    "completed": true
+  },
+  {
+    "name": "Users should be able to navigate between the pantry tab and the shopping tab",
+    "description": "Users should be able to navigate between the pantry tab and the shopping tab using a bottom tab bar. The bottom tab bar should be displayed at the bottom of the screen. There is no need for a home screen.",
+    "completed": true
+  },
+  {
+    "name": "Shopping tab displays items to purchase",
+    "description": "The shopping tab shows a unified list of all items that need to be purchased: staple items that are 'running low' or 'out of stock', plus all planned items that haven't been purchased yet. Each item displays its name, status (e.g., 'Running Low', 'Out of Stock', 'Planned'), and whether it is a staple or planned item. Items are mixed together in a single list.",
+    "completed": true
+  },
+  {
+    "name": "Check off items while shopping",
+    "description": "Users can check off items in the shopping tab as they shop (e.g., as they put items in their cart). Checkmarks persist until the user explicitly unchecks them, resets the list, or marks items as purchased. Navigating away or closing the app does not clear checkmarks.",
+    "completed": true
+  }
+]

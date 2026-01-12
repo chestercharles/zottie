@@ -1,0 +1,117 @@
+[
+  {
+    "name": "Pantry screen shows planned items in a collapsible section",
+    "description": "The pantry screen displays planned items in a separate collapsible section at the top of the screen. This section is collapsed by default. Staple items are displayed below in the main list. This allows users to focus on 'what I have now' (staples) while keeping planned items accessible.",
+    "completed": false
+  },
+  {
+    "name": "Shopping tab empty state",
+    "description": "When the shopping tab has no items to display (all staples are in stock and no planned items exist), show a friendly empty state message like 'You're all set!' with a prompt to add planned items.",
+    "completed": false
+  },
+  {
+    "name": "Add planned item from shopping tab",
+    "description": "Users can add a planned item directly from the shopping tab by entering a name. The planned item immediately appears on the shopping list (unchecked) and in the pantry's planned section with status 'planned'. Planned items represent one-time purchases that will be removed from the pantry once used up.",
+    "completed": false
+  },
+  {
+    "name": "Mark checked items as purchased",
+    "description": "Users can mark all checked-off items as purchased with a single action. When purchased: staple items have their status changed to 'in stock', and planned items have their status changed to 'in stock'. All purchased items are removed from the shopping list. Unchecked items remain on the shopping list for the next shopping trip.",
+    "completed": false
+  },
+  {
+    "name": "Reset shopping list checkmarks",
+    "description": "Users can reset the shopping list to uncheck all items. A confirmation dialog is shown before resetting. This is useful if the user wants to start fresh without marking anything as purchased.",
+    "completed": false
+  },
+  {
+    "name": "Item detail page accessible from shopping list",
+    "description": "Users can tap on any item in the shopping list to navigate to that item's detail page. This is the same detail page accessible from the pantry. From the detail page, users can edit the item name, change status, or delete the item.",
+    "completed": false
+  },
+  {
+    "name": "Planned item lifecycle and removal",
+    "description": "Planned items follow this lifecycle: Planned (not yet purchased) -> In Stock (purchased) -> Running Low -> Out of Stock (removed). When a user changes a planned item's status to 'out of stock', a confirmation dialog appears asking if they want to remove the item from their pantry. Upon confirmation, the planned item is permanently deleted. This differs from staples, which remain in the pantry and cycle back to the shopping list when out of stock.",
+    "completed": false
+  },
+  {
+    "name": "Edit pantry item name",
+    "description": "Users can edit the name of any pantry item (staple or planned) from the item detail page at any time.",
+    "completed": false
+  },
+  {
+    "name": "Delete planned item",
+    "description": "Users can delete a planned item entirely from the item detail page. This removes it from both the pantry and the shopping list. A confirmation dialog is shown before deletion.",
+    "completed": false
+  },
+  {
+    "name": "Record purchase date",
+    "description": "When items are marked as purchased, the current date is recorded as the 'last purchased' date. This date is stored in the database and displayed on the item detail page.",
+    "completed": false
+  },
+  {
+    "name": "Pull to refresh pantry screen",
+    "description": "Users can pull down on the pantry screen to refresh the list of pantry items from the database.",
+    "completed": false
+  },
+  {
+    "name": "Create a household",
+    "description": "When a user signs up or first uses the app, a household is automatically created for them. The user can set a household name from the settings page. The household name defaults to a sensible default like 'My Household'. Solo users operate within their own household - the data model is the same whether solo or shared.",
+    "completed": false
+  },
+  {
+    "name": "Generate household invite link",
+    "description": "From the settings page, users can generate a shareable invite link to invite others to their household. The link expires after 7 days. Users can generate a new link at any time (which invalidates any previous unexpired link). The link can be shared via the device's native share sheet.",
+    "completed": false
+  },
+  {
+    "name": "Join a household via invite link",
+    "description": "When a user opens a valid invite link, they are prompted to join that household. If they accept: their current household is deleted (along with all their pantry and shopping data), and they become a member of the invited household. If the link is expired or invalid, an error message is shown. Users cannot join a household they are already a member of.",
+    "completed": false
+  },
+  {
+    "name": "Leave a household",
+    "description": "Users can leave their current household from the settings page. When leaving: a new empty household is created for them, and they start fresh with no pantry or shopping data. If they were the last member, the old household and all its data is permanently deleted. A confirmation dialog is shown before leaving.",
+    "completed": false
+  },
+  {
+    "name": "Pantry items scoped to household",
+    "description": "Pantry items belong to a household rather than an individual user. All members of a household see the same pantry items. Any member can create, update, or delete pantry items. This replaces the current user-scoped pantry item model.",
+    "completed": false
+  },
+  {
+    "name": "Shopping list scoped to household",
+    "description": "The shopping list is derived from household pantry data. All members see the same shopping list. Any member can check off items and mark items as purchased. Changes are visible to other members on refresh.",
+    "completed": false
+  },
+  {
+    "name": "[Future] Receipt upload for price tracking",
+    "description": "Users will be able to upload a receipt photo to capture the price paid for each purchased item. This enables future features like price history and budget tracking.",
+    "completed": false
+  },
+  {
+    "name": "[Future] Group shopping list by store aisle",
+    "description": "Shopping list items can be grouped by store aisle or category to help users navigate the store more efficiently.",
+    "completed": false
+  },
+  {
+    "name": "[Future] Smart restock prompts",
+    "description": "The app can prompt users to update the status of items that haven't been purchased in a configurable time period (e.g., one week), helping keep the pantry status accurate.",
+    "completed": false
+  },
+  {
+    "name": "Settings page accessible from pantry screen",
+    "description": "A settings gear icon is displayed in the header of the pantry screen. Tapping the gear navigates the user to a settings page where they can manage their account and household settings.",
+    "completed": false
+  },
+  {
+    "name": "Log out from settings page",
+    "description": "Users can log out of their account from the settings page. A 'Log Out' button is prominently displayed. Tapping it shows a confirmation dialog, and upon confirmation, the user is logged out and returned to the login/welcome screen.",
+    "completed": false
+  },
+  {
+    "name": "Settings page displays household info and members",
+    "description": "The settings page displays the user's household name (editable) and lists all current household members. Each member is displayed with their name or email, and the current user is indicated (e.g., with a 'You' label). If no custom name has been set, the default household name is shown.",
+    "completed": false
+  }
+]
