@@ -54,9 +54,12 @@ describe('POST /api/household/invite', () => {
     const token = await createTestToken({ userId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ name: 'Test Household' }),
     })
 
     const response = await fetch(`${API_URL}/api/household/invite`, {
@@ -82,9 +85,12 @@ describe('POST /api/household/invite', () => {
     const token = await createTestToken({ userId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ name: 'Test Household' }),
     })
 
     const firstResponse = await fetch(`${API_URL}/api/household/invite`, {
@@ -157,9 +163,12 @@ describe('GET /api/household/invite/:code', () => {
     const token = await createTestToken({ userId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ name: 'My Household' }),
     })
 
     const createResponse = await fetch(`${API_URL}/api/household/invite`, {
@@ -245,9 +254,12 @@ describe('POST /api/household/join/:code', () => {
     const ownerToken = await createTestToken({ userId: ownerUserId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${ownerToken}`,
       },
+      body: JSON.stringify({ name: 'My Household' }),
     })
 
     const inviteResponse = await fetch(`${API_URL}/api/household/invite`, {
@@ -284,9 +296,12 @@ describe('POST /api/household/join/:code', () => {
     const ownerToken = await createTestToken({ userId: ownerUserId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${ownerToken}`,
       },
+      body: JSON.stringify({ name: 'Target Household' }),
     })
 
     const inviteResponse = await fetch(`${API_URL}/api/household/invite`, {
@@ -304,9 +319,12 @@ describe('POST /api/household/join/:code', () => {
     const existingUserToken = await createTestToken({ userId: existingUserId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${existingUserToken}`,
       },
+      body: JSON.stringify({ name: 'Original Household' }),
     })
 
     const joinResponse = await fetch(`${API_URL}/api/household/join/${code}`, {
@@ -333,9 +351,12 @@ describe('POST /api/household/join/:code', () => {
     const ownerToken = await createTestToken({ userId: ownerUserId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${ownerToken}`,
       },
+      body: JSON.stringify({ name: 'My Household' }),
     })
 
     const inviteResponse = await fetch(`${API_URL}/api/household/invite`, {

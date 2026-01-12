@@ -63,6 +63,10 @@ export const HouseholdUpdate = z.object({
   name: Str({ example: 'My Household' }),
 })
 
+export const HouseholdCreate = z.object({
+  name: Str({ example: 'My Household' }),
+})
+
 export const HouseholdInvite = z.object({
   id: Str({ example: '550e8400-e29b-41d4-a716-446655440003' }),
   householdId: Str({ example: '550e8400-e29b-41d4-a716-446655440001' }),

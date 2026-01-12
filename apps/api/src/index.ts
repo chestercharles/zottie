@@ -1,7 +1,9 @@
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { authMiddleware, type AuthVariables } from './middleware/auth'
+import { HouseholdCreateEndpoint } from './endpoints/householdCreate'
 import { HouseholdGetEndpoint } from './endpoints/householdGet'
+import { HouseholdMembershipGetEndpoint } from './endpoints/householdMembershipGet'
 import { HouseholdUpdateEndpoint } from './endpoints/householdUpdate'
 import { HouseholdInviteCreateEndpoint } from './endpoints/householdInviteCreate'
 import { HouseholdInviteGetEndpoint } from './endpoints/householdInviteGet'
@@ -24,6 +26,8 @@ const openapi = fromHono(app, {
 
 // Household endpoints
 openapi.get('/api/household', HouseholdGetEndpoint)
+openapi.post('/api/household', HouseholdCreateEndpoint)
+openapi.get('/api/household/membership', HouseholdMembershipGetEndpoint)
 openapi.patch('/api/household', HouseholdUpdateEndpoint)
 openapi.post('/api/household/invite', HouseholdInviteCreateEndpoint)
 openapi.get('/api/household/invite/:code', HouseholdInviteGetEndpoint)

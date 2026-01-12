@@ -57,7 +57,7 @@
   {
     "name": "Create a household",
     "description": "Users create a household through the onboarding flow by entering a household name. The POST /api/household endpoint creates the household with the provided name and adds the user as a member. The previous auto-creation behavior (where GET /api/household would create a household if none existed) is removed. A new GET /api/household/membership endpoint returns the user's household if they have one, or 404 if they don't (no auto-creation). The household name is required and can be edited later from the settings page.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "First-time user household onboarding flow",

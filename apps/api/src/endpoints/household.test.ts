@@ -48,8 +48,8 @@ describe('GET /api/household', () => {
     expect(data.error).toBe('Missing or invalid Authorization header')
   })
 
-  it('should create a new household for a new user', async () => {
-    const userId = `auth0|new-household-${Date.now()}`
+  it('should return 404 when user has no household', async () => {
+    const userId = `auth0|no-household-get-${Date.now()}`
     const token = await createTestToken({ userId })
 
     const response = await fetch(`${API_URL}/api/household`, {
@@ -58,37 +58,159 @@ describe('GET /api/household', () => {
       },
     })
 
-    expect(response.status).toBe(200)
-    const data = (await response.json()) as HouseholdResponse
-    expect(data.success).toBe(true)
-    expect(data.result.household.name).toBe('My Household')
-    expect(data.result.household.id).toBeDefined()
-    expect(data.result.members.length).toBe(1)
-    expect(data.result.members[0].userId).toBe(userId)
+    expect(response.status).toBe(404)
+    const data = (await response.json()) as ErrorResponse
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('No household membership found')
   })
 
   it('should return existing household for user with household', async () => {
     const userId = `auth0|existing-household-${Date.now()}`
     const token = await createTestToken({ userId })
 
-    const firstResponse = await fetch(`${API_URL}/api/household`, {
+    const createResponse = await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: 'Test Household' }),
+    })
+    const createData = (await createResponse.json()) as HouseholdResponse
+    const householdId = createData.result.household.id
+
+    const getResponse = await fetch(`${API_URL}/api/household`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    const firstData = (await firstResponse.json()) as HouseholdResponse
-    const householdId = firstData.result.household.id
 
-    const secondResponse = await fetch(`${API_URL}/api/household`, {
+    expect(getResponse.status).toBe(200)
+    const getData = (await getResponse.json()) as HouseholdResponse
+    expect(getData.result.household.id).toBe(householdId)
+    expect(getData.result.household.name).toBe('Test Household')
+    expect(getData.result.members.length).toBe(1)
+  })
+})
+
+describe('POST /api/household', () => {
+  it('should return 401 when no authorization header is provided', async () => {
+    const response = await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'Test Household' }),
+    })
+
+    expect(response.status).toBe(401)
+    const data = (await response.json()) as ErrorResponse
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Missing or invalid Authorization header')
+  })
+
+  it('should create a new household with provided name', async () => {
+    const userId = `auth0|create-household-${Date.now()}`
+    const token = await createTestToken({ userId })
+
+    const response = await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: 'My New Home' }),
+    })
+
+    expect(response.status).toBe(201)
+    const data = (await response.json()) as HouseholdResponse
+    expect(data.success).toBe(true)
+    expect(data.result.household.name).toBe('My New Home')
+    expect(data.result.household.id).toBeDefined()
+    expect(data.result.members.length).toBe(1)
+    expect(data.result.members[0].userId).toBe(userId)
+  })
+
+  it('should return 409 when user already has a household', async () => {
+    const userId = `auth0|duplicate-household-${Date.now()}`
+    const token = await createTestToken({ userId })
+
+    await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: 'First Household' }),
+    })
+
+    const response = await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: 'Second Household' }),
+    })
+
+    expect(response.status).toBe(409)
+    const data = (await response.json()) as ErrorResponse
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('User already belongs to a household')
+  })
+})
+
+describe('GET /api/household/membership', () => {
+  it('should return 401 when no authorization header is provided', async () => {
+    const response = await fetch(`${API_URL}/api/household/membership`)
+
+    expect(response.status).toBe(401)
+    const data = (await response.json()) as ErrorResponse
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Missing or invalid Authorization header')
+  })
+
+  it('should return 404 when user has no household', async () => {
+    const userId = `auth0|no-membership-${Date.now()}`
+    const token = await createTestToken({ userId })
+
+    const response = await fetch(`${API_URL}/api/household/membership`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
 
-    expect(secondResponse.status).toBe(200)
-    const secondData = (await secondResponse.json()) as HouseholdResponse
-    expect(secondData.result.household.id).toBe(householdId)
-    expect(secondData.result.members.length).toBe(1)
+    expect(response.status).toBe(404)
+    const data = (await response.json()) as ErrorResponse
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('No household membership found')
+  })
+
+  it('should return household membership when user has a household', async () => {
+    const userId = `auth0|has-membership-${Date.now()}`
+    const token = await createTestToken({ userId })
+
+    await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: 'Membership Test Household' }),
+    })
+
+    const response = await fetch(`${API_URL}/api/household/membership`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    expect(response.status).toBe(200)
+    const data = (await response.json()) as HouseholdResponse
+    expect(data.success).toBe(true)
+    expect(data.result.household.name).toBe('Membership Test Household')
+    expect(data.result.members.length).toBe(1)
+    expect(data.result.members[0].userId).toBe(userId)
   })
 })
 
@@ -109,7 +231,7 @@ describe('PATCH /api/household', () => {
   })
 
   it('should return 404 when user has no household', async () => {
-    const userId = `auth0|no-household-${Date.now()}`
+    const userId = `auth0|no-household-patch-${Date.now()}`
     const token = await createTestToken({ userId })
 
     const response = await fetch(`${API_URL}/api/household`, {
@@ -132,9 +254,12 @@ describe('PATCH /api/household', () => {
     const token = await createTestToken({ userId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ name: 'Original Name' }),
     })
 
     const response = await fetch(`${API_URL}/api/household`, {
@@ -157,9 +282,12 @@ describe('PATCH /api/household', () => {
     const token = await createTestToken({ userId })
 
     await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ name: 'Initial Name' }),
     })
 
     await fetch(`${API_URL}/api/household`, {

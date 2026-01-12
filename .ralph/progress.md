@@ -10,6 +10,30 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Recently Completed
 
+### Create a household (API changes for explicit creation)
+- Created `POST /api/household` endpoint for explicit household creation:
+  - Accepts `name` in request body
+  - Creates household with the provided name
+  - Adds the current user as a member
+  - Returns 409 if user already belongs to a household
+  - Returns 201 with household and member info on success
+- Created `GET /api/household/membership` endpoint:
+  - Returns user's household if they have one
+  - Returns 404 if user has no household (no auto-creation)
+  - This enables the onboarding flow to detect first-time users
+- Modified `GET /api/household` to remove auto-creation behavior:
+  - Now returns 404 if user has no household
+  - No longer auto-creates a "My Household" on first access
+- Added `HouseholdCreate` type to API types
+- Updated mobile app with new API functions and hooks:
+  - Added `createHousehold` API function
+  - Added `getHouseholdMembership` API function (returns null on 404)
+  - Created `useCreateHousehold` mutation hook
+  - Created `useHouseholdMembership` query hook
+  - Added `householdMembership` query key
+- Updated all API tests to use POST /api/household for creating households
+- Total test coverage now at 46 tests across 6 test files
+
 ### Existing user switches household via invite
 - Updated `POST /api/household/join/:code` endpoint to allow household switching:
   - If user is already a member of the target household, returns success with `alreadyMember: true`

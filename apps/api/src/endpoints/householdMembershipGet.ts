@@ -4,10 +4,11 @@ import { z } from 'zod'
 import { type AppContext, Household, HouseholdMember } from '../types'
 import { getDb, households, householdMembers } from '../db'
 
-export class HouseholdGetEndpoint extends OpenAPIRoute {
+export class HouseholdMembershipGetEndpoint extends OpenAPIRoute {
   schema = {
     tags: ['Household'],
-    summary: "Get the current user's household",
+    summary:
+      "Get the current user's household membership, returns 404 if user has no household",
     security: [{ bearerAuth: [] }],
     responses: {
       '200': {

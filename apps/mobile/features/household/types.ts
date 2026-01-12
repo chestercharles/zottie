@@ -31,6 +31,18 @@ export interface UpdateHouseholdResponse {
   }
 }
 
+export interface CreateHouseholdRequest {
+  name: string
+}
+
+export interface CreateHouseholdResponse {
+  success: boolean
+  result: {
+    household: Household
+    members: HouseholdMember[]
+  }
+}
+
 export interface HouseholdInvite {
   id: string
   householdId: string

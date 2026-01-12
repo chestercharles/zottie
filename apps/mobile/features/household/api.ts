@@ -1,4 +1,6 @@
 import type {
+  CreateHouseholdRequest,
+  CreateHouseholdResponse,
   GetHouseholdResponse,
   Household,
   HouseholdInvite,
@@ -33,6 +35,59 @@ export async function getHousehold(
   }
 
   const result = (await response.json()) as GetHouseholdResponse
+  return result.result
+}
+
+export async function getHouseholdMembership(
+  authToken: string,
+  userId: string
+): Promise<{ household: Household; members: HouseholdMember[] } | null> {
+  const response = await fetch(`${API_BASE_URL}/api/household/membership`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+  })
+
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to fetch household membership' }))
+    throw new Error(error.error || 'Failed to fetch household membership')
+  }
+
+  const result = (await response.json()) as GetHouseholdResponse
+  return result.result
+}
+
+export async function createHousehold(
+  data: CreateHouseholdRequest,
+  authToken: string,
+  userId: string
+): Promise<{ household: Household; members: HouseholdMember[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/household`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to create household' }))
+    throw new Error(error.error || 'Failed to create household')
+  }
+
+  const result = (await response.json()) as CreateHouseholdResponse
   return result.result
 }
 
