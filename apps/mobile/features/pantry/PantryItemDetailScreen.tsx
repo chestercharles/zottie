@@ -82,7 +82,6 @@ export function PantryItemDetailScreen() {
         user.id
       )
       setCurrentStatus(newStatus)
-      Alert.alert('Success', 'Status updated successfully')
     } catch (error) {
       Alert.alert(
         'Error',
