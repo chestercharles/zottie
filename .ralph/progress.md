@@ -8,6 +8,12 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Recently Completed
 
+### Add missing household API tests
+- Created `household.test.ts` with tests for GET and PATCH /api/household endpoints:
+  - GET /api/household: 401 unauthorized, creates new household for new user, returns existing household
+  - PATCH /api/household: 401 unauthorized, 404 when no household, updates name successfully, persists update
+- Total test coverage now at 39 tests across 6 test files
+
 ### New user joins household via invite
 - Created `POST /api/household/join/:code` backend endpoint:
   - Validates the invite code and checks expiration
