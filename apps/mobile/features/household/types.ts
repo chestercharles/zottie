@@ -30,3 +30,19 @@ export interface UpdateHouseholdResponse {
     household: Household
   }
 }
+
+export interface HouseholdInvite {
+  id: string
+  householdId: string
+  code: string
+  createdBy: string
+  expiresAt: number
+  createdAt: number
+}
+
+export interface CreateHouseholdInviteResponse {
+  success: boolean
+  result: {
+    invite: HouseholdInvite
+  }
+}

@@ -7,19 +7,41 @@ import {
   Alert,
   TextInput,
   ActivityIndicator,
+  Share,
 } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/features/auth'
-import { useHousehold, useUpdateHousehold } from '@/features/household'
+import {
+  useHousehold,
+  useUpdateHousehold,
+  useCreateHouseholdInvite,
+} from '@/features/household'
 import { queryClient } from '@/lib/query/client'
 
 export function SettingsScreen() {
   const { user, signOut } = useAuth()
   const { household, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
+  const createInviteMutation = useCreateHouseholdInvite()
 
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState('')
+
+  const handleInvite = async () => {
+    try {
+      const invite = await createInviteMutation.mutateAsync()
+      const inviteLink = `zottie://join/${invite.code}`
+      const expiresDate = new Date(invite.expiresAt)
+      const formattedDate = expiresDate.toLocaleDateString()
+
+      await Share.share({
+        message: `Join my household "${household?.name}" on Zottie!\n\n${inviteLink}\n\nThis link expires on ${formattedDate}.`,
+      })
+    } catch {
+      Alert.alert('Error', 'Failed to create invite link')
+    }
+  }
 
   const handleLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
@@ -105,6 +127,24 @@ export function SettingsScreen() {
               <Text style={styles.tapToEdit}>Tap to edit</Text>
             </TouchableOpacity>
           )}
+
+          <TouchableOpacity
+            style={styles.inviteButton}
+            onPress={handleInvite}
+            disabled={createInviteMutation.isPending}
+          >
+            <Ionicons
+              name="person-add-outline"
+              size={20}
+              color="#3498DB"
+              style={styles.inviteIcon}
+            />
+            <Text style={styles.inviteButtonText}>
+              {createInviteMutation.isPending
+                ? 'Creating invite...'
+                : 'Invite to Household'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -159,6 +199,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#3498DB',
     marginTop: 4,
+  },
+  inviteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EBF5FB',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+  inviteIcon: {
+    marginRight: 8,
+  },
+  inviteButtonText: {
+    color: '#3498DB',
+    fontSize: 15,
+    fontWeight: '600',
   },
   editContainer: {
     gap: 12,

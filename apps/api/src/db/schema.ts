@@ -22,6 +22,20 @@ export const householdMembers = sqliteTable('household_members', {
 export type HouseholdMember = typeof householdMembers.$inferSelect
 export type NewHouseholdMember = typeof householdMembers.$inferInsert
 
+export const householdInvites = sqliteTable('household_invites', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
+  code: text('code').notNull().unique(),
+  createdBy: text('created_by').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type HouseholdInvite = typeof householdInvites.$inferSelect
+export type NewHouseholdInvite = typeof householdInvites.$inferInsert
+
 export const pantryItemStatus = [
   'in_stock',
   'running_low',
@@ -35,7 +49,9 @@ export type PantryItemType = (typeof pantryItemType)[number]
 
 export const pantryItems = sqliteTable('pantry_items', {
   id: text('id').primaryKey(),
-  householdId: text('household_id').references(() => households.id),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
   userId: text('user_id').notNull(),
   name: text('name').notNull(),
   status: text('status', { enum: pantryItemStatus })

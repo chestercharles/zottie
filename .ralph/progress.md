@@ -4,9 +4,37 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Generate household invite link" (next household feature)
+- Implement "Handle invite deep links" (next household feature)
 
 ## Recently Completed
+
+### Generate household invite link
+- Created `household_invites` database table with Drizzle schema:
+  - `id` (text, primary key)
+  - `household_id` (text, foreign key)
+  - `code` (text, unique - 8 character alphanumeric code)
+  - `created_by` (text, user_id)
+  - `expires_at` (timestamp - 7 days from creation)
+  - `created_at` (timestamp)
+- Generated migration `0001_solid_raza.sql` for the new table
+- Created `POST /api/household/invite` endpoint:
+  - Generates a new 8-character alphanumeric invite code
+  - Automatically deletes any existing unexpired invites for the household (invalidates previous)
+  - Returns the invite with code, expiration date, etc.
+- Created `GET /api/household/invite/:code` endpoint:
+  - Validates the invite code and checks expiration
+  - Returns household name and invite info if valid
+  - Returns 404 if expired or not found
+- Added `HouseholdInvite` types to API and mobile app
+- Created `createHouseholdInvite` API function in mobile app
+- Created `useCreateHouseholdInvite` React Query hook
+- Updated `SettingsScreen.tsx` to add "Invite to Household" button:
+  - Uses person-add-outline Ionicons icon
+  - Generates invite via API when tapped
+  - Opens native share sheet with invite link and message
+  - Link format: `zottie://join/{code}`
+  - Message includes household name and expiration date
+- Added 6 new e2e tests for invite creation and validation
 
 ### Create a household
 - Created `households` and `household_members` database tables with Drizzle schema

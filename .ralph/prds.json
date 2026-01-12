@@ -56,17 +56,32 @@
   },
   {
     "name": "Create a household",
-    "description": "When a user signs up or first uses the app, a household is automatically created for them. The user can set a household name from the settings page. The household name defaults to a sensible default like 'My Household'. Solo users operate within their own household - the data model is the same whether solo or shared.",
-    "completed": true
+    "description": "Users create a household through the onboarding flow by entering a household name. The POST /api/household endpoint creates the household with the provided name and adds the user as a member. The previous auto-creation behavior (where GET /api/household would create a household if none existed) is removed. A new GET /api/household/membership endpoint returns the user's household if they have one, or 404 if they don't (no auto-creation). The household name is required and can be edited later from the settings page.",
+    "completed": false
+  },
+  {
+    "name": "First-time user household onboarding flow",
+    "description": "After a new user authenticates for the first time, they see an onboarding screen before accessing the main app. The screen presents two options: 'Create a Household' (primary) with a required text input for household name, and 'Join an Existing Household' (secondary) which displays a message explaining that they need an invite link from someone else. When creating a household, the user enters a name and taps 'Create Household' to create their household and proceed to the pantry. The app detects first-time users by checking if they have a household membership (via GET /api/household/membership which returns 404 if no household exists). Users without a household are redirected to the onboarding screen and cannot access other authenticated screens until onboarding is complete.",
+    "completed": false
   },
   {
     "name": "Generate household invite link",
     "description": "From the settings page, users can generate a shareable invite link to invite others to their household. The link expires after 7 days. Users can generate a new link at any time (which invalidates any previous unexpired link). The link can be shared via the device's native share sheet.",
+    "completed": true
+  },
+  {
+    "name": "Handle invite deep links",
+    "description": "When a user opens a zottie://join/{code} link, the app routes to a join screen that validates the invite code via GET /api/household/invite/{code} and displays the target household name. If the invite is invalid or expired, shows an error message. If the user is not authenticated, prompts them to sign in/sign up first and stores the invite code so the join flow can resume after auth.",
     "completed": false
   },
   {
-    "name": "Join a household via invite link",
-    "description": "When a user opens a valid invite link, they are prompted to join that household. If they accept: their current household is deleted (along with all their pantry and shopping data), and they become a member of the invited household. If the link is expired or invalid, an error message is shown. Users cannot join a household they are already a member of.",
+    "name": "New user joins household via invite",
+    "description": "On the join screen, authenticated users without a household see the target household name and a 'Join Household' button. Tapping the button calls POST /api/household/join/{code} to add them to the household, then navigates to the pantry (skipping the normal create-household onboarding flow).",
+    "completed": false
+  },
+  {
+    "name": "Existing user switches household via invite",
+    "description": "On the join screen, authenticated users who already have a household see a warning that joining will remove them from their current household. If the invite is for their current household, shows 'You're already a member.' Otherwise, shows 'Switch Households' and 'Cancel' options. On confirmation, removes them from their current household and adds them to the new one via POST /api/household/join/{code}.",
     "completed": false
   },
   {
@@ -118,5 +133,10 @@
     "name": "Purchased planned items display in pantry list",
     "description": "Planned items that have been purchased and are now in stock should display in the main pantry list alongside staples, not in the collapsible planned items section. Only planned items that haven't yet been purchased (status 'planned') should appear in the compressed planned items section at the top of the pantry screen.",
     "completed": true
+  },
+  {
+    "name": "Filter pantry items by search term",
+    "description": "A search box is displayed at the top of the pantry screen. As the user types, the pantry list filters in real-time to show only items whose name contains the search term (case-insensitive). A clear button (X icon) appears in the search box when text is entered. Tapping the clear button removes the search term and shows all pantry items again. The search filters both the main pantry list and the planned items section.",
+    "completed": false
   }
 ]
