@@ -10,7 +10,7 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Redirect href="/(authenticated)/home" />
+    return <Redirect href="/(authenticated)/pantry" />
   }
 
   return <LandingScreen />
