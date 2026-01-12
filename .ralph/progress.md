@@ -4,9 +4,17 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Planned item lifecycle and removal"
+- Implement "Shopping tab empty state"
 
 ## Recently Completed
+
+### Planned item lifecycle and removal
+- Modified `handleStatusChange` in `PantryItemDetailScreen.tsx` to detect when a planned item is being set to "out of stock"
+- When a planned item is set to out_of_stock, a confirmation dialog appears asking if the user wants to remove it from their pantry
+- Upon confirmation, the item is permanently deleted using the existing `deleteMutation`
+- If cancelled, the status change is aborted (item remains in current state)
+- Staples continue to work as before: they can cycle through statuses and return to shopping list when out of stock
+- This implements the planned item lifecycle: Planned → In Stock → Running Low → Out of Stock (removed)
 
 ### Purchased planned items display in pantry list
 - Changed filtering logic in `usePantryItems` hook to separate items by purchase status, not just item type

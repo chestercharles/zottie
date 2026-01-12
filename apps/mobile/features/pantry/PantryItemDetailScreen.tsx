@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import type { PantryItemStatus } from './types'
+import type { PantryItemStatus, ItemType } from './types'
 import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -42,6 +42,7 @@ export function PantryItemDetailScreen() {
     id: string
     name: string
     status: PantryItemStatus
+    itemType: ItemType
     createdAt: string
     updatedAt: string
   }>()
@@ -58,6 +59,33 @@ export function PantryItemDetailScreen() {
 
   const handleStatusChange = (newStatus: PantryItemStatus) => {
     if (newStatus === currentStatus) return
+
+    if (params.itemType === 'planned' && newStatus === 'out_of_stock') {
+      Alert.alert(
+        'Remove Item?',
+        `"${params.name}" is a planned item. Do you want to remove it from your pantry?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: () => {
+              deleteMutation.mutate(params.id, {
+                onSuccess: () => router.back(),
+                onError: (error) =>
+                  Alert.alert(
+                    'Error',
+                    error instanceof Error
+                      ? error.message
+                      : 'Failed to remove item from pantry'
+                  ),
+              })
+            },
+          },
+        ]
+      )
+      return
+    }
 
     updateMutation.mutate(
       { itemId: params.id, status: newStatus },
