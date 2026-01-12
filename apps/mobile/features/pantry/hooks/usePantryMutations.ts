@@ -38,9 +38,11 @@ export function useUpdatePantryItem() {
     mutationFn: async ({
       itemId,
       status,
+      name,
     }: {
       itemId: string
-      status: PantryItemStatus
+      status?: PantryItemStatus
+      name?: string
     }) => {
       if (!user?.id) {
         throw new Error('User not authenticated')
@@ -49,7 +51,7 @@ export function useUpdatePantryItem() {
       if (!credentials?.accessToken) {
         throw new Error('No access token available')
       }
-      return updatePantryItem(itemId, { status }, credentials.accessToken, user.id)
+      return updatePantryItem(itemId, { status, name }, credentials.accessToken, user.id)
     },
     onSuccess: () => {
       if (user?.id) {

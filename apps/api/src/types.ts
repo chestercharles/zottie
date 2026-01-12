@@ -29,7 +29,8 @@ export const PantryItemCreate = z.object({
 })
 
 export const PantryItemUpdate = z.object({
-  status: PantryItemStatusEnum,
+  status: PantryItemStatusEnum.optional(),
+  name: Str({ example: 'Milk' }).optional(),
 })
 
 export const PantryItem = z.object({

@@ -37,7 +37,7 @@
   {
     "name": "Edit pantry item name",
     "description": "Users can edit the name of any pantry item (staple or planned) from the item detail page at any time.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Delete planned item",

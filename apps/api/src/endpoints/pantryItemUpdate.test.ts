@@ -182,4 +182,53 @@ describe('PATCH /api/pantry-items/:id', () => {
     expect(data.success).toBe(true)
     expect(data.result.pantryItem.status).toBe('out_of_stock')
   })
+
+  it('should update item name only', async () => {
+    const userId = 'auth0|test-user-update-name'
+    const token = await createTestToken({ userId })
+
+    const item = await createPantryItem(userId, 'Milk', 'in_stock')
+
+    const response = await fetch(`${API_URL}/api/pantry-items/${item.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: 'Oat Milk',
+      }),
+    })
+
+    expect(response.status).toBe(200)
+    const data = (await response.json()) as PantryItemResponse
+    expect(data.success).toBe(true)
+    expect(data.result.pantryItem.name).toBe('Oat Milk')
+    expect(data.result.pantryItem.status).toBe('in_stock')
+  })
+
+  it('should update both name and status', async () => {
+    const userId = 'auth0|test-user-update-both'
+    const token = await createTestToken({ userId })
+
+    const item = await createPantryItem(userId, 'Butter', 'in_stock')
+
+    const response = await fetch(`${API_URL}/api/pantry-items/${item.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: 'Unsalted Butter',
+        status: 'running_low',
+      }),
+    })
+
+    expect(response.status).toBe(200)
+    const data = (await response.json()) as PantryItemResponse
+    expect(data.success).toBe(true)
+    expect(data.result.pantryItem.name).toBe('Unsalted Butter')
+    expect(data.result.pantryItem.status).toBe('running_low')
+  })
 })

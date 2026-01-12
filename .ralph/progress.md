@@ -4,9 +4,20 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Edit pantry item name"
+- Implement "Delete planned item"
 
 ## Recently Completed
+
+### Edit pantry item name
+- Updated backend API (`PantryItemUpdate` type) to accept optional `name` field alongside `status`
+- Modified `pantryItemUpdate.ts` endpoint to conditionally update name when provided
+- Updated frontend types (`UpdatePantryItemRequest`) to support optional `name` and `status` fields
+- Modified `useUpdatePantryItem` hook to accept `name` parameter
+- Added edit mode UI in `PantryItemDetailScreen.tsx`:
+  - Tapping the item name reveals a text input with Save/Cancel buttons
+  - Name updates are persisted to the backend via the mutation
+  - UI reflects the current name after successful save
+- Added 2 new e2e tests for name-only and name+status updates
 
 ### Shopping tab empty state
 - Empty state was already implemented as part of the "Add planned item from shopping tab" feature

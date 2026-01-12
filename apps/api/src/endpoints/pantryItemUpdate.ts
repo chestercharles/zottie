@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, PantryItem, PantryItemUpdate } from '../types'
-import { getDb, pantryItems } from '../db'
+import { getDb, pantryItems, type PantryItemStatus } from '../db'
 
 export class PantryItemUpdateEndpoint extends OpenAPIRoute {
   schema = {
@@ -65,7 +65,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params
-    const { status } = data.body
+    const { status, name } = data.body
 
     const db = getDb(c.env.db)
 
@@ -86,12 +86,19 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
 
     const now = new Date()
 
+    const updateData: { updatedAt: Date; status?: PantryItemStatus; name?: string } = {
+      updatedAt: now,
+    }
+    if (status !== undefined) {
+      updateData.status = status as PantryItemStatus
+    }
+    if (name !== undefined) {
+      updateData.name = name
+    }
+
     await db
       .update(pantryItems)
-      .set({
-        status,
-        updatedAt: now,
-      })
+      .set(updateData)
       .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, userId)))
 
     const updatedItems = await db
