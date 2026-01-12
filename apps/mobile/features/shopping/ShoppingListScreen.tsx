@@ -12,8 +12,8 @@ import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { getShoppingItems } from './api'
-import { getCheckedItems, toggleCheckedItem } from './checkedItemsStorage'
+import { getShoppingItems, markItemsAsPurchased } from './api'
+import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -85,6 +85,7 @@ export function ShoppingListScreen() {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isPurchasing, setIsPurchasing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const loadCheckedItems = useCallback(async () => {
@@ -130,6 +131,32 @@ export function ShoppingListScreen() {
     const newCheckedIds = await toggleCheckedItem(itemId, checkedIds)
     setCheckedIds(newCheckedIds)
   }
+
+  const handleMarkAsPurchased = async () => {
+    if (checkedIds.size === 0 || !user?.id) return
+
+    try {
+      setIsPurchasing(true)
+      const credentials = await getCredentials()
+      if (!credentials?.accessToken) {
+        throw new Error('No access token available')
+      }
+
+      const itemIds = Array.from(checkedIds)
+      await markItemsAsPurchased(itemIds, credentials.accessToken, user.id)
+      await clearCheckedItems()
+      setCheckedIds(new Set())
+      await fetchItems()
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to mark items as purchased'
+      )
+    } finally {
+      setIsPurchasing(false)
+    }
+  }
+
+  const checkedCount = checkedIds.size
 
   if (isLoading) {
     return (
@@ -187,6 +214,26 @@ export function ShoppingListScreen() {
             <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
           }
         />
+      )}
+      {checkedCount > 0 && (
+        <View style={styles.purchaseButtonContainer}>
+          <TouchableOpacity
+            style={[styles.purchaseButton, isPurchasing && styles.purchaseButtonDisabled]}
+            onPress={handleMarkAsPurchased}
+            disabled={isPurchasing}
+          >
+            {isPurchasing ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="cart" size={20} color="#fff" style={styles.purchaseButtonIcon} />
+                <Text style={styles.purchaseButtonText}>
+                  Mark {checkedCount} {checkedCount === 1 ? 'item' : 'items'} as purchased
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   )
@@ -282,6 +329,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  purchaseButtonContainer: {
+    padding: 16,
+    paddingBottom: 32,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  purchaseButton: {
+    backgroundColor: '#27AE60',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  purchaseButtonDisabled: {
+    backgroundColor: '#95D5B2',
+  },
+  purchaseButtonIcon: {
+    marginRight: 8,
+  },
+  purchaseButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

@@ -1,6 +1,40 @@
-import type { ListPantryItemsResponse, ShoppingItem } from './types'
+import type { ListPantryItemsResponse, ShoppingItem, PantryItemStatus } from './types'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
+
+async function updateItemStatus(
+  itemId: string,
+  status: PantryItemStatus,
+  authToken: string,
+  userId: string
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/pantry-items/${itemId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+    body: JSON.stringify({ status }),
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to update item status' }))
+    throw new Error(error.error || 'Failed to update item status')
+  }
+}
+
+export async function markItemsAsPurchased(
+  itemIds: string[],
+  authToken: string,
+  userId: string
+): Promise<void> {
+  await Promise.all(
+    itemIds.map((id) => updateItemStatus(id, 'in_stock', authToken, userId))
+  )
+}
 
 export async function getShoppingItems(
   authToken: string,
