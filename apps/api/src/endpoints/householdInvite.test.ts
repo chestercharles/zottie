@@ -22,6 +22,7 @@ interface HouseholdInviteInfoResponse {
   result: {
     invite: {
       code: string
+      householdId: string
       householdName: string
       expiresAt: number
     }
@@ -185,6 +186,7 @@ describe('GET /api/household/invite/:code', () => {
     const data = (await validateResponse.json()) as HouseholdInviteInfoResponse
     expect(data.success).toBe(true)
     expect(data.result.invite.code).toBe(code)
+    expect(data.result.invite.householdId).toBeDefined()
     expect(data.result.invite.householdName).toBe('My Household')
     expect(data.result.invite.expiresAt).toBeGreaterThan(Date.now())
   })
@@ -205,6 +207,7 @@ interface HouseholdJoinResponse {
       userId: string
       joinedAt: number
     }>
+    alreadyMember?: boolean
   }
 }
 
@@ -276,8 +279,57 @@ describe('POST /api/household/join/:code', () => {
     expect(data.result.members.some((m) => m.userId === newUserId)).toBe(true)
   })
 
-  it('should return 409 if user already belongs to a household', async () => {
-    const ownerUserId = `auth0|owner-conflict-${Date.now()}`
+  it('should allow user to switch from one household to another', async () => {
+    const ownerUserId = `auth0|owner-switch-${Date.now()}`
+    const ownerToken = await createTestToken({ userId: ownerUserId })
+
+    await fetch(`${API_URL}/api/household`, {
+      headers: {
+        Authorization: `Bearer ${ownerToken}`,
+      },
+    })
+
+    const inviteResponse = await fetch(`${API_URL}/api/household/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerToken}`,
+      },
+    })
+    const inviteData = (await inviteResponse.json()) as HouseholdInviteResponse
+    const code = inviteData.result.invite.code
+    const targetHouseholdId = inviteData.result.invite.householdId
+
+    const existingUserId = `auth0|existing-switch-${Date.now()}`
+    const existingUserToken = await createTestToken({ userId: existingUserId })
+
+    await fetch(`${API_URL}/api/household`, {
+      headers: {
+        Authorization: `Bearer ${existingUserToken}`,
+      },
+    })
+
+    const joinResponse = await fetch(`${API_URL}/api/household/join/${code}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${existingUserToken}`,
+      },
+    })
+
+    expect(joinResponse.status).toBe(200)
+    const data = (await joinResponse.json()) as HouseholdJoinResponse
+    expect(data.success).toBe(true)
+    expect(data.result.household.id).toBe(targetHouseholdId)
+    expect(data.result.members.length).toBe(2)
+    expect(data.result.members.some((m) => m.userId === ownerUserId)).toBe(true)
+    expect(data.result.members.some((m) => m.userId === existingUserId)).toBe(
+      true
+    )
+    expect(data.result.alreadyMember).toBeUndefined()
+  })
+
+  it('should return alreadyMember flag if user is already in target household', async () => {
+    const ownerUserId = `auth0|owner-already-${Date.now()}`
     const ownerToken = await createTestToken({ userId: ownerUserId })
 
     await fetch(`${API_URL}/api/household`, {
@@ -296,25 +348,18 @@ describe('POST /api/household/join/:code', () => {
     const inviteData = (await inviteResponse.json()) as HouseholdInviteResponse
     const code = inviteData.result.invite.code
 
-    const existingUserId = `auth0|existing-${Date.now()}`
-    const existingUserToken = await createTestToken({ userId: existingUserId })
-
-    await fetch(`${API_URL}/api/household`, {
-      headers: {
-        Authorization: `Bearer ${existingUserToken}`,
-      },
-    })
-
     const joinResponse = await fetch(`${API_URL}/api/household/join/${code}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${existingUserToken}`,
+        Authorization: `Bearer ${ownerToken}`,
       },
     })
 
-    expect(joinResponse.status).toBe(409)
-    const data = (await joinResponse.json()) as ErrorResponse
-    expect(data.success).toBe(false)
-    expect(data.error).toBe('User already belongs to a household')
+    expect(joinResponse.status).toBe(200)
+    const data = (await joinResponse.json()) as HouseholdJoinResponse
+    expect(data.success).toBe(true)
+    expect(data.result.alreadyMember).toBe(true)
+    expect(data.result.members.length).toBe(1)
+    expect(data.result.members[0].userId).toBe(ownerUserId)
   })
 })

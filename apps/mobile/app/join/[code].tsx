@@ -42,6 +42,14 @@ export default function JoinRoute() {
     router.replace('/(authenticated)/pantry')
   }
 
+  const handleCancel = () => {
+    if (router.canGoBack()) {
+      router.back()
+    } else {
+      router.replace('/(authenticated)/pantry')
+    }
+  }
+
   if (!code) {
     router.replace('/')
     return null
@@ -52,6 +60,7 @@ export default function JoinRoute() {
       code={code}
       onSignIn={handleSignIn}
       onJoinSuccess={handleJoinSuccess}
+      onCancel={handleCancel}
     />
   )
 }

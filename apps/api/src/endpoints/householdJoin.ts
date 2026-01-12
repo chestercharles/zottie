@@ -16,7 +16,7 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description: 'Successfully joined the household',
+        description: 'Successfully joined the household (or already a member)',
         content: {
           'application/json': {
             schema: z.object({
@@ -24,6 +24,7 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
               result: z.object({
                 household: Household,
                 members: z.array(HouseholdMember),
+                alreadyMember: Bool().optional(),
               }),
             }),
           },
@@ -42,17 +43,6 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       },
       '404': {
         description: 'Invite not found or expired',
-        content: {
-          'application/json': {
-            schema: z.object({
-              success: Bool(),
-              error: z.string(),
-            }),
-          },
-        },
-      },
-      '409': {
-        description: 'User already belongs to a household',
         content: {
           'application/json': {
             schema: z.object({
@@ -98,10 +88,40 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       .limit(1)
 
     if (existingMembership.length > 0) {
-      return c.json(
-        { success: false, error: 'User already belongs to a household' },
-        409
-      )
+      if (existingMembership[0].householdId === invite[0].householdId) {
+        const [household] = await db
+          .select()
+          .from(households)
+          .where(eq(households.id, invite[0].householdId))
+
+        const members = await db
+          .select()
+          .from(householdMembers)
+          .where(eq(householdMembers.householdId, invite[0].householdId))
+
+        return {
+          success: true,
+          result: {
+            household: {
+              id: household.id,
+              name: household.name,
+              createdAt: household.createdAt.getTime(),
+              updatedAt: household.updatedAt.getTime(),
+            },
+            members: members.map((m) => ({
+              id: m.id,
+              householdId: m.householdId,
+              userId: m.userId,
+              joinedAt: m.joinedAt.getTime(),
+            })),
+            alreadyMember: true,
+          },
+        }
+      }
+
+      await db
+        .delete(householdMembers)
+        .where(eq(householdMembers.id, existingMembership[0].id))
     }
 
     const memberId = crypto.randomUUID()

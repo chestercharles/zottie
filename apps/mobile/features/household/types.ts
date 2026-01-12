@@ -49,6 +49,7 @@ export interface CreateHouseholdInviteResponse {
 
 export interface HouseholdInviteInfo {
   code: string
+  householdId: string
   householdName: string
   expiresAt: number
 }
@@ -65,5 +66,6 @@ export interface JoinHouseholdResponse {
   result: {
     household: Household
     members: HouseholdMember[]
+    alreadyMember?: boolean
   }
 }

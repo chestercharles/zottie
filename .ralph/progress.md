@@ -4,9 +4,31 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Existing user switches household via invite" (next household feature)
+- Implement "Leave a household" (next household feature)
+- Implement "First-time user household onboarding flow"
+- Implement "Settings page displays household info and members"
 
 ## Recently Completed
+
+### Existing user switches household via invite
+- Updated `POST /api/household/join/:code` endpoint to allow household switching:
+  - If user is already a member of the target household, returns success with `alreadyMember: true`
+  - If user is a member of a different household, removes them from old household and adds to new one
+  - Removed 409 conflict response for existing household members
+- Added `householdId` to `HouseholdInviteInfo` type in both API and mobile app
+- Updated `GET /api/household/invite/:code` to return `householdId` for comparison
+- Updated `JoinScreen` component to handle three scenarios:
+  - User is already a member of target household: shows "You're Already a Member" with checkmark icon
+  - User is in a different household: shows "Switch Households?" with warning, confirmation dialog before switching
+  - User has no household: shows normal "Join Household" flow
+- Added `onCancel` prop to JoinScreen for navigation
+- Updated join route to pass `onCancel` handler
+- Updated `JoinHouseholdResponse` type to include optional `alreadyMember` flag
+- Updated API tests:
+  - Changed 409 test to test successful switch between households
+  - Added test for `alreadyMember` flag when user is already in target household
+  - Added test for `householdId` in validate invite response
+- Total test coverage now at 40 tests across 6 test files
 
 ### Add missing household API tests
 - Created `household.test.ts` with tests for GET and PATCH /api/household endpoints:

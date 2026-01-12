@@ -74,6 +74,7 @@ export const HouseholdInvite = z.object({
 
 export const HouseholdInviteInfo = z.object({
   code: Str({ example: 'abc123xyz' }),
+  householdId: Str({ example: '550e8400-e29b-41d4-a716-446655440001' }),
   householdName: Str({ example: 'My Household' }),
   expiresAt: z.number(),
 })

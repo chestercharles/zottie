@@ -87,6 +87,7 @@ export class HouseholdInviteGetEndpoint extends OpenAPIRoute {
       result: {
         invite: {
           code: invite[0].code,
+          householdId: invite[0].householdId,
           householdName: invite[0].householdName,
           expiresAt: invite[0].expiresAt.getTime(),
         },

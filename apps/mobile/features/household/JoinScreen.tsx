@@ -9,26 +9,42 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/features/auth'
-import { useValidateInvite, useJoinHousehold } from './hooks'
+import { useValidateInvite, useJoinHousehold, useHousehold } from './hooks'
 
 interface JoinScreenProps {
   code: string
   onSignIn: () => void
   onJoinSuccess: () => void
+  onCancel?: () => void
 }
 
-export function JoinScreen({ code, onSignIn, onJoinSuccess }: JoinScreenProps) {
+export function JoinScreen({
+  code,
+  onSignIn,
+  onJoinSuccess,
+  onCancel,
+}: JoinScreenProps) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { invite, isLoading: isValidating, error } = useValidateInvite(
     isAuthenticated ? code : null
   )
+  const { household: currentHousehold, isLoading: isLoadingHousehold } =
+    useHousehold()
   const joinMutation = useJoinHousehold()
   const [isJoining, setIsJoining] = useState(false)
+
+  const isAlreadyMember =
+    currentHousehold && invite && currentHousehold.id === invite.householdId
+  const hasExistingHousehold =
+    currentHousehold && invite && currentHousehold.id !== invite.householdId
 
   const handleJoinHousehold = async () => {
     setIsJoining(true)
     try {
-      await joinMutation.mutateAsync({ code })
+      const response = await joinMutation.mutateAsync({ code })
+      if (response.alreadyMember) {
+        Alert.alert("You're already a member of this household!")
+      }
       onJoinSuccess()
     } catch (err) {
       Alert.alert(
@@ -38,6 +54,17 @@ export function JoinScreen({ code, onSignIn, onJoinSuccess }: JoinScreenProps) {
     } finally {
       setIsJoining(false)
     }
+  }
+
+  const handleSwitchHousehold = () => {
+    Alert.alert(
+      'Switch Households?',
+      `You will leave "${currentHousehold?.name}" and join "${invite?.householdName}".`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Switch', style: 'destructive', onPress: handleJoinHousehold },
+      ]
+    )
   }
 
   if (isAuthLoading) {
@@ -68,7 +95,7 @@ export function JoinScreen({ code, onSignIn, onJoinSuccess }: JoinScreenProps) {
     )
   }
 
-  if (isValidating) {
+  if (isValidating || isLoadingHousehold) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#3498DB" />
@@ -93,6 +120,77 @@ export function JoinScreen({ code, onSignIn, onJoinSuccess }: JoinScreenProps) {
   }
 
   if (invite) {
+    if (isAlreadyMember) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Ionicons name="checkmark-circle" size={64} color="#27AE60" />
+            <Text style={styles.title}>You're Already a Member</Text>
+            <Text style={styles.householdName}>{invite.householdName}</Text>
+            <Text style={styles.message}>
+              You're already part of this household.
+            </Text>
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.primaryButton} onPress={onCancel}>
+              <Text style={styles.primaryButtonText}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )
+    }
+
+    if (hasExistingHousehold) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Ionicons name="swap-horizontal" size={64} color="#F39C12" />
+            <Text style={styles.title}>Switch Households?</Text>
+            <Text style={styles.householdName}>{invite.householdName}</Text>
+            <Text style={styles.warningMessage}>
+              You're currently in "{currentHousehold?.name}". Joining this
+              household will remove you from your current one.
+            </Text>
+          </View>
+
+          <View style={styles.infoContainer}>
+            <Ionicons name="time-outline" size={16} color="#7F8C8D" />
+            <Text style={styles.expiryText}>
+              Expires {new Date(invite.expiresAt).toLocaleDateString()}
+            </Text>
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.primaryButton,
+                styles.warningButton,
+                isJoining && styles.disabledButton,
+              ]}
+              onPress={handleSwitchHousehold}
+              disabled={isJoining}
+            >
+              {isJoining ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Switch Households</Text>
+              )}
+            </TouchableOpacity>
+            {onCancel && (
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={onCancel}
+                disabled={isJoining}
+              >
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      )
+    }
+
     return (
       <View style={styles.container}>
         <View style={styles.content}>
@@ -176,6 +274,13 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     maxWidth: 300,
   },
+  warningMessage: {
+    fontSize: 16,
+    color: '#7F8C8D',
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: 300,
+  },
   loadingText: {
     fontSize: 16,
     color: '#7F8C8D',
@@ -190,11 +295,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
+  warningButton: {
+    backgroundColor: '#F39C12',
+  },
+  secondaryButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BDC3C7',
+  },
   disabledButton: {
     opacity: 0.6,
   },
   primaryButtonText: {
     color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  secondaryButtonText: {
+    color: '#7F8C8D',
     fontSize: 18,
     fontWeight: '600',
   },

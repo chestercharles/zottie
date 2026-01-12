@@ -82,7 +82,7 @@
   {
     "name": "Existing user switches household via invite",
     "description": "On the join screen, authenticated users who already have a household see a warning that joining will remove them from their current household. If the invite is for their current household, shows 'You're already a member.' Otherwise, shows 'Switch Households' and 'Cancel' options. On confirmation, removes them from their current household and adds them to the new one via POST /api/household/join/{code}.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Leave a household",
