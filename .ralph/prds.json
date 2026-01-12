@@ -107,7 +107,7 @@
   {
     "name": "Log out from settings page",
     "description": "Users can log out of their account from the settings page. A 'Log Out' button is prominently displayed. Tapping it shows a confirmation dialog, and upon confirmation, the user is logged out and returned to the login/welcome screen.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Settings page displays household info and members",

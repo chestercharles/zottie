@@ -4,9 +4,18 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Log out from settings page"
+- Implement "Create a household" (first of the household features)
 
 ## Recently Completed
+
+### Log out from settings page
+- Updated `SettingsScreen.tsx` to include a "Log Out" button in the footer
+- Button uses a red outline style to indicate destructive action
+- Tapping the button shows a confirmation dialog with "Cancel" and "Log Out" options
+- On confirmation, clears the React Query cache and calls `signOut()` from Auth0
+- The authenticated layout automatically redirects to the landing page when auth state changes
+- Added account section at top of settings page showing user's email
+- Added "Household settings coming soon" placeholder text
 
 ### Settings page accessible from pantry screen
 - Created `features/settings/` module with `SettingsScreen.tsx`
