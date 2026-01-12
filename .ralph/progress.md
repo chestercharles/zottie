@@ -4,11 +4,17 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Item detail page accessible from shopping list"
 - Implement "Planned item lifecycle and removal"
-- Implement "Shopping tab empty state"
+- Implement "Purchased planned items display in pantry list"
 
 ## Recently Completed
+
+### Item detail page accessible from shopping list
+- Shopping list items are now tappable via `TouchableOpacity` wrapper
+- Tapping an item navigates to the shared pantry item detail page (`/pantry/[id]`)
+- Navigation passes all item data including `itemType` for planned vs staple distinction
+- From the detail page, users can change status and delete items
+- Same detail screen is used whether navigating from pantry or shopping list
 
 ### Pantry screen shows planned items in a collapsible section
 - Separated pantry items into two groups: planned items (`itemType === 'planned'`) and staple items (`itemType === 'staple'`)

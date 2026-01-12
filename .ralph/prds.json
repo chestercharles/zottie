@@ -113,5 +113,10 @@
     "name": "Settings page displays household info and members",
     "description": "The settings page displays the user's household name (editable) and lists all current household members. Each member is displayed with their name or email, and the current user is indicated (e.g., with a 'You' label). If no custom name has been set, the default household name is shown.",
     "completed": false
+  },
+  {
+    "name": "Purchased planned items display in pantry list",
+    "description": "Planned items that have been purchased and are now in stock should display in the main pantry list alongside staples, not in the collapsible planned items section. Only planned items that haven't yet been purchased (status 'planned') should appear in the compressed planned items section at the top of the pantry screen.",
+    "completed": false
   }
 ]

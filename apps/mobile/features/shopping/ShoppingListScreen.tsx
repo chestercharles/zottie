@@ -10,7 +10,7 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, memo } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
@@ -81,6 +81,47 @@ function ShoppingItemRow({
     </View>
   )
 }
+
+const AddPlannedItemInput = memo(function AddPlannedItemInput({
+  value,
+  onChangeText,
+  onSubmit,
+  isCreating,
+}: {
+  value: string
+  onChangeText: (text: string) => void
+  onSubmit: () => void
+  isCreating: boolean
+}) {
+  return (
+    <View style={styles.addItemContainer}>
+      <TextInput
+        style={styles.addItemInput}
+        placeholder="Add a planned item..."
+        placeholderTextColor="#999"
+        value={value}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmit}
+        returnKeyType="done"
+        editable={!isCreating}
+      />
+      <TouchableOpacity
+        style={[
+          styles.addItemButton,
+          (!value.trim() || isCreating) && styles.addItemButtonDisabled,
+        ]}
+        onPress={onSubmit}
+        disabled={!value.trim() || isCreating}
+      >
+        {isCreating ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Ionicons name="add" size={24} color="#fff" />
+        )}
+      </TouchableOpacity>
+    </View>
+  )
+})
 
 export function ShoppingListScreen() {
   const { user } = useAuth()
@@ -226,40 +267,20 @@ export function ShoppingListScreen() {
     )
   }
 
-  const renderAddItemInput = () => (
-    <View style={styles.addItemContainer}>
-      <TextInput
-        style={styles.addItemInput}
-        placeholder="Add a planned item..."
-        placeholderTextColor="#999"
-        value={newItemName}
-        onChangeText={setNewItemName}
-        onSubmitEditing={handleCreatePlannedItem}
-        returnKeyType="done"
-        editable={!isCreating}
-      />
-      <TouchableOpacity
-        style={[
-          styles.addItemButton,
-          (!newItemName.trim() || isCreating) && styles.addItemButtonDisabled,
-        ]}
-        onPress={handleCreatePlannedItem}
-        disabled={!newItemName.trim() || isCreating}
-      >
-        {isCreating ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Ionicons name="add" size={24} color="#fff" />
-        )}
-      </TouchableOpacity>
-    </View>
+  const addItemInput = (
+    <AddPlannedItemInput
+      value={newItemName}
+      onChangeText={setNewItemName}
+      onSubmit={handleCreatePlannedItem}
+      isCreating={isCreating}
+    />
   )
 
   return (
     <View style={styles.container}>
       {items.length === 0 ? (
         <View style={styles.emptyStateContainer}>
-          {renderAddItemInput()}
+          {addItemInput}
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>You're all set!</Text>
             <Text style={styles.emptySubtext}>
@@ -272,7 +293,7 @@ export function ShoppingListScreen() {
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
-          ListHeaderComponent={renderAddItemInput}
+          ListHeaderComponent={addItemInput}
           renderItem={({ item }) => (
             <ShoppingItemRow
               item={item}
@@ -284,6 +305,7 @@ export function ShoppingListScreen() {
                     id: item.id,
                     name: item.name,
                     status: item.status,
+                    itemType: item.itemType,
                     createdAt: item.createdAt.toString(),
                     updatedAt: item.updatedAt.toString(),
                   },
