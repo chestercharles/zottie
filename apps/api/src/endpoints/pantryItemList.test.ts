@@ -9,6 +9,7 @@ interface PantryItemListResponse {
     pantryItems: Array<{
       id: string
       userId: string
+      householdId: string
       name: string
       status: string
       createdAt: number
@@ -120,6 +121,9 @@ describe('GET /api/pantry-items', () => {
       (item) => item.userId === differentUserId
     )
     expect(allItemsBelongToUser).toBe(true)
+
+    const householdIds = new Set(data.result.pantryItems.map((item) => item.householdId))
+    expect(householdIds.size).toBe(1)
     expect(data.result.pantryItems.some((item) => item.name === 'Test Item 1')).toBe(false)
   })
 
@@ -137,6 +141,7 @@ describe('GET /api/pantry-items', () => {
 
     expect(item).toHaveProperty('id')
     expect(item).toHaveProperty('userId')
+    expect(item).toHaveProperty('householdId')
     expect(item).toHaveProperty('name')
     expect(item).toHaveProperty('status')
     expect(item).toHaveProperty('createdAt')
