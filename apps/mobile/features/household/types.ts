@@ -46,3 +46,16 @@ export interface CreateHouseholdInviteResponse {
     invite: HouseholdInvite
   }
 }
+
+export interface HouseholdInviteInfo {
+  code: string
+  householdName: string
+  expiresAt: number
+}
+
+export interface ValidateInviteResponse {
+  success: boolean
+  result: {
+    invite: HouseholdInviteInfo
+  }
+}

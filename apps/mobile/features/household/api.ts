@@ -2,10 +2,12 @@ import type {
   GetHouseholdResponse,
   Household,
   HouseholdInvite,
+  HouseholdInviteInfo,
   HouseholdMember,
   UpdateHouseholdRequest,
   UpdateHouseholdResponse,
   CreateHouseholdInviteResponse,
+  ValidateInviteResponse,
 } from './types'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
@@ -80,5 +82,29 @@ export async function createHouseholdInvite(
   }
 
   const result = (await response.json()) as CreateHouseholdInviteResponse
+  return result.result.invite
+}
+
+export async function validateInvite(
+  code: string,
+  authToken: string,
+  userId: string
+): Promise<HouseholdInviteInfo> {
+  const response = await fetch(`${API_BASE_URL}/api/household/invite/${code}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Invalid or expired invite' }))
+    throw new Error(error.error || 'Invalid or expired invite')
+  }
+
+  const result = (await response.json()) as ValidateInviteResponse
   return result.result.invite
 }

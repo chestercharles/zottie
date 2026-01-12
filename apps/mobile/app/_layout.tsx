@@ -27,6 +27,14 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="join/[code]"
+            options={{
+              headerShown: true,
+              title: 'Join Household',
+              headerBackTitle: 'Back',
+            }}
+          />
         </Stack>
       </Auth0Provider>
     </QueryClientProvider>

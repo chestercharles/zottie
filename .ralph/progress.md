@@ -4,9 +4,28 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Handle invite deep links" (next household feature)
+- Implement "New user joins household via invite" (next household feature)
 
 ## Recently Completed
+
+### Handle invite deep links
+- Created `validateInvite` API function to validate invite codes via `GET /api/household/invite/:code`
+- Added `HouseholdInviteInfo` and `ValidateInviteResponse` types to mobile app
+- Created `useValidateInvite` React Query hook to fetch and cache invite validation
+- Added `householdInvite` query key to `lib/query/keys.ts`
+- Created `JoinScreen` component in `features/household/`:
+  - Shows loading state while validating invite
+  - Shows error state for invalid/expired invites with icon and message
+  - Shows success state with household name and expiry info for valid invites
+  - Handles unauthenticated users with sign-in prompt
+- Created route at `app/join/[code].tsx` for deep link handling:
+  - Deep links in format `zottie://join/{code}` route to this screen
+  - Stores pending invite code to AsyncStorage when user is not authenticated
+- Updated `app/index.tsx` to check for pending invite codes after authentication:
+  - If a pending invite exists, redirects to `/join/{code}` after sign-in
+  - Clears the pending invite from storage after use
+- Added `@react-native-async-storage/async-storage` dependency
+- Updated root `_layout.tsx` to include join route in Stack navigation
 
 ### Generate household invite link
 - Created `household_invites` database table with Drizzle schema:

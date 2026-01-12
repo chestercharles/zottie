@@ -72,7 +72,7 @@
   {
     "name": "Handle invite deep links",
     "description": "When a user opens a zottie://join/{code} link, the app routes to a join screen that validates the invite code via GET /api/household/invite/{code} and displays the target household name. If the invite is invalid or expired, shows an error message. If the user is not authenticated, prompts them to sign in/sign up first and stores the invite code so the join flow can resume after auth.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "New user joins household via invite",
