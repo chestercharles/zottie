@@ -38,17 +38,7 @@ export class PantryItemListEndpoint extends OpenAPIRoute {
   }
 
   async handle(c: AppContext) {
-    const userId = c.req.header('X-User-Id')
-
-    if (!userId) {
-      return c.json(
-        {
-          success: false,
-          error: 'Unauthorized: No user ID provided',
-        },
-        401
-      )
-    }
+    const userId = c.get('userId')
 
     const db = getDb(c.env.db)
     const items = await db

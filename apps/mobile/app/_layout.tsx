@@ -4,10 +4,19 @@ import Constants from 'expo-constants'
 
 const auth0Domain = Constants.expoConfig?.extra?.auth0Domain
 const auth0ClientId = Constants.expoConfig?.extra?.auth0ClientId
+const auth0Audience = Constants.expoConfig?.extra?.auth0Audience
 
 export default function RootLayout() {
-  if (!auth0Domain || !auth0ClientId) {
-    throw new Error('Auth0 configuration missing in app.config.js')
+  if (!auth0ClientId) {
+    throw new Error('Auth0 client ID missing in app.config.js')
+  }
+
+  if (!auth0Domain) {
+    throw new Error('Auth0 domain missing in app.config.js')
+  }
+
+  if (!auth0Audience) {
+    throw new Error('Auth0 audience missing in app.config.js')
   }
 
   return (

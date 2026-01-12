@@ -46,20 +46,7 @@ export class PantryItemCreateEndpoint extends OpenAPIRoute {
   }
 
   async handle(c: AppContext) {
-    // Get user ID from Authorization header (Auth0 sub claim)
-    // TODO: Replace with proper JWT validation middleware
-    const authHeader = c.req.header('Authorization')
-    const userId = c.req.header('X-User-Id') // Temporary for development
-
-    if (!userId) {
-      return c.json(
-        {
-          success: false,
-          error: 'Unauthorized: No user ID provided',
-        },
-        401
-      )
-    }
+    const userId = c.get('userId')
 
     // Get validated data
     const data = await this.getValidatedData<typeof this.schema>()

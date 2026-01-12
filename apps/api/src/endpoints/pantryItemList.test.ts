@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { createTestToken } from '../test-utils/jwt'
 
 const API_URL = 'http://localhost:8787'
 
@@ -23,13 +24,16 @@ interface ErrorResponse {
 
 describe('GET /api/pantry-items', () => {
   const testUserId = 'auth0|list-test-user-' + Date.now()
+  let testUserToken: string
 
   beforeAll(async () => {
+    testUserToken = await createTestToken({ userId: testUserId })
+
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': testUserId,
+        Authorization: `Bearer ${testUserToken}`,
       },
       body: JSON.stringify({ name: 'Test Item 1', status: 'in_stock' }),
     })
@@ -37,13 +41,13 @@ describe('GET /api/pantry-items', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': testUserId,
+        Authorization: `Bearer ${testUserToken}`,
       },
       body: JSON.stringify({ name: 'Test Item 2', status: 'running_low' }),
     })
   })
 
-  it('should return 401 when no user ID is provided', async () => {
+  it('should return 401 when no authorization header is provided', async () => {
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
     })
@@ -51,14 +55,16 @@ describe('GET /api/pantry-items', () => {
     expect(response.status).toBe(401)
     const data = (await response.json()) as ErrorResponse
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Unauthorized: No user ID provided')
+    expect(data.error).toBe('Missing or invalid Authorization header')
   })
 
   it('should return empty array for user with no items', async () => {
+    const emptyUserId = 'auth0|user-with-no-items-' + Date.now()
+    const token = await createTestToken({ userId: emptyUserId })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
-        'X-User-Id': 'auth0|user-with-no-items-' + Date.now(),
+        Authorization: `Bearer ${token}`,
       },
     })
 
@@ -72,7 +78,7 @@ describe('GET /api/pantry-items', () => {
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
-        'X-User-Id': testUserId,
+        Authorization: `Bearer ${testUserToken}`,
       },
     })
 
@@ -88,12 +94,13 @@ describe('GET /api/pantry-items', () => {
 
   it('should only return items for the specific user', async () => {
     const differentUserId = 'auth0|different-user-' + Date.now()
+    const differentUserToken = await createTestToken({ userId: differentUserId })
 
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': differentUserId,
+        Authorization: `Bearer ${differentUserToken}`,
       },
       body: JSON.stringify({ name: 'Different User Item' }),
     })
@@ -101,7 +108,7 @@ describe('GET /api/pantry-items', () => {
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
-        'X-User-Id': differentUserId,
+        Authorization: `Bearer ${differentUserToken}`,
       },
     })
 
@@ -120,7 +127,7 @@ describe('GET /api/pantry-items', () => {
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
-        'X-User-Id': testUserId,
+        Authorization: `Bearer ${testUserToken}`,
       },
     })
 

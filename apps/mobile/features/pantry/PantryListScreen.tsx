@@ -26,9 +26,15 @@ const statusColors: Record<PantryItemStatus, string> = {
   out_of_stock: '#E74C3C',
 }
 
-function PantryItemRow({ item }: { item: PantryItem }) {
+function PantryItemRow({
+  item,
+  onPress,
+}: {
+  item: PantryItem
+  onPress: () => void
+}) {
   return (
-    <View style={styles.itemRow}>
+    <TouchableOpacity style={styles.itemRow} onPress={onPress}>
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
         <View
@@ -40,7 +46,7 @@ function PantryItemRow({ item }: { item: PantryItem }) {
           <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -125,7 +131,23 @@ export function PantryListScreen() {
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <PantryItemRow item={item} />}
+          renderItem={({ item }) => (
+            <PantryItemRow
+              item={item}
+              onPress={() =>
+                router.push({
+                  pathname: '/pantry/[id]',
+                  params: {
+                    id: item.id,
+                    name: item.name,
+                    status: item.status,
+                    createdAt: item.createdAt.toString(),
+                    updatedAt: item.updatedAt.toString(),
+                  },
+                })
+              }
+            />
+          )}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />

@@ -1,11 +1,22 @@
 import { useCallback } from 'react'
 import { useAuth0 } from 'react-native-auth0'
+import Constants from 'expo-constants'
+
+const auth0Audience = Constants.expoConfig?.extra?.auth0Audience
 
 export function useAuth() {
   const { authorize, clearSession, user, isLoading, error } = useAuth0()
 
   const signIn = useCallback(async () => {
-    await authorize()
+    await authorize(
+      {
+        audience: auth0Audience,
+        scope: 'openid profile email',
+      },
+      {
+        ephemeralSession: true,
+      }
+    )
   }, [authorize])
 
   const signOut = useCallback(async () => {

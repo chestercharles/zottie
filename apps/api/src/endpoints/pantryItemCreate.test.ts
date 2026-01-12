@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { createTestToken } from '../test-utils/jwt'
 
 const API_URL = 'http://localhost:8787'
 
@@ -22,7 +23,7 @@ interface ErrorResponse {
 }
 
 describe('POST /api/pantry-items', () => {
-  it('should return 401 when no user ID is provided', async () => {
+  it('should return 401 when no authorization header is provided', async () => {
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
@@ -36,16 +37,17 @@ describe('POST /api/pantry-items', () => {
     expect(response.status).toBe(401)
     const data = (await response.json()) as ErrorResponse
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Unauthorized: No user ID provided')
+    expect(data.error).toBe('Missing or invalid Authorization header')
   })
 
-  it('should create a pantry item with valid user ID', async () => {
+  it('should create a pantry item with valid JWT token', async () => {
     const userId = 'auth0|test-user-123'
+    const token = await createTestToken({ userId })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': userId,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: 'Milk',
@@ -66,11 +68,12 @@ describe('POST /api/pantry-items', () => {
 
   it('should create a pantry item with custom status', async () => {
     const userId = 'auth0|test-user-123'
+    const token = await createTestToken({ userId })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': userId,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: 'Eggs',
@@ -87,11 +90,12 @@ describe('POST /api/pantry-items', () => {
 
   it('should reject invalid status values', async () => {
     const userId = 'auth0|test-user-123'
+    const token = await createTestToken({ userId })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': userId,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: 'Bread',
@@ -105,11 +109,12 @@ describe('POST /api/pantry-items', () => {
 
   it('should require name field', async () => {
     const userId = 'auth0|test-user-123'
+    const token = await createTestToken({ userId })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': userId,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({}),
     })
