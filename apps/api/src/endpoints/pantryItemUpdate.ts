@@ -109,6 +109,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
           userId: updatedItem.userId,
           name: updatedItem.name,
           status: updatedItem.status,
+          itemType: updatedItem.itemType,
           createdAt: updatedItem.createdAt.getTime(),
           updatedAt: updatedItem.updatedAt.getTime(),
         },

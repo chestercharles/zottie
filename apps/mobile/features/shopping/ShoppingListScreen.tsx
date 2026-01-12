@@ -7,13 +7,15 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  TextInput,
+  Keyboard,
 } from 'react-native'
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { getShoppingItems, markItemsAsPurchased } from './api'
+import { getShoppingItems, markItemsAsPurchased, createPlannedItem } from './api'
 import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
@@ -21,12 +23,14 @@ const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
   running_low: 'Running Low',
   out_of_stock: 'Out of Stock',
+  planned: 'Planned',
 }
 
 const statusColors: Record<PantryItemStatus, string> = {
   in_stock: '#27AE60',
   running_low: '#F39C12',
   out_of_stock: '#E74C3C',
+  planned: '#9B59B6',
 }
 
 const itemTypeLabels: Record<ItemType, string> = {
@@ -88,6 +92,8 @@ export function ShoppingListScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [newItemName, setNewItemName] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()
@@ -175,6 +181,30 @@ export function ShoppingListScreen() {
     )
   }
 
+  const handleCreatePlannedItem = async () => {
+    const trimmedName = newItemName.trim()
+    if (!trimmedName || !user?.id) return
+
+    try {
+      setIsCreating(true)
+      const credentials = await getCredentials()
+      if (!credentials?.accessToken) {
+        throw new Error('No access token available')
+      }
+
+      const newItem = await createPlannedItem(trimmedName, credentials.accessToken, user.id)
+      setItems((prevItems) => [...prevItems, newItem])
+      setNewItemName('')
+      Keyboard.dismiss()
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to create planned item'
+      )
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   const checkedCount = checkedIds.size
 
   if (isLoading) {
@@ -196,19 +226,53 @@ export function ShoppingListScreen() {
     )
   }
 
+  const renderAddItemInput = () => (
+    <View style={styles.addItemContainer}>
+      <TextInput
+        style={styles.addItemInput}
+        placeholder="Add a planned item..."
+        placeholderTextColor="#999"
+        value={newItemName}
+        onChangeText={setNewItemName}
+        onSubmitEditing={handleCreatePlannedItem}
+        returnKeyType="done"
+        editable={!isCreating}
+      />
+      <TouchableOpacity
+        style={[
+          styles.addItemButton,
+          (!newItemName.trim() || isCreating) && styles.addItemButtonDisabled,
+        ]}
+        onPress={handleCreatePlannedItem}
+        disabled={!newItemName.trim() || isCreating}
+      >
+        {isCreating ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Ionicons name="add" size={24} color="#fff" />
+        )}
+      </TouchableOpacity>
+    </View>
+  )
+
   return (
     <View style={styles.container}>
       {items.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>You're all set!</Text>
-          <Text style={styles.emptySubtext}>
-            Items that are running low or out of stock will appear here
-          </Text>
+        <View style={styles.emptyStateContainer}>
+          {renderAddItemInput()}
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>You're all set!</Text>
+            <Text style={styles.emptySubtext}>
+              Items that are running low or out of stock will appear here.
+              Add planned items above for one-time purchases.
+            </Text>
+          </View>
         </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderAddItemInput}
           renderItem={({ item }) => (
             <ShoppingItemRow
               item={item}
@@ -280,6 +344,36 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+  },
+  emptyStateContainer: {
+    flex: 1,
+  },
+  addItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingBottom: 8,
+    gap: 12,
+  },
+  addItemInput: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#333',
+  },
+  addItemButton: {
+    backgroundColor: '#9B59B6',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addItemButtonDisabled: {
+    backgroundColor: '#D7BDE2',
   },
   itemRow: {
     flexDirection: 'row',

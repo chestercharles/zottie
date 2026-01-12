@@ -1,10 +1,13 @@
-export type PantryItemStatus = 'in_stock' | 'running_low' | 'out_of_stock'
+export type PantryItemStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+
+export type ItemType = 'staple' | 'planned'
 
 export interface PantryItem {
   id: string
   userId: string
   name: string
   status: PantryItemStatus
+  itemType: ItemType
   createdAt: number
   updatedAt: number
 }
@@ -12,6 +15,7 @@ export interface PantryItem {
 export interface CreatePantryItemRequest {
   name: string
   status?: PantryItemStatus
+  itemType?: ItemType
 }
 
 export interface CreatePantryItemResponse {

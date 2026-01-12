@@ -1,6 +1,13 @@
-import type { ListPantryItemsResponse, ShoppingItem, PantryItemStatus } from './types'
+import type { ListPantryItemsResponse, ShoppingItem, PantryItemStatus, PantryItem } from './types'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
+
+interface CreatePantryItemResponse {
+  success: boolean
+  result: {
+    pantryItem: PantryItem
+  }
+}
 
 async function updateItemStatus(
   itemId: string,
@@ -36,6 +43,39 @@ export async function markItemsAsPurchased(
   )
 }
 
+export async function createPlannedItem(
+  name: string,
+  authToken: string,
+  userId: string
+): Promise<ShoppingItem> {
+  const response = await fetch(`${API_BASE_URL}/api/pantry-items`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+    body: JSON.stringify({
+      name,
+      status: 'planned',
+      itemType: 'planned',
+    }),
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to create planned item' }))
+    throw new Error(error.error || 'Failed to create planned item')
+  }
+
+  const result = (await response.json()) as CreatePantryItemResponse
+  return {
+    ...result.result.pantryItem,
+    itemType: result.result.pantryItem.itemType,
+  }
+}
+
 export async function getShoppingItems(
   authToken: string,
   userId: string
@@ -58,9 +98,14 @@ export async function getShoppingItems(
   const result = (await response.json()) as ListPantryItemsResponse
 
   return result.result.pantryItems
-    .filter((item) => item.status === 'running_low' || item.status === 'out_of_stock')
+    .filter(
+      (item) =>
+        item.status === 'running_low' ||
+        item.status === 'out_of_stock' ||
+        item.status === 'planned'
+    )
     .map((item) => ({
       ...item,
-      itemType: 'staple' as const,
+      itemType: item.itemType,
     }))
 }

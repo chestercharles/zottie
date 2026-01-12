@@ -50,7 +50,7 @@ export class PantryItemCreateEndpoint extends OpenAPIRoute {
 
     // Get validated data
     const data = await this.getValidatedData<typeof this.schema>()
-    const { name, status } = data.body
+    const { name, status, itemType } = data.body
 
     // Generate UUID for the new item
     const id = crypto.randomUUID()
@@ -63,6 +63,7 @@ export class PantryItemCreateEndpoint extends OpenAPIRoute {
       userId,
       name,
       status: status || 'in_stock',
+      itemType: itemType || 'staple',
       createdAt: now,
       updatedAt: now,
     }
@@ -77,6 +78,7 @@ export class PantryItemCreateEndpoint extends OpenAPIRoute {
           userId: newItem.userId,
           name: newItem.name,
           status: newItem.status,
+          itemType: newItem.itemType,
           createdAt: newItem.createdAt.getTime(),
           updatedAt: newItem.updatedAt.getTime(),
         },

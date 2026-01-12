@@ -18,12 +18,14 @@ const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
   running_low: 'Running Low',
   out_of_stock: 'Out of Stock',
+  planned: 'Planned',
 }
 
 const statusColors: Record<PantryItemStatus, string> = {
   in_stock: '#27AE60',
   running_low: '#F39C12',
   out_of_stock: '#E74C3C',
+  planned: '#9B59B6',
 }
 
 function PantryItemRow({

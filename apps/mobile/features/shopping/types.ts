@@ -1,4 +1,4 @@
-export type PantryItemStatus = 'in_stock' | 'running_low' | 'out_of_stock'
+export type PantryItemStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
 
 export type ItemType = 'staple' | 'planned'
 
@@ -17,6 +17,7 @@ export interface PantryItem {
   userId: string
   name: string
   status: PantryItemStatus
+  itemType: ItemType
   createdAt: number
   updatedAt: number
 }

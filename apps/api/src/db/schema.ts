@@ -4,8 +4,12 @@ export const pantryItemStatus = [
   'in_stock',
   'running_low',
   'out_of_stock',
+  'planned',
 ] as const
 export type PantryItemStatus = (typeof pantryItemStatus)[number]
+
+export const pantryItemType = ['staple', 'planned'] as const
+export type PantryItemType = (typeof pantryItemType)[number]
 
 export const pantryItems = sqliteTable('pantry_items', {
   id: text('id').primaryKey(),
@@ -14,6 +18,9 @@ export const pantryItems = sqliteTable('pantry_items', {
   status: text('status', { enum: pantryItemStatus })
     .notNull()
     .default('in_stock'),
+  itemType: text('item_type', { enum: pantryItemType })
+    .notNull()
+    .default('staple'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 })
