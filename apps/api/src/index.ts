@@ -1,10 +1,15 @@
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
+import { authMiddleware, type AuthVariables } from './middleware/auth'
 import { PantryItemCreateEndpoint } from './endpoints/pantryItemCreate'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
+import { PantryItemUpdateEndpoint } from './endpoints/pantryItemUpdate'
 
 // Start a Hono app
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: Env; Variables: AuthVariables }>()
+
+// Apply auth middleware to all /api routes
+app.use('/api/*', authMiddleware())
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
@@ -14,6 +19,7 @@ const openapi = fromHono(app, {
 // Pantry endpoints
 openapi.get('/api/pantry-items', PantryItemListEndpoint)
 openapi.post('/api/pantry-items', PantryItemCreateEndpoint)
+openapi.patch('/api/pantry-items/:id', PantryItemUpdateEndpoint)
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))

@@ -27,3 +27,14 @@ export interface ListPantryItemsResponse {
     pantryItems: PantryItem[]
   }
 }
+
+export interface UpdatePantryItemRequest {
+  status: PantryItemStatus
+}
+
+export interface UpdatePantryItemResponse {
+  success: boolean
+  result: {
+    pantryItem: PantryItem
+  }
+}

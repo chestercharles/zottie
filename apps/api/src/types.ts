@@ -1,8 +1,17 @@
 import { Str } from 'chanfana'
 import type { Context } from 'hono'
 import { z } from 'zod'
+import type { AuthVariables } from './middleware/auth'
 
-export type AppContext = Context<{ Bindings: Env }>
+declare global {
+  interface Env {
+    AUTH0_DOMAIN: string
+    AUTH0_AUDIENCE: string
+    TEST_JWT_SECRET?: string
+  }
+}
+
+export type AppContext = Context<{ Bindings: Env; Variables: AuthVariables }>
 
 export const PantryItemStatusEnum = z.enum([
   'in_stock',
@@ -13,6 +22,10 @@ export const PantryItemStatusEnum = z.enum([
 export const PantryItemCreate = z.object({
   name: Str({ example: 'Milk' }),
   status: PantryItemStatusEnum.optional().default('in_stock'),
+})
+
+export const PantryItemUpdate = z.object({
+  status: PantryItemStatusEnum,
 })
 
 export const PantryItem = z.object({
