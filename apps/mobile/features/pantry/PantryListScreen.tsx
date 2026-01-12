@@ -52,7 +52,7 @@ function PantryItemRow({
 
 export function PantryListScreen() {
   const router = useRouter()
-  const { items, stapleItems, plannedItems, isLoading, isRefreshing, error, refetch } =
+  const { items, mainListItems, plannedItems, isLoading, isRefreshing, error, refetch } =
     usePantryItems()
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
 
@@ -142,7 +142,7 @@ export function PantryListScreen() {
               )}
             </View>
           )}
-          {stapleItems.map((item) => (
+          {mainListItems.map((item) => (
             <PantryItemRow
               key={item.id}
               item={item}

@@ -27,13 +27,21 @@ export function usePantryItems() {
     placeholderData: keepPreviousData,
   })
 
-  const stapleItems = useMemo(
-    () => (query.data ?? []).filter((item) => item.itemType === 'staple'),
+  const mainListItems = useMemo(
+    () =>
+      (query.data ?? []).filter(
+        (item) =>
+          item.itemType === 'staple' ||
+          (item.itemType === 'planned' && item.status !== 'planned')
+      ),
     [query.data]
   )
 
   const plannedItems = useMemo(
-    () => (query.data ?? []).filter((item) => item.itemType === 'planned'),
+    () =>
+      (query.data ?? []).filter(
+        (item) => item.itemType === 'planned' && item.status === 'planned'
+      ),
     [query.data]
   )
 
@@ -48,7 +56,7 @@ export function usePantryItems() {
 
   return {
     items: query.data ?? [],
-    stapleItems,
+    mainListItems,
     plannedItems,
     isLoading: query.isLoading && !query.isPlaceholderData,
     isRefreshing,

@@ -5,9 +5,15 @@ See `.ralph/history/completed-progress.md` for completed features.
 ## Current Next Steps
 
 - Implement "Planned item lifecycle and removal"
-- Implement "Purchased planned items display in pantry list"
 
 ## Recently Completed
+
+### Purchased planned items display in pantry list
+- Changed filtering logic in `usePantryItems` hook to separate items by purchase status, not just item type
+- Collapsible "Planned Items" section now only shows items with `status === 'planned'` (not yet purchased)
+- Main pantry list now shows all staple items plus any planned items that have been purchased (`status !== 'planned'`)
+- Renamed `stapleItems` to `mainListItems` for clarity since it now contains both staples and purchased planned items
+- This allows users to see their purchased planned items alongside staples in the main list
 
 ### Item detail page accessible from shopping list
 - Shopping list items are now tappable via `TouchableOpacity` wrapper
