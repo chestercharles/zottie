@@ -9,10 +9,8 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useAuth0 } from 'react-native-auth0'
 import type { PantryItemStatus } from './types'
-import { deletePantryItem, updatePantryItem } from './api'
-import { useAuth } from '../auth'
+import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
 
 const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
@@ -47,54 +45,33 @@ export function PantryItemDetailScreen() {
     createdAt: string
     updatedAt: string
   }>()
-  const { user } = useAuth()
-  const { getCredentials } = useAuth0()
   const router = useRouter()
+  const updateMutation = useUpdatePantryItem()
+  const deleteMutation = useDeletePantryItem()
 
   const [currentStatus, setCurrentStatus] = useState<PantryItemStatus>(
     params.status
   )
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const createdAt = parseInt(params.createdAt || '0', 10)
   const updatedAt = parseInt(params.updatedAt || '0', 10)
 
-  const handleStatusChange = async (newStatus: PantryItemStatus) => {
-    if (!user?.id) {
-      Alert.alert('Error', 'You must be logged in to update items')
-      return
-    }
+  const handleStatusChange = (newStatus: PantryItemStatus) => {
+    if (newStatus === currentStatus) return
 
-    if (newStatus === currentStatus) {
-      return
-    }
-
-    setIsUpdating(true)
-
-    try {
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
+    updateMutation.mutate(
+      { itemId: params.id, status: newStatus },
+      {
+        onSuccess: () => setCurrentStatus(newStatus),
+        onError: (error) =>
+          Alert.alert(
+            'Error',
+            error instanceof Error
+              ? error.message
+              : 'Failed to update pantry item status'
+          ),
       }
-
-      await updatePantryItem(
-        params.id,
-        { status: newStatus },
-        credentials.accessToken,
-        user.id
-      )
-      setCurrentStatus(newStatus)
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        error instanceof Error
-          ? error.message
-          : 'Failed to update pantry item status'
-      )
-    } finally {
-      setIsUpdating(false)
-    }
+    )
   }
 
   const handleDelete = () => {
@@ -106,35 +83,17 @@ export function PantryItemDetailScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: async () => {
-            if (!user?.id) {
-              Alert.alert('Error', 'You must be logged in to delete items')
-              return
-            }
-
-            setIsDeleting(true)
-
-            try {
-              const credentials = await getCredentials()
-              if (!credentials?.accessToken) {
-                throw new Error('No access token available')
-              }
-
-              await deletePantryItem(
-                params.id,
-                credentials.accessToken,
-                user.id
-              )
-              router.back()
-            } catch (error) {
-              Alert.alert(
-                'Error',
-                error instanceof Error
-                  ? error.message
-                  : 'Failed to delete pantry item'
-              )
-              setIsDeleting(false)
-            }
+          onPress: () => {
+            deleteMutation.mutate(params.id, {
+              onSuccess: () => router.back(),
+              onError: (error) =>
+                Alert.alert(
+                  'Error',
+                  error instanceof Error
+                    ? error.message
+                    : 'Failed to delete pantry item'
+                ),
+            })
           },
         },
       ]
@@ -162,7 +121,7 @@ export function PantryItemDetailScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Change Status</Text>
-          {isUpdating ? (
+          {updateMutation.isPending ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color="#3498DB" />
               <Text style={styles.loadingText}>Updating...</Text>
@@ -223,9 +182,9 @@ export function PantryItemDetailScreen() {
         <TouchableOpacity
           style={styles.deleteButton}
           onPress={handleDelete}
-          disabled={isDeleting}
+          disabled={deleteMutation.isPending}
         >
-          {isDeleting ? (
+          {deleteMutation.isPending ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
             <Text style={styles.deleteButtonText}>Delete Item</Text>

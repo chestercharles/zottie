@@ -7,11 +7,9 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native'
-import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useAuth0 } from 'react-native-auth0'
-import { useAuth } from '@/features/auth'
+import { useState } from 'react'
 import { useRouter } from 'expo-router'
-import { listPantryItems } from './api'
+import { usePantryItems } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -53,57 +51,10 @@ function PantryItemRow({
 }
 
 export function PantryListScreen() {
-  const { user } = useAuth()
-  const { getCredentials } = useAuth0()
   const router = useRouter()
-  const [items, setItems] = useState<PantryItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { items, stapleItems, plannedItems, isLoading, isRefreshing, error, refetch } =
+    usePantryItems()
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
-
-  const plannedItems = useMemo(
-    () => items.filter((item) => item.itemType === 'planned'),
-    [items]
-  )
-  const stapleItems = useMemo(
-    () => items.filter((item) => item.itemType === 'staple'),
-    [items]
-  )
-
-  const fetchItems = useCallback(async () => {
-    if (!user?.id) return
-
-    try {
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
-      }
-
-      const pantryItems = await listPantryItems(credentials.accessToken, user.id)
-      setItems(pantryItems)
-      setError(null)
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch pantry items'
-      )
-    }
-  }, [user?.id, getCredentials])
-
-  useEffect(() => {
-    const loadItems = async () => {
-      setIsLoading(true)
-      await fetchItems()
-      setIsLoading(false)
-    }
-    loadItems()
-  }, [fetchItems])
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await fetchItems()
-    setIsRefreshing(false)
-  }
 
   if (isLoading) {
     return (
@@ -117,7 +68,7 @@ export function PantryListScreen() {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchItems}>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -157,7 +108,7 @@ export function PantryListScreen() {
         <ScrollView
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
           }
         >
           {plannedItems.length > 0 && (

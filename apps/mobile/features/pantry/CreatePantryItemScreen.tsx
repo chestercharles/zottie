@@ -8,57 +8,39 @@ import {
   Alert,
 } from 'react-native'
 import { useState } from 'react'
-import { useAuth0 } from 'react-native-auth0'
-import { useAuth } from '@/features/auth'
-import { createPantryItem } from './api'
 import type { PantryItemStatus } from './types'
 import { useRouter } from 'expo-router'
+import { useCreatePantryItem } from './hooks'
 
 export function CreatePantryItemScreen() {
-  const { user } = useAuth()
-  const { getCredentials } = useAuth0()
   const router = useRouter()
+  const createMutation = useCreatePantryItem()
   const [name, setName] = useState('')
   const [status, setStatus] = useState<PantryItemStatus>('in_stock')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!name.trim()) {
-      setError('Please enter an item name')
+      setValidationError('Please enter an item name')
       return
     }
 
-    if (!user?.id) {
-      setError('Not authenticated')
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
+    setValidationError(null)
+    createMutation.mutate(
+      { name: name.trim(), status },
+      {
+        onSuccess: () => {
+          Alert.alert('Success', 'Pantry item created successfully', [
+            { text: 'OK', onPress: () => router.back() },
+          ])
+        },
+        onError: (err) => {
+          setValidationError(
+            err instanceof Error ? err.message : 'Failed to create pantry item'
+          )
+        },
       }
-
-      await createPantryItem(
-        { name: name.trim(), status },
-        credentials.accessToken,
-        user.id
-      )
-
-      Alert.alert('Success', 'Pantry item created successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ])
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create pantry item'
-      )
-    } finally {
-      setIsLoading(false)
-    }
+    )
   }
 
   const statusOptions: { label: string; value: PantryItemStatus }[] = [
@@ -75,7 +57,7 @@ export function CreatePantryItemScreen() {
         value={name}
         onChangeText={setName}
         placeholder="e.g. Milk, Eggs, Bread"
-        editable={!isLoading}
+        editable={!createMutation.isPending}
         autoFocus
       />
 
@@ -89,7 +71,7 @@ export function CreatePantryItemScreen() {
               status === option.value && styles.statusButtonActive,
             ]}
             onPress={() => setStatus(option.value)}
-            disabled={isLoading}
+            disabled={createMutation.isPending}
           >
             <Text
               style={[
@@ -103,18 +85,18 @@ export function CreatePantryItemScreen() {
         ))}
       </View>
 
-      {error && (
+      {validationError && (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorText}>{validationError}</Text>
         </View>
       )}
 
       <TouchableOpacity
-        style={[styles.button, isLoading && styles.buttonDisabled]}
+        style={[styles.button, createMutation.isPending && styles.buttonDisabled]}
         onPress={handleCreate}
-        disabled={isLoading}
+        disabled={createMutation.isPending}
       >
-        {isLoading ? (
+        {createMutation.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.buttonText}>Add to Pantry</Text>

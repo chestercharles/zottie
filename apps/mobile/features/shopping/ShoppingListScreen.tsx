@@ -11,12 +11,10 @@ import {
   Keyboard,
 } from 'react-native'
 import { useEffect, useState, useCallback, memo } from 'react'
-import { useAuth0 } from 'react-native-auth0'
-import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { getShoppingItems, markItemsAsPurchased, createPlannedItem } from './api'
 import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
+import { useShoppingItems, useMarkAsPurchased, useCreatePlannedItem } from './hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -124,84 +122,43 @@ const AddPlannedItemInput = memo(function AddPlannedItemInput({
 })
 
 export function ShoppingListScreen() {
-  const { user } = useAuth()
-  const { getCredentials } = useAuth0()
   const router = useRouter()
-  const [items, setItems] = useState<ShoppingItem[]>([])
+  const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
+  const markAsPurchasedMutation = useMarkAsPurchased()
+  const createPlannedItemMutation = useCreatePlannedItem()
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
-  const [isLoading, setIsLoading] = useState(true)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [isPurchasing, setIsPurchasing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [newItemName, setNewItemName] = useState('')
-  const [isCreating, setIsCreating] = useState(false)
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()
     setCheckedIds(stored)
   }, [])
 
-  const fetchItems = useCallback(async () => {
-    if (!user?.id) return
-
-    try {
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
-      }
-
-      const shoppingItems = await getShoppingItems(credentials.accessToken, user.id)
-      setItems(shoppingItems)
-      setError(null)
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch shopping items'
-      )
-    }
-  }, [user?.id, getCredentials])
-
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true)
-      await Promise.all([fetchItems(), loadCheckedItems()])
-      setIsLoading(false)
-    }
-    loadData()
-  }, [fetchItems, loadCheckedItems])
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await fetchItems()
-    setIsRefreshing(false)
-  }
+    loadCheckedItems()
+  }, [loadCheckedItems])
 
   const handleToggleCheck = async (itemId: string) => {
     const newCheckedIds = await toggleCheckedItem(itemId, checkedIds)
     setCheckedIds(newCheckedIds)
   }
 
-  const handleMarkAsPurchased = async () => {
-    if (checkedIds.size === 0 || !user?.id) return
+  const handleMarkAsPurchased = () => {
+    if (checkedIds.size === 0) return
 
-    try {
-      setIsPurchasing(true)
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
-      }
-
-      const itemIds = Array.from(checkedIds)
-      await markItemsAsPurchased(itemIds, credentials.accessToken, user.id)
-      await clearCheckedItems()
-      setCheckedIds(new Set())
-      await fetchItems()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to mark items as purchased'
-      )
-    } finally {
-      setIsPurchasing(false)
-    }
+    const itemIds = Array.from(checkedIds)
+    markAsPurchasedMutation.mutate(itemIds, {
+      onSuccess: async () => {
+        await clearCheckedItems()
+        setCheckedIds(new Set())
+      },
+      onError: (err) => {
+        Alert.alert(
+          'Error',
+          err instanceof Error ? err.message : 'Failed to mark items as purchased'
+        )
+      },
+    })
   }
 
   const handleResetCheckmarks = () => {
@@ -222,28 +179,22 @@ export function ShoppingListScreen() {
     )
   }
 
-  const handleCreatePlannedItem = async () => {
+  const handleCreatePlannedItem = () => {
     const trimmedName = newItemName.trim()
-    if (!trimmedName || !user?.id) return
+    if (!trimmedName) return
 
-    try {
-      setIsCreating(true)
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        throw new Error('No access token available')
-      }
-
-      const newItem = await createPlannedItem(trimmedName, credentials.accessToken, user.id)
-      setItems((prevItems) => [...prevItems, newItem])
-      setNewItemName('')
-      Keyboard.dismiss()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create planned item'
-      )
-    } finally {
-      setIsCreating(false)
-    }
+    createPlannedItemMutation.mutate(trimmedName, {
+      onSuccess: () => {
+        setNewItemName('')
+        Keyboard.dismiss()
+      },
+      onError: (err) => {
+        Alert.alert(
+          'Error',
+          err instanceof Error ? err.message : 'Failed to create planned item'
+        )
+      },
+    })
   }
 
   const checkedCount = checkedIds.size
@@ -260,7 +211,7 @@ export function ShoppingListScreen() {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchItems}>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -272,7 +223,7 @@ export function ShoppingListScreen() {
       value={newItemName}
       onChangeText={setNewItemName}
       onSubmit={handleCreatePlannedItem}
-      isCreating={isCreating}
+      isCreating={createPlannedItemMutation.isPending}
     />
   )
 
@@ -316,18 +267,18 @@ export function ShoppingListScreen() {
           )}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
           }
         />
       )}
       {checkedCount > 0 && (
         <View style={styles.purchaseButtonContainer}>
           <TouchableOpacity
-            style={[styles.purchaseButton, isPurchasing && styles.purchaseButtonDisabled]}
+            style={[styles.purchaseButton, markAsPurchasedMutation.isPending && styles.purchaseButtonDisabled]}
             onPress={handleMarkAsPurchased}
-            disabled={isPurchasing}
+            disabled={markAsPurchasedMutation.isPending}
           >
-            {isPurchasing ? (
+            {markAsPurchasedMutation.isPending ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
@@ -341,7 +292,7 @@ export function ShoppingListScreen() {
           <TouchableOpacity
             style={styles.resetButton}
             onPress={handleResetCheckmarks}
-            disabled={isPurchasing}
+            disabled={markAsPurchasedMutation.isPending}
           >
             <Ionicons name="refresh" size={16} color="#666" style={styles.resetButtonIcon} />
             <Text style={styles.resetButtonText}>Reset checkmarks</Text>
