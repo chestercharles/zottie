@@ -11,7 +11,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { useRouter } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 import { getShoppingItems } from './api'
+import { getCheckedItems, toggleCheckedItem } from './checkedItemsStorage'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -33,16 +35,33 @@ const itemTypeLabels: Record<ItemType, string> = {
 
 function ShoppingItemRow({
   item,
+  isChecked,
   onPress,
+  onToggleCheck,
 }: {
   item: ShoppingItem
+  isChecked: boolean
   onPress: () => void
+  onToggleCheck: () => void
 }) {
   return (
-    <TouchableOpacity style={styles.itemRow} onPress={onPress}>
-      <View style={styles.itemInfo}>
+    <View style={styles.itemRow}>
+      <TouchableOpacity
+        style={styles.checkbox}
+        onPress={onToggleCheck}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons
+          name={isChecked ? 'checkbox' : 'square-outline'}
+          size={24}
+          color={isChecked ? '#27AE60' : '#999'}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.itemContent} onPress={onPress}>
         <View style={styles.itemDetails}>
-          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={[styles.itemName, isChecked && styles.itemNameChecked]}>
+            {item.name}
+          </Text>
           <Text style={styles.itemType}>{itemTypeLabels[item.itemType]}</Text>
         </View>
         <View
@@ -53,8 +72,8 @@ function ShoppingItemRow({
         >
           <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   )
 }
 
@@ -63,9 +82,15 @@ export function ShoppingListScreen() {
   const { getCredentials } = useAuth0()
   const router = useRouter()
   const [items, setItems] = useState<ShoppingItem[]>([])
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const loadCheckedItems = useCallback(async () => {
+    const stored = await getCheckedItems()
+    setCheckedIds(stored)
+  }, [])
 
   const fetchItems = useCallback(async () => {
     if (!user?.id) return
@@ -87,18 +112,23 @@ export function ShoppingListScreen() {
   }, [user?.id, getCredentials])
 
   useEffect(() => {
-    const loadItems = async () => {
+    const loadData = async () => {
       setIsLoading(true)
-      await fetchItems()
+      await Promise.all([fetchItems(), loadCheckedItems()])
       setIsLoading(false)
     }
-    loadItems()
-  }, [fetchItems])
+    loadData()
+  }, [fetchItems, loadCheckedItems])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
     await fetchItems()
     setIsRefreshing(false)
+  }
+
+  const handleToggleCheck = async (itemId: string) => {
+    const newCheckedIds = await toggleCheckedItem(itemId, checkedIds)
+    setCheckedIds(newCheckedIds)
   }
 
   if (isLoading) {
@@ -136,6 +166,7 @@ export function ShoppingListScreen() {
           renderItem={({ item }) => (
             <ShoppingItemRow
               item={item}
+              isChecked={checkedIds.has(item.id)}
               onPress={() =>
                 router.push({
                   pathname: '/pantry/[id]',
@@ -148,6 +179,7 @@ export function ShoppingListScreen() {
                   },
                 })
               }
+              onToggleCheck={() => handleToggleCheck(item.id)}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -176,12 +208,18 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
-  itemInfo: {
+  checkbox: {
+    marginRight: 12,
+  },
+  itemContent: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -193,6 +231,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
+  },
+  itemNameChecked: {
+    textDecorationLine: 'line-through',
+    color: '#999',
   },
   itemType: {
     fontSize: 12,
