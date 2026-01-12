@@ -10,6 +10,7 @@ import {
   Share,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import Constants from 'expo-constants'
 import { useAuth } from '@/features/auth'
 import {
   useHousehold,
@@ -31,7 +32,8 @@ export function SettingsScreen() {
   const handleInvite = async () => {
     try {
       const invite = await createInviteMutation.mutateAsync()
-      const inviteLink = `zottie://join/${invite.code}`
+      const scheme = Constants.expoConfig?.scheme ?? 'zottie'
+      const inviteLink = `${scheme}://join/${invite.code}`
       const expiresDate = new Date(invite.expiresAt)
       const formattedDate = expiresDate.toLocaleDateString()
 

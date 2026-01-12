@@ -9,7 +9,7 @@ export default {
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'zottie',
+    scheme: IS_DEV ? 'zottie-dev' : 'zottie',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     ios: {
