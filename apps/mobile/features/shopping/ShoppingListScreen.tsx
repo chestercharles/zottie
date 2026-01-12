@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native'
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth0 } from 'react-native-auth0'
@@ -156,6 +157,24 @@ export function ShoppingListScreen() {
     }
   }
 
+  const handleResetCheckmarks = () => {
+    Alert.alert(
+      'Reset Checkmarks',
+      'Are you sure you want to uncheck all items? This will not mark anything as purchased.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await clearCheckedItems()
+            setCheckedIds(new Set())
+          },
+        },
+      ]
+    )
+  }
+
   const checkedCount = checkedIds.size
 
   if (isLoading) {
@@ -232,6 +251,14 @@ export function ShoppingListScreen() {
                 </Text>
               </>
             )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleResetCheckmarks}
+            disabled={isPurchasing}
+          >
+            <Ionicons name="refresh" size={16} color="#666" style={styles.resetButtonIcon} />
+            <Text style={styles.resetButtonText}>Reset checkmarks</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -359,5 +386,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  resetButtonIcon: {
+    marginRight: 6,
+  },
+  resetButtonText: {
+    color: '#666',
+    fontSize: 14,
   },
 })
