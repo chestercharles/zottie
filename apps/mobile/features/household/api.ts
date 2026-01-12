@@ -8,6 +8,7 @@ import type {
   UpdateHouseholdResponse,
   CreateHouseholdInviteResponse,
   ValidateInviteResponse,
+  JoinHouseholdResponse,
 } from './types'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
@@ -107,4 +108,29 @@ export async function validateInvite(
 
   const result = (await response.json()) as ValidateInviteResponse
   return result.result.invite
+}
+
+export async function joinHousehold(
+  code: string,
+  authToken: string,
+  userId: string
+): Promise<{ household: Household; members: HouseholdMember[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/household/join/${code}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to join household' }))
+    throw new Error(error.error || 'Failed to join household')
+  }
+
+  const result = (await response.json()) as JoinHouseholdResponse
+  return result.result
 }

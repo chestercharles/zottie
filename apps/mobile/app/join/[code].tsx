@@ -37,10 +37,21 @@ export default function JoinRoute() {
     }
   }
 
+  const handleJoinSuccess = async () => {
+    await clearPendingInvite()
+    router.replace('/(authenticated)/pantry')
+  }
+
   if (!code) {
     router.replace('/')
     return null
   }
 
-  return <JoinScreen code={code} onSignIn={handleSignIn} />
+  return (
+    <JoinScreen
+      code={code}
+      onSignIn={handleSignIn}
+      onJoinSuccess={handleJoinSuccess}
+    />
+  )
 }

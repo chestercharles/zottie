@@ -1,24 +1,44 @@
+import { useState } from 'react'
 import {
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/features/auth'
-import { useValidateInvite } from './hooks'
+import { useValidateInvite, useJoinHousehold } from './hooks'
 
 interface JoinScreenProps {
   code: string
   onSignIn: () => void
+  onJoinSuccess: () => void
 }
 
-export function JoinScreen({ code, onSignIn }: JoinScreenProps) {
+export function JoinScreen({ code, onSignIn, onJoinSuccess }: JoinScreenProps) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { invite, isLoading: isValidating, error } = useValidateInvite(
     isAuthenticated ? code : null
   )
+  const joinMutation = useJoinHousehold()
+  const [isJoining, setIsJoining] = useState(false)
+
+  const handleJoinHousehold = async () => {
+    setIsJoining(true)
+    try {
+      await joinMutation.mutateAsync({ code })
+      onJoinSuccess()
+    } catch (err) {
+      Alert.alert(
+        'Unable to Join',
+        err instanceof Error ? err.message : 'Failed to join household'
+      )
+    } finally {
+      setIsJoining(false)
+    }
+  }
 
   if (isAuthLoading) {
     return (
@@ -90,6 +110,20 @@ export function JoinScreen({ code, onSignIn }: JoinScreenProps) {
             Expires {new Date(invite.expiresAt).toLocaleDateString()}
           </Text>
         </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.primaryButton, isJoining && styles.disabledButton]}
+            onPress={handleJoinHousehold}
+            disabled={isJoining}
+          >
+            {isJoining ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.primaryButtonText}>Join Household</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     )
   }
@@ -155,6 +189,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   primaryButtonText: {
     color: '#fff',

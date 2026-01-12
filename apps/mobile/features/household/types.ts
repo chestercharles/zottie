@@ -59,3 +59,11 @@ export interface ValidateInviteResponse {
     invite: HouseholdInviteInfo
   }
 }
+
+export interface JoinHouseholdResponse {
+  success: boolean
+  result: {
+    household: Household
+    members: HouseholdMember[]
+  }
+}

@@ -5,6 +5,7 @@ import { HouseholdGetEndpoint } from './endpoints/householdGet'
 import { HouseholdUpdateEndpoint } from './endpoints/householdUpdate'
 import { HouseholdInviteCreateEndpoint } from './endpoints/householdInviteCreate'
 import { HouseholdInviteGetEndpoint } from './endpoints/householdInviteGet'
+import { HouseholdJoinEndpoint } from './endpoints/householdJoin'
 import { PantryItemCreateEndpoint } from './endpoints/pantryItemCreate'
 import { PantryItemDeleteEndpoint } from './endpoints/pantryItemDelete'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
@@ -26,6 +27,7 @@ openapi.get('/api/household', HouseholdGetEndpoint)
 openapi.patch('/api/household', HouseholdUpdateEndpoint)
 openapi.post('/api/household/invite', HouseholdInviteCreateEndpoint)
 openapi.get('/api/household/invite/:code', HouseholdInviteGetEndpoint)
+openapi.post('/api/household/join/:code', HouseholdJoinEndpoint)
 
 // Pantry endpoints
 openapi.get('/api/pantry-items', PantryItemListEndpoint)

@@ -1,0 +1,143 @@
+import { Bool, OpenAPIRoute, Str } from 'chanfana'
+import { eq, and, gt } from 'drizzle-orm'
+import { z } from 'zod'
+import { type AppContext, Household, HouseholdMember } from '../types'
+import { getDb, householdInvites, households, householdMembers } from '../db'
+
+export class HouseholdJoinEndpoint extends OpenAPIRoute {
+  schema = {
+    tags: ['Household'],
+    summary: 'Join a household via invite code',
+    security: [{ bearerAuth: [] }],
+    request: {
+      params: z.object({
+        code: Str({ example: 'abc123xyz' }),
+      }),
+    },
+    responses: {
+      '200': {
+        description: 'Successfully joined the household',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              result: z.object({
+                household: Household,
+                members: z.array(HouseholdMember),
+              }),
+            }),
+          },
+        },
+      },
+      '401': {
+        description: 'Unauthorized - no valid authentication provided',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              error: z.string(),
+            }),
+          },
+        },
+      },
+      '404': {
+        description: 'Invite not found or expired',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              error: z.string(),
+            }),
+          },
+        },
+      },
+      '409': {
+        description: 'User already belongs to a household',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              error: z.string(),
+            }),
+          },
+        },
+      },
+    },
+  }
+
+  async handle(c: AppContext) {
+    const userId = c.get('userId')
+    const db = getDb(c.env.db)
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { code } = data.params
+
+    const now = new Date()
+
+    const invite = await db
+      .select({
+        id: householdInvites.id,
+        householdId: householdInvites.householdId,
+      })
+      .from(householdInvites)
+      .where(
+        and(eq(householdInvites.code, code), gt(householdInvites.expiresAt, now))
+      )
+      .limit(1)
+
+    if (invite.length === 0) {
+      return c.json(
+        { success: false, error: 'Invite not found or expired' },
+        404
+      )
+    }
+
+    const existingMembership = await db
+      .select()
+      .from(householdMembers)
+      .where(eq(householdMembers.userId, userId))
+      .limit(1)
+
+    if (existingMembership.length > 0) {
+      return c.json(
+        { success: false, error: 'User already belongs to a household' },
+        409
+      )
+    }
+
+    const memberId = crypto.randomUUID()
+    await db.insert(householdMembers).values({
+      id: memberId,
+      householdId: invite[0].householdId,
+      userId,
+      joinedAt: now,
+    })
+
+    const [household] = await db
+      .select()
+      .from(households)
+      .where(eq(households.id, invite[0].householdId))
+
+    const members = await db
+      .select()
+      .from(householdMembers)
+      .where(eq(householdMembers.householdId, invite[0].householdId))
+
+    return {
+      success: true,
+      result: {
+        household: {
+          id: household.id,
+          name: household.name,
+          createdAt: household.createdAt.getTime(),
+          updatedAt: household.updatedAt.getTime(),
+        },
+        members: members.map((m) => ({
+          id: m.id,
+          householdId: m.householdId,
+          userId: m.userId,
+          joinedAt: m.joinedAt.getTime(),
+        })),
+      },
+    }
+  }
+}

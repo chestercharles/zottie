@@ -77,7 +77,7 @@
   {
     "name": "New user joins household via invite",
     "description": "On the join screen, authenticated users without a household see the target household name and a 'Join Household' button. Tapping the button calls POST /api/household/join/{code} to add them to the household, then navigates to the pantry (skipping the normal create-household onboarding flow).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Existing user switches household via invite",

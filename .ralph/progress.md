@@ -4,9 +4,32 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "New user joins household via invite" (next household feature)
+- Implement "Existing user switches household via invite" (next household feature)
 
 ## Recently Completed
+
+### New user joins household via invite
+- Created `POST /api/household/join/:code` backend endpoint:
+  - Validates the invite code and checks expiration
+  - Checks if user already belongs to a household (returns 409 if so)
+  - Adds the user as a member of the target household
+  - Returns household info and full member list
+- Added `JoinHouseholdResponse` type to mobile app
+- Created `joinHousehold` API function in mobile app
+- Created `useJoinHousehold` React Query hook with cache invalidation
+- Updated `JoinScreen` component:
+  - Added `onJoinSuccess` callback prop
+  - Shows "Join Household" button when invite is valid
+  - Shows loading indicator while joining
+  - Shows error alert if join fails
+- Updated join route (`app/join/[code].tsx`):
+  - Handles `onJoinSuccess` by clearing pending invite and navigating to pantry
+  - Users skip the normal household onboarding flow after joining via invite
+- Added 4 new e2e tests for the join endpoint:
+  - 401 when no auth header
+  - 404 for invalid invite code
+  - Successful join with valid invite
+  - 409 when user already has a household
 
 ### Handle invite deep links
 - Created `validateInvite` API function to validate invite codes via `GET /api/household/invite/:code`
