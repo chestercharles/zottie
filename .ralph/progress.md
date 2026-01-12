@@ -4,9 +4,16 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Settings page accessible from pantry screen"
+- Implement "Log out from settings page"
 
 ## Recently Completed
+
+### Settings page accessible from pantry screen
+- Created `features/settings/` module with `SettingsScreen.tsx`
+- Added settings route at `app/(authenticated)/pantry/settings.tsx`
+- Added gear icon (`settings-outline` from Ionicons) to pantry screen header
+- Tapping the gear navigates to the settings page via expo-router
+- Settings page currently shows placeholder content for future household/account features
 
 ### Pull to refresh pantry screen
 - Feature was already implemented

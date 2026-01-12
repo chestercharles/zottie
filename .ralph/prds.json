@@ -102,7 +102,7 @@
   {
     "name": "Settings page accessible from pantry screen",
     "description": "A settings gear icon is displayed in the header of the pantry screen. Tapping the gear navigates the user to a settings page where they can manage their account and household settings.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Log out from settings page",
