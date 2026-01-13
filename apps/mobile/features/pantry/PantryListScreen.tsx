@@ -127,16 +127,19 @@ export function PantryListScreen() {
     transform: [{ translateY: sheetTranslateY.value }],
   }))
 
-  const focusNameInput = () => {
-    nameInputRef.current?.focus()
-  }
+  useEffect(() => {
+    if (isAddSheetVisible) {
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus()
+      }, 350)
+      return () => clearTimeout(timer)
+    }
+  }, [isAddSheetVisible])
 
   const openAddSheet = () => {
     setIsAddSheetVisible(true)
     backdropOpacity.value = withTiming(1, { duration: 250 })
-    sheetTranslateY.value = withTiming(0, { duration: 300 }, () => {
-      runOnJS(focusNameInput)()
-    })
+    sheetTranslateY.value = withTiming(0, { duration: 300 })
   }
 
   const closeAddSheet = () => {
