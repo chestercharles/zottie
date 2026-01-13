@@ -1,14 +1,16 @@
 import * as jose from 'jose'
 
+const CLAIMS_NAMESPACE = 'https://zottie-api.chestercarmer.workers.dev'
+
 interface TestTokenOptions {
   userId: string
   email?: string
-  name?: string
+  emailVerified?: boolean
   expiresIn?: string
 }
 
 export async function createTestToken(options: TestTokenOptions): Promise<string> {
-  const { userId, email, name, expiresIn = '1h' } = options
+  const { userId, email, emailVerified, expiresIn = '1h' } = options
 
   const testSecret = process.env.TEST_JWT_SECRET
   if (!testSecret) {
@@ -21,8 +23,8 @@ export async function createTestToken(options: TestTokenOptions): Promise<string
   const secret = new TextEncoder().encode(testSecret)
 
   const payload: Record<string, unknown> = { sub: userId }
-  if (email) payload.email = email
-  if (name) payload.name = name
+  if (email) payload[`${CLAIMS_NAMESPACE}/email`] = email
+  if (emailVerified !== undefined) payload[`${CLAIMS_NAMESPACE}/email_verified`] = emailVerified
 
   const token = await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
