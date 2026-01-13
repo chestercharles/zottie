@@ -33,5 +33,15 @@
     "name": "Swipe actions for quick status changes on pantry items",
     "description": "Users can swipe left on pantry items to reveal a button that opens an iOS action sheet with contextual options. For staple items, the action sheet shows: 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item', and Cancel. For planned items, the action sheet shows: 'Mark as Running Low', 'Finished - Remove from Pantry', 'Finished - Convert to Staple', 'Delete Item', and Cancel. The 'Finished - Remove from Pantry' option removes the planned item entirely. The 'Finished - Convert to Staple' option changes the item's type to 'staple' and sets its status to 'out_of_stock' so it appears on the shopping list for re-purchase. This replaces the confusing behavior where tapping 'Out of Stock' on a planned item would trigger a removal confirmation.",
     "completed": false
+  },
+  {
+    "name": "iOS-style bottom sheet for adding pantry items",
+    "description": "Replace the current FAB (floating action button) and full-screen form with an iOS-native bottom sheet pattern. A '+' button appears in the pantry screen's header bar (next to the settings icon). Tapping it opens a bottom sheet that slides up from the bottom of the screen. The sheet contains: a text input for item name (autofocused), a status selector with options 'In Stock' (default), 'Running Low', and 'Out of Stock', and an 'Add' button. The sheet can be dismissed by swiping down or tapping the backdrop. This replaces the current navigation to /pantry/create.",
+    "completed": false
+  },
+  {
+    "name": "iOS-style bottom sheet for adding shopping list items",
+    "description": "Replace the current inline text input at the top of the shopping list with an iOS-native bottom sheet pattern that matches the pantry add-item experience. A '+' button appears in the shopping screen's header bar. Tapping it opens a bottom sheet that slides up from the bottom. The sheet contains: a text input for item name (autofocused) and an 'Add' button. The status is always 'planned' so no selector is shown. The sheet can be dismissed by swiping down or tapping the backdrop. This provides consistency with the pantry add-item UX while keeping the simpler form appropriate for planned items.",
+    "completed": false
   }
 ]
