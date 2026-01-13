@@ -39,9 +39,11 @@ export class PantryItemListEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const userEmail = c.get('userEmail')
+    const userName = c.get('userName')
     const db = getDb(c.env.db)
 
-    const householdId = await getOrCreateHouseholdId(db, userId)
+    const householdId = await getOrCreateHouseholdId(db, userId, userEmail, userName)
 
     const items = await db
       .select()

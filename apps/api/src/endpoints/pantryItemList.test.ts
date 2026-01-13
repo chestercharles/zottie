@@ -28,7 +28,7 @@ describe('GET /api/pantry-items', () => {
   let testUserToken: string
 
   beforeAll(async () => {
-    testUserToken = await createTestToken({ userId: testUserId })
+    testUserToken = await createTestToken({ userId: testUserId, email: `${testUserId}@example.com` })
 
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
@@ -61,7 +61,7 @@ describe('GET /api/pantry-items', () => {
 
   it('should return empty array for user with no items', async () => {
     const emptyUserId = 'auth0|user-with-no-items-' + Date.now()
-    const token = await createTestToken({ userId: emptyUserId })
+    const token = await createTestToken({ userId: emptyUserId, email: `${emptyUserId}@example.com` })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
@@ -95,7 +95,7 @@ describe('GET /api/pantry-items', () => {
 
   it('should only return items for the specific user', async () => {
     const differentUserId = 'auth0|different-user-' + Date.now()
-    const differentUserToken = await createTestToken({ userId: differentUserId })
+    const differentUserToken = await createTestToken({ userId: differentUserId, email: `${differentUserId}@example.com` })
 
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',

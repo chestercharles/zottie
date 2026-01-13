@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { eq, and, gt } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, Household, HouseholdMember } from '../types'
-import { getDb, householdInvites, households, householdMembers, users, upsertUser } from '../db'
+import { getDb, householdInvites, households, householdMembers } from '../db'
 
 export class HouseholdJoinEndpoint extends OpenAPIRoute {
   schema = {
@@ -63,10 +63,6 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
     const data = await this.getValidatedData<typeof this.schema>()
     const { code } = data.params
 
-    if (userEmail) {
-      await upsertUser(db, userId, userEmail, userName)
-    }
-
     const now = new Date()
 
     const invite = await db
@@ -101,16 +97,8 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
           .where(eq(households.id, invite[0].householdId))
 
         const membersData = await db
-          .select({
-            id: householdMembers.id,
-            householdId: householdMembers.householdId,
-            userId: householdMembers.userId,
-            joinedAt: householdMembers.joinedAt,
-            email: users.email,
-            name: users.name,
-          })
+          .select()
           .from(householdMembers)
-          .innerJoin(users, eq(householdMembers.userId, users.id))
           .where(eq(householdMembers.householdId, invite[0].householdId))
 
         return {
@@ -145,6 +133,8 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       id: memberId,
       householdId: invite[0].householdId,
       userId,
+      email: userEmail,
+      name: userName,
       joinedAt: now,
     })
 
@@ -154,16 +144,8 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       .where(eq(households.id, invite[0].householdId))
 
     const membersData = await db
-      .select({
-        id: householdMembers.id,
-        householdId: householdMembers.householdId,
-        userId: householdMembers.userId,
-        joinedAt: householdMembers.joinedAt,
-        email: users.email,
-        name: users.name,
-      })
+      .select()
       .from(householdMembers)
-      .innerJoin(users, eq(householdMembers.userId, users.id))
       .where(eq(householdMembers.householdId, invite[0].householdId))
 
     return {

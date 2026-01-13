@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1768207941106,
-      "tag": "0000_remarkable_zaran",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1768208470355,
-      "tag": "0001_solid_raza",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1768274890726,
-      "tag": "0002_complex_kabuki",
+      "when": 1768280875127,
+      "tag": "0000_first_paper_doll",
       "breakpoints": true
     }
   ]

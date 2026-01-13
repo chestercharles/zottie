@@ -23,5 +23,15 @@
     "name": "Users should be able to log out from the onboarding screen",
     "description": "Users should be able to log out from the onboarding screen. The onboarding screen should have a 'Log Out' button that logs the user out and returns them to the landing page. The button should be displayed near the bottom of the screen.",
     "completed": false
+  },
+  {
+    "name": "Visual indicator distinguishes planned items from staples",
+    "description": "In the main pantry list, planned items display a small icon next to their name to visually distinguish them from staple items. This helps users quickly identify which items are one-time planned purchases vs recurring staples. The icon should be subtle and not interfere with readability. This applies to planned items that appear in the main list (those with status 'in_stock' or 'running_low'), not to items in the collapsible 'Planned Items' section which are already clearly grouped.",
+    "completed": false
+  },
+  {
+    "name": "Swipe actions for quick status changes on pantry items",
+    "description": "Users can swipe left on pantry items to reveal a button that opens an iOS action sheet with contextual options. For staple items, the action sheet shows: 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item', and Cancel. For planned items, the action sheet shows: 'Mark as Running Low', 'Finished - Remove from Pantry', 'Finished - Convert to Staple', 'Delete Item', and Cancel. The 'Finished - Remove from Pantry' option removes the planned item entirely. The 'Finished - Convert to Staple' option changes the item's type to 'staple' and sets its status to 'out_of_stock' so it appears on the shopping list for re-purchase. This replaces the confusing behavior where tapping 'Out of Stock' on a planned item would trigger a removal confirmation.",
+    "completed": false
   }
 ]

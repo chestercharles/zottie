@@ -67,9 +67,11 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const userEmail = c.get('userEmail')
+    const userName = c.get('userName')
     const db = getDb(c.env.db)
 
-    const householdId = await getOrCreateHouseholdId(db, userId)
+    const householdId = await getOrCreateHouseholdId(db, userId, userEmail, userName)
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params

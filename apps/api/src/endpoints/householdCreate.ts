@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, Household, HouseholdCreate, HouseholdMember } from '../types'
-import { getDb, households, householdMembers, users, upsertUser } from '../db'
+import { getDb, households, householdMembers } from '../db'
 
 export class HouseholdCreateEndpoint extends OpenAPIRoute {
   schema = {
@@ -67,10 +67,6 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
     const data = await this.getValidatedData<typeof this.schema>()
     const { name } = data.body
 
-    if (userEmail) {
-      await upsertUser(db, userId, userEmail, userName)
-    }
-
     const existingMembership = await db
       .select()
       .from(householdMembers)
@@ -96,6 +92,8 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
       id: memberId,
       householdId,
       userId,
+      email: userEmail,
+      name: userName,
       joinedAt: now,
     })
 
@@ -105,16 +103,8 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
       .where(eq(households.id, householdId))
 
     const membersData = await db
-      .select({
-        id: householdMembers.id,
-        householdId: householdMembers.householdId,
-        userId: householdMembers.userId,
-        joinedAt: householdMembers.joinedAt,
-        email: users.email,
-        name: users.name,
-      })
+      .select()
       .from(householdMembers)
-      .innerJoin(users, eq(householdMembers.userId, users.id))
       .where(eq(householdMembers.householdId, householdId))
 
     return c.json(
