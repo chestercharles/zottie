@@ -361,8 +361,9 @@ export function PantryListScreen() {
           <Animated.View style={[styles.backdrop, backdropStyle]}>
             <Pressable style={StyleSheet.absoluteFill} onPress={closeAddSheet} />
           </Animated.View>
-          <Animated.View style={[styles.sheet, sheetStyle]}>
-            <View style={styles.sheetHandle} />
+          <Animated.View style={sheetStyle}>
+            <View style={styles.sheet}>
+              <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Add Item</Text>
             <TextInput
               style={styles.sheetInput}
@@ -412,6 +413,8 @@ export function PantryListScreen() {
                 <Text style={styles.sheetAddButtonText}>Add</Text>
               )}
             </TouchableOpacity>
+            </View>
+            <View style={styles.sheetKeyboardExtension} />
           </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
@@ -560,7 +563,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 24,
-    paddingBottom: 40,
+    paddingBottom: 16,
+  },
+  sheetKeyboardExtension: {
+    height: 40,
+    backgroundColor: '#fff',
   },
   sheetHandle: {
     width: 36,
