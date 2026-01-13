@@ -329,7 +329,7 @@ export function PantryListScreen() {
       )}
       <Modal
         visible={isAddSheetVisible}
-        animationType="slide"
+        animationType="fade"
         transparent
         onRequestClose={closeAddSheet}
       >
