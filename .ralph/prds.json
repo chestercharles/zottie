@@ -27,7 +27,7 @@
   {
     "name": "Visual indicator distinguishes planned items from staples",
     "description": "In the main pantry list, planned items display a small icon next to their name to visually distinguish them from staple items. This helps users quickly identify which items are one-time planned purchases vs recurring staples. The icon should be subtle and not interfere with readability. This applies to planned items that appear in the main list (those with status 'in_stock' or 'running_low'), not to items in the collapsible 'Planned Items' section which are already clearly grouped.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Swipe actions for quick status changes on pantry items",

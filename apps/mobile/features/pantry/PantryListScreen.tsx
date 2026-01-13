@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 import { usePantryItems } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
@@ -34,10 +35,17 @@ function PantryItemRow({
   item: PantryItem
   onPress: () => void
 }) {
+  const showPlannedIndicator = item.itemType === 'planned' && item.status !== 'planned'
+
   return (
     <TouchableOpacity style={styles.itemRow} onPress={onPress}>
       <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name}</Text>
+        <View style={styles.itemNameContainer}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          {showPlannedIndicator && (
+            <Ionicons name="pricetag-outline" size={14} color="#9B59B6" style={styles.plannedIcon} />
+          )}
+        </View>
         <View
           style={[
             styles.statusBadge,
@@ -236,11 +244,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  itemNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 6,
+  },
   itemName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    flex: 1,
+    flexShrink: 1,
+  },
+  plannedIcon: {
+    opacity: 0.8,
   },
   statusBadge: {
     paddingVertical: 4,

@@ -4,10 +4,25 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Visual indicator distinguishes planned items from staples"
 - Implement "Swipe actions for quick status changes on pantry items"
+- Implement "iOS-style bottom sheet for adding pantry items"
 
 ## Recently Completed
+
+### Visual indicator distinguishes planned items from staples
+
+**Frontend (Mobile) changes:**
+- Updated `PantryItemRow` component in `features/pantry/PantryListScreen.tsx`
+- Added `Ionicons` import from `@expo/vector-icons`
+- Added a small pricetag icon (`pricetag-outline`) next to item names for planned items in the main list
+- Icon only displays when `itemType === 'planned'` AND `status !== 'planned'` (purchased planned items)
+- Items in the collapsible "Planned Items" section do not show the icon (already visually grouped)
+- Icon is subtle: 14px size, purple (#9B59B6) color with 0.8 opacity
+- Added `itemNameContainer` style for flex row layout with gap
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Leave a household
 
