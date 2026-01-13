@@ -3,7 +3,7 @@ import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { queryKeys } from '@/lib/query'
 import { createPantryItem, updatePantryItem, deletePantryItem } from '../api'
-import type { CreatePantryItemRequest, PantryItemStatus } from '../types'
+import type { CreatePantryItemRequest, PantryItemStatus, ItemType } from '../types'
 
 export function useCreatePantryItem() {
   const { user } = useAuth()
@@ -39,10 +39,12 @@ export function useUpdatePantryItem() {
       itemId,
       status,
       name,
+      itemType,
     }: {
       itemId: string
       status?: PantryItemStatus
       name?: string
+      itemType?: ItemType
     }) => {
       if (!user?.id) {
         throw new Error('User not authenticated')
@@ -51,7 +53,7 @@ export function useUpdatePantryItem() {
       if (!credentials?.accessToken) {
         throw new Error('No access token available')
       }
-      return updatePantryItem(itemId, { status, name }, credentials.accessToken, user.id)
+      return updatePantryItem(itemId, { status, name, itemType }, credentials.accessToken, user.id)
     },
     onSuccess: () => {
       if (user?.id) {

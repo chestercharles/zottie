@@ -4,10 +4,36 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Swipe actions for quick status changes on pantry items"
 - Implement "iOS-style bottom sheet for adding pantry items"
+- Implement "iOS-style bottom sheet for adding shopping list items"
 
 ## Recently Completed
+
+### Swipe actions for quick status changes on pantry items
+
+**Backend (API) changes:**
+- Updated `PantryItemUpdate` schema in `src/types.ts` to include optional `itemType` field
+- Updated `PantryItemUpdateEndpoint` in `src/endpoints/pantryItemUpdate.ts`:
+  - Now accepts `itemType` in request body
+  - Imports `PantryItemType` type from db schema
+  - Updates itemType when provided in request
+
+**Frontend (Mobile) changes:**
+- Updated `UpdatePantryItemRequest` type to include optional `itemType`
+- Updated `useUpdatePantryItem` hook to accept `itemType` parameter
+- Updated `PantryListScreen` with swipe actions:
+  - Added `Swipeable` from `react-native-gesture-handler` to `PantryItemRow` component
+  - Swipe left reveals an action button (ellipsis icon)
+  - Tapping action button opens iOS-native action sheet via `ActionSheetIOS`
+  - **Staple items** show: "Mark as Running Low", "Mark as Out of Stock", "Delete Item"
+  - **Planned items** show: "Mark as Running Low", "Finished - Remove from Pantry", "Finished - Convert to Staple", "Delete Item"
+  - "Convert to Staple" changes item type to 'staple' and sets status to 'out_of_stock' so it appears on shopping list
+- Added `swipeAction` style for the swipe button (blue background, rounded)
+
+**Testing:**
+- All API tests passing (46 tests)
+- TypeScript compilation successful for both API and mobile
+- Mobile linting passing
 
 ### Visual indicator distinguishes planned items from staples
 

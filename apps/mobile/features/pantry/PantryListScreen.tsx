@@ -7,11 +7,13 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
+  ActionSheetIOS,
 } from 'react-native'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { usePantryItems } from './hooks'
+import { Swipeable } from 'react-native-gesture-handler'
+import { usePantryItems, useUpdatePantryItem, useDeletePantryItem } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -31,31 +33,54 @@ const statusColors: Record<PantryItemStatus, string> = {
 function PantryItemRow({
   item,
   onPress,
+  onSwipeAction,
 }: {
   item: PantryItem
   onPress: () => void
+  onSwipeAction: (item: PantryItem) => void
 }) {
+  const swipeableRef = useRef<Swipeable>(null)
   const showPlannedIndicator = item.itemType === 'planned' && item.status !== 'planned'
 
+  const renderRightActions = () => {
+    return (
+      <TouchableOpacity
+        style={styles.swipeAction}
+        onPress={() => {
+          swipeableRef.current?.close()
+          onSwipeAction(item)
+        }}
+      >
+        <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
+      </TouchableOpacity>
+    )
+  }
+
   return (
-    <TouchableOpacity style={styles.itemRow} onPress={onPress}>
-      <View style={styles.itemInfo}>
-        <View style={styles.itemNameContainer}>
-          <Text style={styles.itemName}>{item.name}</Text>
-          {showPlannedIndicator && (
-            <Ionicons name="pricetag-outline" size={14} color="#9B59B6" style={styles.plannedIcon} />
-          )}
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+    >
+      <TouchableOpacity style={styles.itemRow} onPress={onPress}>
+        <View style={styles.itemInfo}>
+          <View style={styles.itemNameContainer}>
+            <Text style={styles.itemName}>{item.name}</Text>
+            {showPlannedIndicator && (
+              <Ionicons name="pricetag-outline" size={14} color="#9B59B6" style={styles.plannedIcon} />
+            )}
+          </View>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: statusColors[item.status] },
+            ]}
+          >
+            <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
+          </View>
         </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: statusColors[item.status] },
-          ]}
-        >
-          <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Swipeable>
   )
 }
 
@@ -65,6 +90,64 @@ export function PantryListScreen() {
   const { items, mainListItems, plannedItems, isLoading, isRefreshing, error, refetch } =
     usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
+  const updatePantryItem = useUpdatePantryItem()
+  const deletePantryItem = useDeletePantryItem()
+
+  const showStapleActionSheet = (item: PantryItem) => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item'],
+        destructiveButtonIndex: 3,
+        cancelButtonIndex: 0,
+        title: item.name,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) {
+          updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
+        } else if (buttonIndex === 2) {
+          updatePantryItem.mutate({ itemId: item.id, status: 'out_of_stock' })
+        } else if (buttonIndex === 3) {
+          deletePantryItem.mutate(item.id)
+        }
+      }
+    )
+  }
+
+  const showPlannedActionSheet = (item: PantryItem) => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: [
+          'Cancel',
+          'Mark as Running Low',
+          'Finished - Remove from Pantry',
+          'Finished - Convert to Staple',
+          'Delete Item',
+        ],
+        destructiveButtonIndex: 4,
+        cancelButtonIndex: 0,
+        title: item.name,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) {
+          updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
+        } else if (buttonIndex === 2) {
+          deletePantryItem.mutate(item.id)
+        } else if (buttonIndex === 3) {
+          updatePantryItem.mutate({ itemId: item.id, itemType: 'staple', status: 'out_of_stock' })
+        } else if (buttonIndex === 4) {
+          deletePantryItem.mutate(item.id)
+        }
+      }
+    )
+  }
+
+  const handleSwipeAction = (item: PantryItem) => {
+    if (item.itemType === 'planned') {
+      showPlannedActionSheet(item)
+    } else {
+      showStapleActionSheet(item)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -167,6 +250,7 @@ export function PantryListScreen() {
                       key={item.id}
                       item={item}
                       onPress={() => navigateToItem(item)}
+                      onSwipeAction={handleSwipeAction}
                     />
                   ))}
                 </View>
@@ -178,6 +262,7 @@ export function PantryListScreen() {
               key={item.id}
               item={item}
               onPress={() => navigateToItem(item)}
+              onSwipeAction={handleSwipeAction}
             />
           ))}
           </ScrollView>
@@ -238,6 +323,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+  },
+  swipeAction: {
+    backgroundColor: '#3498DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+    marginBottom: 12,
+    borderRadius: 12,
   },
   itemInfo: {
     flexDirection: 'row',

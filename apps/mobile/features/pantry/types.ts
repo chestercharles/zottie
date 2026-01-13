@@ -37,6 +37,7 @@ export interface ListPantryItemsResponse {
 export interface UpdatePantryItemRequest {
   status?: PantryItemStatus
   name?: string
+  itemType?: ItemType
 }
 
 export interface UpdatePantryItemResponse {

@@ -7,6 +7,7 @@ import {
   pantryItems,
   getHouseholdId,
   type PantryItemStatus,
+  type PantryItemType,
 } from '../db'
 
 export class PantryItemUpdateEndpoint extends OpenAPIRoute {
@@ -93,7 +94,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params
-    const { status, name } = data.body
+    const { status, name, itemType } = data.body
 
     const existingItems = await db
       .select()
@@ -119,6 +120,7 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
       updatedAt: Date
       status?: PantryItemStatus
       name?: string
+      itemType?: PantryItemType
       purchasedAt?: Date
     } = {
       updatedAt: now,
@@ -131,6 +133,9 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
     }
     if (name !== undefined) {
       updateData.name = name
+    }
+    if (itemType !== undefined) {
+      updateData.itemType = itemType as PantryItemType
     }
 
     await db

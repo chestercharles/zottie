@@ -32,7 +32,7 @@
   {
     "name": "Swipe actions for quick status changes on pantry items",
     "description": "Users can swipe left on pantry items to reveal a button that opens an iOS action sheet with contextual options. For staple items, the action sheet shows: 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item', and Cancel. For planned items, the action sheet shows: 'Mark as Running Low', 'Finished - Remove from Pantry', 'Finished - Convert to Staple', 'Delete Item', and Cancel. The 'Finished - Remove from Pantry' option removes the planned item entirely. The 'Finished - Convert to Staple' option changes the item's type to 'staple' and sets its status to 'out_of_stock' so it appears on the shopping list for re-purchase. This replaces the confusing behavior where tapping 'Out of Stock' on a planned item would trigger a removal confirmation.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "iOS-style bottom sheet for adding pantry items",
