@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Text,
   View,
@@ -9,25 +9,31 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/features/auth'
-import { useValidateInvite, useJoinHousehold, useHousehold } from './hooks'
+import {
+  useValidateInvite,
+  useJoinHousehold,
+  useHousehold,
+  usePendingInvite,
+} from './hooks'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 
-interface JoinScreenProps {
-  code: string
-  onSignIn: () => void
-  onJoinSuccess: () => void
-  onCancel?: () => void
-}
+export function JoinScreen() {
+  const { code } = useLocalSearchParams<{ code: string }>()
+  const { storePendingInvite, clearPendingInvite } = usePendingInvite()
+  const { signIn, isAuthenticated, isLoading: isAuthLoading } = useAuth()
 
-export function JoinScreen({
-  code,
-  onSignIn,
-  onJoinSuccess,
-  onCancel,
-}: JoinScreenProps) {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
-  const { invite, isLoading: isValidating, error } = useValidateInvite(
-    isAuthenticated ? code : null
-  )
+  const router = useRouter()
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated && code) {
+      storePendingInvite(code)
+    }
+  }, [isAuthLoading, isAuthenticated, code, storePendingInvite])
+
+  const {
+    invite,
+    isLoading: isValidating,
+    error,
+  } = useValidateInvite(isAuthenticated ? code : null)
   const { household: currentHousehold, isLoading: isLoadingHousehold } =
     useHousehold()
   const joinMutation = useJoinHousehold()
@@ -45,7 +51,8 @@ export function JoinScreen({
       if (response.alreadyMember) {
         Alert.alert("You're already a member of this household!")
       }
-      onJoinSuccess()
+      await clearPendingInvite()
+      router.replace('/(authenticated)/pantry')
     } catch (err) {
       Alert.alert(
         'Unable to Join',
@@ -65,6 +72,23 @@ export function JoinScreen({
         { text: 'Switch', style: 'destructive', onPress: handleJoinHousehold },
       ]
     )
+  }
+
+  const handleSignIn = async () => {
+    try {
+      await signIn()
+    } catch (error) {
+      console.error('Sign in failed:', error)
+    }
+  }
+
+  const handleCancel = () => {
+    console.log('handleCancel')
+    if (router.canGoBack()) {
+      router.back()
+    } else {
+      router.replace('/(authenticated)/pantry')
+    }
   }
 
   if (isAuthLoading) {
@@ -87,7 +111,7 @@ export function JoinScreen({
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.primaryButton} onPress={onSignIn}>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn}>
             <Text style={styles.primaryButtonText}>Sign In to Continue</Text>
           </TouchableOpacity>
         </View>
@@ -133,7 +157,10 @@ export function JoinScreen({
           </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.primaryButton} onPress={onCancel}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleCancel}
+            >
               <Text style={styles.primaryButtonText}>Go Back</Text>
             </TouchableOpacity>
           </View>
@@ -177,15 +204,13 @@ export function JoinScreen({
                 <Text style={styles.primaryButtonText}>Switch Households</Text>
               )}
             </TouchableOpacity>
-            {onCancel && (
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={onCancel}
-                disabled={isJoining}
-              >
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={handleCancel}
+              disabled={isJoining}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )

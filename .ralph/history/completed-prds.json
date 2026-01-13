@@ -108,5 +108,57 @@
     "name": "Pull to refresh pantry screen",
     "description": "Users can pull down on the pantry screen to refresh the list of pantry items from the database.",
     "completed": true
+  },
+  {
+    "name": "Create a household",
+    "description": "Users create a household through the onboarding flow by entering a household name. The POST /api/household endpoint creates the household with the provided name and adds the user as a member. The previous auto-creation behavior (where GET /api/household would create a household if none existed) is removed. A new GET /api/household/membership endpoint returns the user's household if they have one, or 404 if they don't (no auto-creation). The household name is required and can be edited later from the settings page.",
+    "completed": true
+  },
+  {
+    "name": "First-time user household onboarding flow",
+    "description": "After a new user authenticates for the first time, they see an onboarding screen before accessing the main app. The screen presents two options: 'Create a Household' (primary) with a required text input for household name, and 'Join an Existing Household' (secondary) which displays a message explaining that they need an invite link from someone else. When creating a household, the user enters a name and taps 'Create Household' to create their household and proceed to the pantry. The app detects first-time users by checking if they have a household membership (via GET /api/household/membership which returns 404 if no household exists). Users without a household are redirected to the onboarding screen and cannot access other authenticated screens until onboarding is complete.",
+    "completed": true
+  },
+  {
+    "name": "Generate household invite link",
+    "description": "From the settings page, users can generate a shareable invite link to invite others to their household. The link expires after 7 days. Users can generate a new link at any time (which invalidates any previous unexpired link). The link can be shared via the device's native share sheet.",
+    "completed": true
+  },
+  {
+    "name": "Handle invite deep links",
+    "description": "When a user opens a zottie://join/{code} link, the app routes to a join screen that validates the invite code via GET /api/household/invite/{code} and displays the target household name. If the invite is invalid or expired, shows an error message. If the user is not authenticated, prompts them to sign in/sign up first and stores the invite code so the join flow can resume after auth.",
+    "completed": true
+  },
+  {
+    "name": "New user joins household via invite",
+    "description": "On the join screen, authenticated users without a household see the target household name and a 'Join Household' button. Tapping the button calls POST /api/household/join/{code} to add them to the household, then navigates to the pantry (skipping the normal create-household onboarding flow).",
+    "completed": true
+  },
+  {
+    "name": "Existing user switches household via invite",
+    "description": "On the join screen, authenticated users who already have a household see a warning that joining will remove them from their current household. If the invite is for their current household, shows 'You're already a member.' Otherwise, shows 'Switch Households' and 'Cancel' options. On confirmation, removes them from their current household and adds them to the new one via POST /api/household/join/{code}.",
+    "completed": true
+  },
+
+  {
+    "name": "Pantry items scoped to household",
+    "description": "Pantry items belong to a household rather than an individual user. All members of a household see the same pantry items. Any member can create, update, or delete pantry items. This replaces the current user-scoped pantry item model.",
+    "completed": true
+  },
+  {
+    "name": "Shopping list scoped to household",
+    "description": "The shopping list is derived from household pantry data. All members see the same shopping list. Any member can check off items and mark items as purchased. Changes are visible to other members on refresh.",
+    "completed": true
+  },
+  {
+    "name": "Settings page accessible from pantry screen",
+    "description": "A settings gear icon is displayed in the header of the pantry screen. Tapping the gear navigates the user to a settings page where they can manage their account and household settings.",
+    "completed": true
+  },
+
+  {
+    "name": "Log out from settings page",
+    "description": "Users can log out of their account from the settings page. A 'Log Out' button is prominently displayed. Tapping it shows a confirmation dialog, and upon confirmation, the user is logged out and returned to the login/welcome screen.",
+    "completed": true
   }
 ]
