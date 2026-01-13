@@ -6,9 +6,21 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 - Implement "Leave a household" (next household feature)
 - Implement "Filter pantry items by search term"
-- Implement "Users should be able to log out from the onboarding screen"
 
 ## Recently Completed
+
+### Users should be able to log out from the onboarding screen
+
+**Frontend (Mobile) changes:**
+- Added logout button to `OnboardingScreen` component
+- Button is positioned at the bottom of the screen using `marginTop: 'auto'`
+- Shows confirmation dialog before logging out (same pattern as Settings)
+- Clears React Query cache and calls `signOut()` from auth hook
+- Button shows "Logging out..." state while processing
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Settings page displays household info and members
 

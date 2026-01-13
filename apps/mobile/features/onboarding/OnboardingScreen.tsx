@@ -10,8 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useCreateHousehold } from '@/features/household/hooks'
+import { useAuth } from '@/features/auth'
+import { queryClient } from '@/lib/query/client'
 
 interface OnboardingScreenProps {
   onSuccess: () => void
@@ -21,6 +24,9 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
   const [householdName, setHouseholdName] = useState('')
   const createMutation = useCreateHousehold()
   const [isCreating, setIsCreating] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { signOut } = useAuth()
+  const insets = useSafeAreaInsets()
 
   const handleCreateHousehold = async () => {
     const trimmedName = householdName.trim()
@@ -44,6 +50,21 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
   }
 
   const isButtonDisabled = isCreating || !householdName.trim()
+
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          setIsLoggingOut(true)
+          queryClient.clear()
+          await signOut()
+        },
+      },
+    ])
+  }
 
   return (
     <KeyboardAvoidingView
@@ -101,6 +122,18 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
           </Text>
         </View>
       </View>
+
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          disabled={isLoggingOut}
+        >
+          <Text style={styles.logoutButtonText}>
+            {isLoggingOut ? 'Logging out...' : 'Log Out'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   )
 }
@@ -110,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 24,
-    paddingVertical: 48,
+    paddingTop: 48,
   },
   content: {
     alignItems: 'center',
@@ -200,5 +233,22 @@ const styles = StyleSheet.create({
     color: '#7F8C8D',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: 24,
+  },
+  logoutButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E74C3C',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  logoutButtonText: {
+    color: '#E74C3C',
+    fontSize: 16,
+    fontWeight: '600',
   },
 })

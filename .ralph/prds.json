@@ -22,7 +22,7 @@
   {
     "name": "Users should be able to log out from the onboarding screen",
     "description": "Users should be able to log out from the onboarding screen. The onboarding screen should have a 'Log Out' button that logs the user out and returns them to the landing page. The button should be displayed near the bottom of the screen.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Visual indicator distinguishes planned items from staples",
