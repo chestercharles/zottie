@@ -9,6 +9,8 @@ export interface HouseholdMember {
   id: string
   householdId: string
   userId: string
+  email: string
+  name?: string
   joinedAt: number
 }
 

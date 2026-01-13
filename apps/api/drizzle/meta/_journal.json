@@ -15,6 +15,13 @@
       "when": 1768208470355,
       "tag": "0001_solid_raza",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1768274890726,
+      "tag": "0002_complex_kabuki",
+      "breakpoints": true
     }
   ]
 }

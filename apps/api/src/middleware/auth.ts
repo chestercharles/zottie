@@ -3,6 +3,8 @@ import type { MiddlewareHandler } from 'hono'
 
 interface JWTPayload {
   sub: string
+  email?: string
+  name?: string
   aud?: string | string[]
   iss?: string
   exp?: number
@@ -11,6 +13,8 @@ interface JWTPayload {
 
 export type AuthVariables = {
   userId: string
+  userEmail?: string
+  userName?: string
   jwtPayload: JWTPayload
 }
 
@@ -92,6 +96,8 @@ export function authMiddleware(): MiddlewareHandler<{
       }
 
       c.set('userId', payload.sub)
+      c.set('userEmail', payload.email)
+      c.set('userName', payload.name)
       c.set('jwtPayload', payload)
 
       await next()

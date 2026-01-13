@@ -51,7 +51,7 @@ describe('POST /api/household/invite', () => {
 
   it('should create an invite for authenticated user with household', async () => {
     const userId = `auth0|invite-test-${Date.now()}`
-    const token = await createTestToken({ userId })
+    const token = await createTestToken({ userId, email: `${userId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -82,7 +82,7 @@ describe('POST /api/household/invite', () => {
 
   it('should invalidate previous invite when creating a new one', async () => {
     const userId = `auth0|invite-invalidate-${Date.now()}`
-    const token = await createTestToken({ userId })
+    const token = await createTestToken({ userId, email: `${userId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -141,7 +141,7 @@ describe('GET /api/household/invite/:code', () => {
 
   it('should return 404 for invalid invite code', async () => {
     const userId = 'auth0|validate-test-123'
-    const token = await createTestToken({ userId })
+    const token = await createTestToken({ userId, email: `${userId}@example.com` })
 
     const response = await fetch(
       `${API_URL}/api/household/invite/invalidcode`,
@@ -160,7 +160,7 @@ describe('GET /api/household/invite/:code', () => {
 
   it('should return invite info for valid code', async () => {
     const userId = `auth0|validate-valid-${Date.now()}`
-    const token = await createTestToken({ userId })
+    const token = await createTestToken({ userId, email: `${userId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -214,6 +214,8 @@ interface HouseholdJoinResponse {
       id: string
       householdId: string
       userId: string
+      email: string
+      name?: string
       joinedAt: number
     }>
     alreadyMember?: boolean
@@ -234,7 +236,7 @@ describe('POST /api/household/join/:code', () => {
 
   it('should return 404 for invalid invite code', async () => {
     const userId = `auth0|join-invalid-${Date.now()}`
-    const token = await createTestToken({ userId })
+    const token = await createTestToken({ userId, email: `${userId}@example.com` })
 
     const response = await fetch(`${API_URL}/api/household/join/invalidcode`, {
       method: 'POST',
@@ -251,7 +253,7 @@ describe('POST /api/household/join/:code', () => {
 
   it('should allow new user to join a household via valid invite', async () => {
     const ownerUserId = `auth0|owner-${Date.now()}`
-    const ownerToken = await createTestToken({ userId: ownerUserId })
+    const ownerToken = await createTestToken({ userId: ownerUserId, email: `${ownerUserId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -273,7 +275,7 @@ describe('POST /api/household/join/:code', () => {
     const code = inviteData.result.invite.code
 
     const newUserId = `auth0|newuser-${Date.now()}`
-    const newUserToken = await createTestToken({ userId: newUserId })
+    const newUserToken = await createTestToken({ userId: newUserId, email: `${newUserId}@example.com` })
 
     const joinResponse = await fetch(`${API_URL}/api/household/join/${code}`, {
       method: 'POST',
@@ -293,7 +295,7 @@ describe('POST /api/household/join/:code', () => {
 
   it('should allow user to switch from one household to another', async () => {
     const ownerUserId = `auth0|owner-switch-${Date.now()}`
-    const ownerToken = await createTestToken({ userId: ownerUserId })
+    const ownerToken = await createTestToken({ userId: ownerUserId, email: `${ownerUserId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -316,7 +318,7 @@ describe('POST /api/household/join/:code', () => {
     const targetHouseholdId = inviteData.result.invite.householdId
 
     const existingUserId = `auth0|existing-switch-${Date.now()}`
-    const existingUserToken = await createTestToken({ userId: existingUserId })
+    const existingUserToken = await createTestToken({ userId: existingUserId, email: `${existingUserId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',
@@ -348,7 +350,7 @@ describe('POST /api/household/join/:code', () => {
 
   it('should return alreadyMember flag if user is already in target household', async () => {
     const ownerUserId = `auth0|owner-already-${Date.now()}`
-    const ownerToken = await createTestToken({ userId: ownerUserId })
+    const ownerToken = await createTestToken({ userId: ownerUserId, email: `${ownerUserId}@example.com` })
 
     await fetch(`${API_URL}/api/household`, {
       method: 'POST',

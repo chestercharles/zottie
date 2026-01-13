@@ -2,11 +2,13 @@ import * as jose from 'jose'
 
 interface TestTokenOptions {
   userId: string
+  email?: string
+  name?: string
   expiresIn?: string
 }
 
 export async function createTestToken(options: TestTokenOptions): Promise<string> {
-  const { userId, expiresIn = '1h' } = options
+  const { userId, email, name, expiresIn = '1h' } = options
 
   const testSecret = process.env.TEST_JWT_SECRET
   if (!testSecret) {
@@ -18,7 +20,11 @@ export async function createTestToken(options: TestTokenOptions): Promise<string
 
   const secret = new TextEncoder().encode(testSecret)
 
-  const token = await new jose.SignJWT({ sub: userId })
+  const payload: Record<string, unknown> = { sub: userId }
+  if (email) payload.email = email
+  if (name) payload.name = name
+
+  const token = await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expiresIn)

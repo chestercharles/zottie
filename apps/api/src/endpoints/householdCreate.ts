@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, Household, HouseholdCreate, HouseholdMember } from '../types'
-import { getDb, households, householdMembers } from '../db'
+import { getDb, households, householdMembers, users, upsertUser } from '../db'
 
 export class HouseholdCreateEndpoint extends OpenAPIRoute {
   schema = {
@@ -60,10 +60,16 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const userEmail = c.get('userEmail')
+    const userName = c.get('userName')
     const db = getDb(c.env.db)
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { name } = data.body
+
+    if (userEmail) {
+      await upsertUser(db, userId, userEmail, userName)
+    }
 
     const existingMembership = await db
       .select()
@@ -98,9 +104,17 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
       .from(households)
       .where(eq(households.id, householdId))
 
-    const members = await db
-      .select()
+    const membersData = await db
+      .select({
+        id: householdMembers.id,
+        householdId: householdMembers.householdId,
+        userId: householdMembers.userId,
+        joinedAt: householdMembers.joinedAt,
+        email: users.email,
+        name: users.name,
+      })
       .from(householdMembers)
+      .innerJoin(users, eq(householdMembers.userId, users.id))
       .where(eq(householdMembers.householdId, householdId))
 
     return c.json(
@@ -113,10 +127,12 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
             createdAt: household.createdAt.getTime(),
             updatedAt: household.updatedAt.getTime(),
           },
-          members: members.map((m) => ({
+          members: membersData.map((m) => ({
             id: m.id,
             householdId: m.householdId,
             userId: m.userId,
+            email: m.email,
+            name: m.name,
             joinedAt: m.joinedAt.getTime(),
           })),
         },

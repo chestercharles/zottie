@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { eq, and, gt } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, Household, HouseholdMember } from '../types'
-import { getDb, householdInvites, households, householdMembers } from '../db'
+import { getDb, householdInvites, households, householdMembers, users, upsertUser } from '../db'
 
 export class HouseholdJoinEndpoint extends OpenAPIRoute {
   schema = {
@@ -57,9 +57,15 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
 
   async handle(c: AppContext) {
     const userId = c.get('userId')
+    const userEmail = c.get('userEmail')
+    const userName = c.get('userName')
     const db = getDb(c.env.db)
     const data = await this.getValidatedData<typeof this.schema>()
     const { code } = data.params
+
+    if (userEmail) {
+      await upsertUser(db, userId, userEmail, userName)
+    }
 
     const now = new Date()
 
@@ -94,9 +100,17 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
           .from(households)
           .where(eq(households.id, invite[0].householdId))
 
-        const members = await db
-          .select()
+        const membersData = await db
+          .select({
+            id: householdMembers.id,
+            householdId: householdMembers.householdId,
+            userId: householdMembers.userId,
+            joinedAt: householdMembers.joinedAt,
+            email: users.email,
+            name: users.name,
+          })
           .from(householdMembers)
+          .innerJoin(users, eq(householdMembers.userId, users.id))
           .where(eq(householdMembers.householdId, invite[0].householdId))
 
         return {
@@ -108,10 +122,12 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
               createdAt: household.createdAt.getTime(),
               updatedAt: household.updatedAt.getTime(),
             },
-            members: members.map((m) => ({
+            members: membersData.map((m) => ({
               id: m.id,
               householdId: m.householdId,
               userId: m.userId,
+              email: m.email,
+              name: m.name,
               joinedAt: m.joinedAt.getTime(),
             })),
             alreadyMember: true,
@@ -137,9 +153,17 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       .from(households)
       .where(eq(households.id, invite[0].householdId))
 
-    const members = await db
-      .select()
+    const membersData = await db
+      .select({
+        id: householdMembers.id,
+        householdId: householdMembers.householdId,
+        userId: householdMembers.userId,
+        joinedAt: householdMembers.joinedAt,
+        email: users.email,
+        name: users.name,
+      })
       .from(householdMembers)
+      .innerJoin(users, eq(householdMembers.userId, users.id))
       .where(eq(householdMembers.householdId, invite[0].householdId))
 
     return {
@@ -151,10 +175,12 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
           createdAt: household.createdAt.getTime(),
           updatedAt: household.updatedAt.getTime(),
         },
-        members: members.map((m) => ({
+        members: membersData.map((m) => ({
           id: m.id,
           householdId: m.householdId,
           userId: m.userId,
+          email: m.email,
+          name: m.name,
           joinedAt: m.joinedAt.getTime(),
         })),
       },

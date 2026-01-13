@@ -56,6 +56,8 @@ export const HouseholdMember = z.object({
   id: Str({ example: '550e8400-e29b-41d4-a716-446655440002' }),
   householdId: Str({ example: '550e8400-e29b-41d4-a716-446655440001' }),
   userId: Str({ example: 'auth0|123456789' }),
+  email: Str({ example: 'user@example.com' }),
+  name: Str({ example: 'John Doe' }).optional(),
   joinedAt: z.number(),
 })
 

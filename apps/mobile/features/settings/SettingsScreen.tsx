@@ -21,7 +21,7 @@ import { queryClient } from '@/lib/query/client'
 
 export function SettingsScreen() {
   const { user, signOut } = useAuth()
-  const { household, isLoading: isLoadingHousehold } = useHousehold()
+  const { household, members, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
   const createInviteMutation = useCreateHouseholdInvite()
 
@@ -147,6 +147,33 @@ export function SettingsScreen() {
                 : 'Invite to Household'}
             </Text>
           </TouchableOpacity>
+
+          {members.length > 0 && (
+            <View style={styles.membersContainer}>
+              <Text style={styles.membersTitle}>Members</Text>
+              {members.map((member) => {
+                const isCurrentUser = member.userId === user?.id
+                return (
+                  <View key={member.id} style={styles.memberRow}>
+                    <Ionicons
+                      name="person-outline"
+                      size={20}
+                      color="#666"
+                      style={styles.memberIcon}
+                    />
+                    <View style={styles.memberInfo}>
+                      <Text style={styles.memberEmail}>
+                        {member.name || member.email}
+                      </Text>
+                      {isCurrentUser && (
+                        <Text style={styles.memberYouLabel}>You</Text>
+                      )}
+                    </View>
+                  </View>
+                )
+              })}
+            </View>
+          )}
         </View>
       </View>
 
@@ -275,6 +302,42 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: '#E74C3C',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  membersContainer: {
+    marginTop: 24,
+  },
+  membersTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  memberIcon: {
+    marginRight: 12,
+  },
+  memberInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  memberEmail: {
+    fontSize: 16,
+    color: '#333',
+  },
+  memberYouLabel: {
+    fontSize: 13,
+    color: '#3498DB',
     fontWeight: '600',
   },
 })
