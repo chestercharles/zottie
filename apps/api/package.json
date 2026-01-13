@@ -11,7 +11,8 @@
     "test": "vitest run --passWithNoTests",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply zottie-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply zottie-db --remote"
+    "db:migrate:prod": "wrangler d1 migrations apply zottie-db --remote",
+    "reset:db": "rm -rf .wrangler/state/d1 && pnpm run db:migrate"
   },
   "dependencies": {
     "chanfana": "^2.6.3",
