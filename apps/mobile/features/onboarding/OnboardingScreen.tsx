@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
+import { router } from 'expo-router'
 import { useCreateHousehold } from '@/features/household/hooks'
 import { useAuth } from '@/features/auth'
 import { queryClient } from '@/lib/query/client'
@@ -61,6 +62,7 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
           setIsLoggingOut(true)
           queryClient.clear()
           await signOut()
+          router.replace('/')
         },
       },
     ])

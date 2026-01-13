@@ -102,9 +102,13 @@ export function authMiddleware(): MiddlewareHandler<{
         return c.json({ success: false, error: 'Token missing sub claim' }, 401)
       }
 
-      const email = (payload[`${CLAIMS_NAMESPACE}/email`] as string) || payload.email
-      const emailVerified = payload[`${CLAIMS_NAMESPACE}/email_verified`] as boolean | undefined
+      const email =
+        (payload[`${CLAIMS_NAMESPACE}/email`] as string) || payload.email
+      const emailVerified = payload[`${CLAIMS_NAMESPACE}/email_verified`] as
+        | boolean
+        | undefined
 
+      console.log('payload', payload)
       c.set('userId', payload.sub)
       c.set('userEmail', email)
       c.set('userEmailVerified', emailVerified)

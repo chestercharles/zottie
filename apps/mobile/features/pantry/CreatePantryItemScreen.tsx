@@ -30,9 +30,7 @@ export function CreatePantryItemScreen() {
       { name: name.trim(), status },
       {
         onSuccess: () => {
-          Alert.alert('Success', 'Pantry item created successfully', [
-            { text: 'OK', onPress: () => router.back() },
-          ])
+          router.back()
         },
         onError: (err) => {
           setValidationError(
@@ -92,7 +90,10 @@ export function CreatePantryItemScreen() {
       )}
 
       <TouchableOpacity
-        style={[styles.button, createMutation.isPending && styles.buttonDisabled]}
+        style={[
+          styles.button,
+          createMutation.isPending && styles.buttonDisabled,
+        ]}
         onPress={handleCreate}
         disabled={createMutation.isPending}
       >
