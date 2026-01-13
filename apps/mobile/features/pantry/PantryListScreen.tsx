@@ -127,10 +127,16 @@ export function PantryListScreen() {
     transform: [{ translateY: sheetTranslateY.value }],
   }))
 
+  const focusNameInput = () => {
+    nameInputRef.current?.focus()
+  }
+
   const openAddSheet = () => {
     setIsAddSheetVisible(true)
     backdropOpacity.value = withTiming(1, { duration: 250 })
-    sheetTranslateY.value = withTiming(0, { duration: 300 })
+    sheetTranslateY.value = withTiming(0, { duration: 300 }, () => {
+      runOnJS(focusNameInput)()
+    })
   }
 
   const closeAddSheet = () => {
@@ -372,7 +378,6 @@ export function PantryListScreen() {
               onChangeText={setNewItemName}
               placeholder="Item name"
               placeholderTextColor="#999"
-              autoFocus
               editable={!createPantryItem.isPending}
               onSubmitEditing={handleAddItem}
               returnKeyType="done"
