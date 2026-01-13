@@ -13,10 +13,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { useState, useRef, useLayoutEffect } from 'react'
+import { useState, useRef, useLayoutEffect, useEffect } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { Swipeable } from 'react-native-gesture-handler'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated'
 import { usePantryItems, useUpdatePantryItem, useDeletePantryItem, useCreatePantryItem } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
@@ -110,12 +116,38 @@ export function PantryListScreen() {
   const [newItemStatus, setNewItemStatus] = useState<PantryItemStatus>('in_stock')
   const nameInputRef = useRef<TextInput>(null)
 
+  const backdropOpacity = useSharedValue(0)
+  const sheetTranslateY = useSharedValue(300)
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }))
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: sheetTranslateY.value }],
+  }))
+
+  const openAddSheet = () => {
+    setIsAddSheetVisible(true)
+    backdropOpacity.value = withTiming(1, { duration: 250 })
+    sheetTranslateY.value = withTiming(0, { duration: 300 })
+  }
+
+  const closeAddSheet = () => {
+    backdropOpacity.value = withTiming(0, { duration: 200 })
+    sheetTranslateY.value = withTiming(300, { duration: 250 }, () => {
+      runOnJS(setIsAddSheetVisible)(false)
+      runOnJS(setNewItemName)('')
+      runOnJS(setNewItemStatus)('in_stock')
+    })
+  }
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
-            onPress={() => setIsAddSheetVisible(true)}
+            onPress={openAddSheet}
             style={{ marginRight: 16 }}
           >
             <Ionicons name="add" size={28} color="#3498DB" />
@@ -137,19 +169,9 @@ export function PantryListScreen() {
     createPantryItem.mutate(
       { name: newItemName.trim(), status: newItemStatus },
       {
-        onSuccess: () => {
-          setIsAddSheetVisible(false)
-          setNewItemName('')
-          setNewItemStatus('in_stock')
-        },
+        onSuccess: closeAddSheet,
       }
     )
-  }
-
-  const closeAddSheet = () => {
-    setIsAddSheetVisible(false)
-    setNewItemName('')
-    setNewItemStatus('in_stock')
   }
 
   const showStapleActionSheet = (item: PantryItem) => {
@@ -252,7 +274,7 @@ export function PantryListScreen() {
           </Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => setIsAddSheetVisible(true)}
+            onPress={openAddSheet}
           >
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
@@ -329,7 +351,7 @@ export function PantryListScreen() {
       )}
       <Modal
         visible={isAddSheetVisible}
-        animationType="fade"
+        animationType="none"
         transparent
         onRequestClose={closeAddSheet}
       >
@@ -337,8 +359,10 @@ export function PantryListScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalContainer}
         >
-          <Pressable style={styles.backdrop} onPress={closeAddSheet} />
-          <View style={styles.sheet}>
+          <Animated.View style={[styles.backdrop, backdropStyle]}>
+            <Pressable style={StyleSheet.absoluteFill} onPress={closeAddSheet} />
+          </Animated.View>
+          <Animated.View style={[styles.sheet, sheetStyle]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Add Item</Text>
             <TextInput
@@ -390,7 +414,7 @@ export function PantryListScreen() {
                 <Text style={styles.sheetAddButtonText}>Add</Text>
               )}
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
     </View>
