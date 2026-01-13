@@ -4,10 +4,34 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Leave a household" (next household feature)
 - Implement "Visual indicator distinguishes planned items from staples"
+- Implement "Swipe actions for quick status changes on pantry items"
 
 ## Recently Completed
+
+### Leave a household
+
+**Backend (API) changes:**
+- Created `HouseholdLeaveEndpoint` at `POST /api/household/leave`
+- Endpoint removes user from current household membership
+- Creates a new empty household for the user with default name "My Household"
+- If user was the last member, permanently deletes the old household and all its data (pantry items, invites)
+
+**Frontend (Mobile) changes:**
+- Added `leaveHousehold` API function in `features/household/api.ts`
+- Added `LeaveHouseholdResponse` type in `features/household/types.ts`
+- Created `useLeaveHousehold` hook with React Query mutation
+  - Invalidates household, householdMembership, and pantryItems queries on success
+- Updated `SettingsScreen`:
+  - Added "Leave Household" button below members list (red styling with exit icon)
+  - Confirmation dialog shows context-aware message:
+    - If only member: warns about permanent data deletion
+    - If other members exist: explains they'll lose access to shared pantry
+  - Button shows "Leaving..." state while processing
+
+**Testing:**
+- TypeScript compilation successful for both API and mobile
+- Mobile linting passing
 
 ### Filter pantry items by search term
 

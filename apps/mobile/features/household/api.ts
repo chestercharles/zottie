@@ -11,6 +11,7 @@ import type {
   CreateHouseholdInviteResponse,
   ValidateInviteResponse,
   JoinHouseholdResponse,
+  LeaveHouseholdResponse,
 } from './types'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
@@ -187,5 +188,29 @@ export async function joinHousehold(
   }
 
   const result = (await response.json()) as JoinHouseholdResponse
+  return result.result
+}
+
+export async function leaveHousehold(
+  authToken: string,
+  userId: string
+): Promise<{ household: Household; members: HouseholdMember[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/household/leave`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to leave household' }))
+    throw new Error(error.error || 'Failed to leave household')
+  }
+
+  const result = (await response.json()) as LeaveHouseholdResponse
   return result.result
 }

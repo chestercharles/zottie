@@ -83,3 +83,11 @@ export interface JoinHouseholdResponse {
     alreadyMember?: boolean
   }
 }
+
+export interface LeaveHouseholdResponse {
+  success: boolean
+  result: {
+    household: Household
+    members: HouseholdMember[]
+  }
+}

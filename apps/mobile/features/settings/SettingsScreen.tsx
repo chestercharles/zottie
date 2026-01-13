@@ -16,6 +16,7 @@ import {
   useHousehold,
   useUpdateHousehold,
   useCreateHouseholdInvite,
+  useLeaveHousehold,
 } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
 
@@ -24,6 +25,7 @@ export function SettingsScreen() {
   const { household, members, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
   const createInviteMutation = useCreateHouseholdInvite()
+  const leaveHouseholdMutation = useLeaveHousehold()
 
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
@@ -78,6 +80,28 @@ export function SettingsScreen() {
   const handleCancelEdit = () => {
     setIsEditingName(false)
     setEditedName('')
+  }
+
+  const handleLeaveHousehold = () => {
+    const isOnlyMember = members.length === 1
+    const message = isOnlyMember
+      ? 'You are the only member of this household. Leaving will permanently delete all household data including pantry items. A new empty household will be created for you.'
+      : 'You will leave this household and a new empty household will be created for you. You will lose access to the shared pantry.'
+
+    Alert.alert('Leave Household', message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Leave',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await leaveHouseholdMutation.mutateAsync()
+          } catch {
+            Alert.alert('Error', 'Failed to leave household')
+          }
+        },
+      },
+    ])
   }
 
   return (
@@ -174,6 +198,24 @@ export function SettingsScreen() {
               })}
             </View>
           )}
+
+          <TouchableOpacity
+            style={styles.leaveButton}
+            onPress={handleLeaveHousehold}
+            disabled={leaveHouseholdMutation.isPending}
+          >
+            <Ionicons
+              name="exit-outline"
+              size={20}
+              color="#E74C3C"
+              style={styles.leaveIcon}
+            />
+            <Text style={styles.leaveButtonText}>
+              {leaveHouseholdMutation.isPending
+                ? 'Leaving...'
+                : 'Leave Household'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -338,6 +380,23 @@ const styles = StyleSheet.create({
   memberYouLabel: {
     fontSize: 13,
     color: '#3498DB',
+    fontWeight: '600',
+  },
+  leaveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF2F2',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  leaveIcon: {
+    marginRight: 8,
+  },
+  leaveButtonText: {
+    color: '#E74C3C',
+    fontSize: 15,
     fontWeight: '600',
   },
 })

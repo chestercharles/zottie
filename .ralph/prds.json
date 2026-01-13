@@ -2,7 +2,7 @@
   {
     "name": "Leave a household",
     "description": "Users can leave their current household from the settings page. When leaving: a new empty household is created for them, and they start fresh with no pantry or shopping data. If they were the last member, the old household and all its data is permanently deleted. A confirmation dialog is shown before leaving.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Settings page displays household info and members",
