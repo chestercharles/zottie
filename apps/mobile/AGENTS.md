@@ -1,5 +1,17 @@
 # mobile agents.md
 
+## iOS UX/UI patterns
+
+Features should be implemented consistently with iOS native design patterns. Prefer iOS-native UI components and interaction patterns over custom or cross-platform alternatives:
+
+- Use bottom sheets instead of full-screen modals for quick actions
+- Use action sheets for contextual menus triggered by swipe or long-press
+- Use swipe gestures for revealing actions on list items
+- Place primary actions in the navigation header bar rather than floating action buttons
+- Follow iOS conventions for dismiss gestures (swipe down, tap backdrop)
+
+## Code organization
+
 We like to colocate cohesive code. Instead of organization things in to folders by type (eg. /components, /hooks, /queries), we like to organization things by feature (eg. /onboarding, /profile, /grocery-list, /grocery-item).
 
 Ideally, we could colocate most of the code associated with a screen next to the router file. However, Expo requires that every file in the /app directory is a route. So we can just import the screen from our feature module. All the routes in the /app folder should be very sparse. Our feature modules will probably closely match our routes.
