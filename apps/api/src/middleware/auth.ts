@@ -1,6 +1,8 @@
 import * as jose from 'jose'
 import type { MiddlewareHandler } from 'hono'
 
+const CLAIMS_NAMESPACE = 'https://zottie-api.chestercarmer.workers.dev'
+
 interface JWTPayload {
   sub: string
   email?: string
@@ -9,11 +11,13 @@ interface JWTPayload {
   iss?: string
   exp?: number
   iat?: number
+  [key: string]: unknown
 }
 
 export type AuthVariables = {
   userId: string
   userEmail?: string
+  userEmailVerified?: boolean
   userName?: string
   jwtPayload: JWTPayload
 }
@@ -55,7 +59,10 @@ export function authMiddleware(): MiddlewareHandler<{
 
         if (nodeEnv === 'production') {
           return c.json(
-            { success: false, error: 'HS256 tokens not accepted in production' },
+            {
+              success: false,
+              error: 'HS256 tokens not accepted in production',
+            },
             401
           )
         }
@@ -95,8 +102,12 @@ export function authMiddleware(): MiddlewareHandler<{
         return c.json({ success: false, error: 'Token missing sub claim' }, 401)
       }
 
+      const email = (payload[`${CLAIMS_NAMESPACE}/email`] as string) || payload.email
+      const emailVerified = payload[`${CLAIMS_NAMESPACE}/email_verified`] as boolean | undefined
+
       c.set('userId', payload.sub)
-      c.set('userEmail', payload.email)
+      c.set('userEmail', email)
+      c.set('userEmailVerified', emailVerified)
       c.set('userName', payload.name)
       c.set('jwtPayload', payload)
 
