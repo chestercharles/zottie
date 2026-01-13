@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { useState, useRef, useLayoutEffect, useEffect } from 'react'
+import { useState, useRef, useLayoutEffect } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { Swipeable } from 'react-native-gesture-handler'
@@ -114,7 +114,6 @@ export function PantryListScreen() {
   const [isAddSheetVisible, setIsAddSheetVisible] = useState(false)
   const [newItemName, setNewItemName] = useState('')
   const [newItemStatus, setNewItemStatus] = useState<PantryItemStatus>('in_stock')
-  const nameInputRef = useRef<TextInput>(null)
 
   const backdropOpacity = useSharedValue(0)
   const sheetTranslateY = useSharedValue(300)
@@ -126,15 +125,6 @@ export function PantryListScreen() {
   const sheetStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: sheetTranslateY.value }],
   }))
-
-  useEffect(() => {
-    if (isAddSheetVisible) {
-      const timer = setTimeout(() => {
-        nameInputRef.current?.focus()
-      }, 350)
-      return () => clearTimeout(timer)
-    }
-  }, [isAddSheetVisible])
 
   const openAddSheet = () => {
     setIsAddSheetVisible(true)
@@ -375,12 +365,12 @@ export function PantryListScreen() {
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Add Item</Text>
             <TextInput
-              ref={nameInputRef}
               style={styles.sheetInput}
               value={newItemName}
               onChangeText={setNewItemName}
               placeholder="Item name"
               placeholderTextColor="#999"
+              autoFocus
               editable={!createPantryItem.isPending}
               onSubmitEditing={handleAddItem}
               returnKeyType="done"
