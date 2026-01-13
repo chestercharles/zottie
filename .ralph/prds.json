@@ -62,7 +62,7 @@
   {
     "name": "First-time user household onboarding flow",
     "description": "After a new user authenticates for the first time, they see an onboarding screen before accessing the main app. The screen presents two options: 'Create a Household' (primary) with a required text input for household name, and 'Join an Existing Household' (secondary) which displays a message explaining that they need an invite link from someone else. When creating a household, the user enters a name and taps 'Create Household' to create their household and proceed to the pantry. The app detects first-time users by checking if they have a household membership (via GET /api/household/membership which returns 404 if no household exists). Users without a household are redirected to the onboarding screen and cannot access other authenticated screens until onboarding is complete.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Generate household invite link",
