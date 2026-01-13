@@ -17,7 +17,7 @@
   {
     "name": "Filter pantry items by search term",
     "description": "A search box is displayed at the top of the pantry screen. As the user types, the pantry list filters in real-time to show only items whose name contains the search term (case-insensitive). A clear button (X icon) appears in the search box when text is entered. Tapping the clear button removes the search term and shows all pantry items again. The search filters both the main pantry list and the planned items section.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Users should be able to log out from the onboarding screen",

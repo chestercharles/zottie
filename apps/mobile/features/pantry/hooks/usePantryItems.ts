@@ -6,7 +6,7 @@ import { queryKeys } from '@/lib/query'
 import { listPantryItems } from '../api'
 import type { PantryItem } from '../types'
 
-export function usePantryItems() {
+export function usePantryItems(searchTerm: string = '') {
   const { user } = useAuth()
   const { getCredentials } = useAuth0()
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -27,22 +27,34 @@ export function usePantryItems() {
     placeholderData: keepPreviousData,
   })
 
+  const normalizedSearch = searchTerm.toLowerCase().trim()
+
+  const filteredItems = useMemo(
+    () =>
+      normalizedSearch
+        ? (query.data ?? []).filter((item) =>
+            item.name.toLowerCase().includes(normalizedSearch)
+          )
+        : (query.data ?? []),
+    [query.data, normalizedSearch]
+  )
+
   const mainListItems = useMemo(
     () =>
-      (query.data ?? []).filter(
+      filteredItems.filter(
         (item) =>
           item.itemType === 'staple' ||
           (item.itemType === 'planned' && item.status !== 'planned')
       ),
-    [query.data]
+    [filteredItems]
   )
 
   const plannedItems = useMemo(
     () =>
-      (query.data ?? []).filter(
+      filteredItems.filter(
         (item) => item.itemType === 'planned' && item.status === 'planned'
       ),
-    [query.data]
+    [filteredItems]
   )
 
   const refetch = useCallback(async () => {

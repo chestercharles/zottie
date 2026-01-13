@@ -5,9 +5,25 @@ See `.ralph/history/completed-progress.md` for completed features.
 ## Current Next Steps
 
 - Implement "Leave a household" (next household feature)
-- Implement "Filter pantry items by search term"
+- Implement "Visual indicator distinguishes planned items from staples"
 
 ## Recently Completed
+
+### Filter pantry items by search term
+
+**Frontend (Mobile) changes:**
+- Updated `usePantryItems` hook to accept optional `searchTerm` parameter
+- Added `filteredItems` memoized value that filters items by name (case-insensitive)
+- `mainListItems` and `plannedItems` now derive from filtered items
+- Updated `PantryListScreen`:
+  - Added search state managed by `useState`
+  - Added search box at top of pantry list with `TextInput`
+  - Clear button (X) appears when text is entered
+  - Filters both main list and planned items section in real-time
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Users should be able to log out from the onboarding screen
 

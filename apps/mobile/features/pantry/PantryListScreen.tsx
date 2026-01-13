@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  TextInput,
 } from 'react-native'
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
@@ -52,8 +53,9 @@ function PantryItemRow({
 
 export function PantryListScreen() {
   const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState('')
   const { items, mainListItems, plannedItems, isLoading, isRefreshing, error, refetch } =
-    usePantryItems()
+    usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
 
   if (isLoading) {
@@ -106,12 +108,32 @@ export function PantryListScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
-          }
-        >
+        <>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search pantry items..."
+              placeholderTextColor="#999"
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {searchTerm.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setSearchTerm('')}
+              >
+                <Text style={styles.clearButtonText}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <ScrollView
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+            }
+          >
           {plannedItems.length > 0 && (
             <View style={styles.plannedSection}>
               <TouchableOpacity
@@ -150,7 +172,8 @@ export function PantryListScreen() {
               onPress={() => navigateToItem(item)}
             />
           ))}
-        </ScrollView>
+          </ScrollView>
+        </>
       )}
       {items.length > 0 && (
         <TouchableOpacity
@@ -178,6 +201,29 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingTop: 8,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: 16,
+    paddingHorizontal: 12,
+  },
+  searchInput: {
+    flex: 1,
+    height: 44,
+    fontSize: 16,
+    color: '#333',
+  },
+  clearButton: {
+    padding: 8,
+  },
+  clearButtonText: {
+    fontSize: 16,
+    color: '#999',
   },
   itemRow: {
     backgroundColor: '#f8f9fa',
