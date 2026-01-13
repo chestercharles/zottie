@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext, PantryItem } from '../types'
-import { getDb, pantryItems, getOrCreateHouseholdId } from '../db'
+import { getDb, pantryItems, getHouseholdId } from '../db'
 
 export class PantryItemListEndpoint extends OpenAPIRoute {
   schema = {
@@ -43,7 +43,16 @@ export class PantryItemListEndpoint extends OpenAPIRoute {
     const userName = c.get('userName')
     const db = getDb(c.env.db)
 
-    const householdId = await getOrCreateHouseholdId(db, userId, userEmail, userName)
+    const householdId = await getHouseholdId(db, userId)
+
+    if (!householdId) {
+      return {
+        success: true,
+        result: {
+          pantryItems: [],
+        },
+      }
+    }
 
     const items = await db
       .select()

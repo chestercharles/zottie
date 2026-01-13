@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import Constants from 'expo-constants'
+import { useRouter } from 'expo-router'
 import { useAuth } from '@/features/auth'
 import {
   useHousehold,
@@ -21,6 +22,7 @@ import {
 import { queryClient } from '@/lib/query/client'
 
 export function SettingsScreen() {
+  const router = useRouter()
   const { user, signOut } = useAuth()
   const { household, members, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
@@ -85,8 +87,8 @@ export function SettingsScreen() {
   const handleLeaveHousehold = () => {
     const isOnlyMember = members.length === 1
     const message = isOnlyMember
-      ? 'You are the only member of this household. Leaving will permanently delete all household data including pantry items. A new empty household will be created for you.'
-      : 'You will leave this household and a new empty household will be created for you. You will lose access to the shared pantry.'
+      ? 'You are the only member of this household. Leaving will permanently delete all household data including pantry items. You will need to create a new household or join an existing one.'
+      : 'You will leave this household and lose access to the shared pantry. You will need to create a new household or join an existing one.'
 
     Alert.alert('Leave Household', message, [
       { text: 'Cancel', style: 'cancel' },
@@ -96,6 +98,7 @@ export function SettingsScreen() {
         onPress: async () => {
           try {
             await leaveHouseholdMutation.mutateAsync()
+            router.replace('/')
           } catch {
             Alert.alert('Error', 'Failed to leave household')
           }

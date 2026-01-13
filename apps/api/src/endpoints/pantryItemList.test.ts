@@ -30,6 +30,15 @@ describe('GET /api/pantry-items', () => {
   beforeAll(async () => {
     testUserToken = await createTestToken({ userId: testUserId, email: `${testUserId}@example.com` })
 
+    await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${testUserToken}`,
+      },
+      body: JSON.stringify({ name: 'Test Household' }),
+    })
+
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
@@ -96,6 +105,15 @@ describe('GET /api/pantry-items', () => {
   it('should only return items for the specific user', async () => {
     const differentUserId = 'auth0|different-user-' + Date.now()
     const differentUserToken = await createTestToken({ userId: differentUserId, email: `${differentUserId}@example.com` })
+
+    await fetch(`${API_URL}/api/household`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${differentUserToken}`,
+      },
+      body: JSON.stringify({ name: 'Different Household' }),
+    })
 
     await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',

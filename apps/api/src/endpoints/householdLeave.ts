@@ -1,7 +1,7 @@
 import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { type AppContext, Household, HouseholdMember } from '../types'
+import { type AppContext } from '../types'
 import {
   getDb,
   households,
@@ -13,20 +13,15 @@ import {
 export class HouseholdLeaveEndpoint extends OpenAPIRoute {
   schema = {
     tags: ['Household'],
-    summary: 'Leave the current household and create a new one',
+    summary: 'Leave the current household',
     security: [{ bearerAuth: [] }],
     responses: {
       '200': {
-        description:
-          'Successfully left household and created a new one for the user',
+        description: 'Successfully left household',
         content: {
           'application/json': {
             schema: z.object({
               success: Bool(),
-              result: z.object({
-                household: Household,
-                members: z.array(HouseholdMember),
-              }),
             }),
           },
         },
@@ -98,54 +93,8 @@ export class HouseholdLeaveEndpoint extends OpenAPIRoute {
       await db.delete(households).where(eq(households.id, oldHouseholdId))
     }
 
-    const newHouseholdId = crypto.randomUUID()
-    const memberId = crypto.randomUUID()
-    const now = new Date()
-
-    await db.insert(households).values({
-      id: newHouseholdId,
-      name: 'My Household',
-      createdAt: now,
-      updatedAt: now,
-    })
-
-    await db.insert(householdMembers).values({
-      id: memberId,
-      householdId: newHouseholdId,
-      userId,
-      email: userEmail,
-      name: userName,
-      joinedAt: now,
-    })
-
-    const [household] = await db
-      .select()
-      .from(households)
-      .where(eq(households.id, newHouseholdId))
-
-    const membersData = await db
-      .select()
-      .from(householdMembers)
-      .where(eq(householdMembers.householdId, newHouseholdId))
-
     return {
       success: true,
-      result: {
-        household: {
-          id: household.id,
-          name: household.name,
-          createdAt: household.createdAt.getTime(),
-          updatedAt: household.updatedAt.getTime(),
-        },
-        members: membersData.map((m) => ({
-          id: m.id,
-          householdId: m.householdId,
-          userId: m.userId,
-          email: m.email,
-          name: m.name,
-          joinedAt: m.joinedAt.getTime(),
-        })),
-      },
     }
   }
 }

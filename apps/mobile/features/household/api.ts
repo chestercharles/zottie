@@ -194,7 +194,7 @@ export async function joinHousehold(
 export async function leaveHousehold(
   authToken: string,
   userId: string
-): Promise<{ household: Household; members: HouseholdMember[] }> {
+): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/household/leave`, {
     method: 'POST',
     headers: {
@@ -210,7 +210,4 @@ export async function leaveHousehold(
       .catch(() => ({ error: 'Failed to leave household' }))
     throw new Error(error.error || 'Failed to leave household')
   }
-
-  const result = (await response.json()) as LeaveHouseholdResponse
-  return result.result
 }

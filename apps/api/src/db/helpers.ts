@@ -1,13 +1,11 @@
 import { eq } from 'drizzle-orm'
 import type { Database } from './index'
-import { households, householdMembers } from './schema'
+import { householdMembers } from './schema'
 
-export async function getOrCreateHouseholdId(
+export async function getHouseholdId(
   db: Database,
-  userId: string,
-  email: string,
-  name?: string
-): Promise<string> {
+  userId: string
+): Promise<string | null> {
   const existingMembership = await db
     .select()
     .from(householdMembers)
@@ -18,25 +16,5 @@ export async function getOrCreateHouseholdId(
     return existingMembership[0].householdId
   }
 
-  const householdId = crypto.randomUUID()
-  const now = new Date()
-  const memberId = crypto.randomUUID()
-
-  await db.insert(households).values({
-    id: householdId,
-    name: 'My Household',
-    createdAt: now,
-    updatedAt: now,
-  })
-
-  await db.insert(householdMembers).values({
-    id: memberId,
-    householdId,
-    userId,
-    email,
-    name,
-    joinedAt: now,
-  })
-
-  return householdId
+  return null
 }

@@ -5,7 +5,7 @@ import { type AppContext, PantryItem, PantryItemUpdate } from '../types'
 import {
   getDb,
   pantryItems,
-  getOrCreateHouseholdId,
+  getHouseholdId,
   type PantryItemStatus,
 } from '../db'
 
@@ -51,6 +51,17 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
           },
         },
       },
+      '403': {
+        description: 'Forbidden - user must join a household first',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              error: z.string(),
+            }),
+          },
+        },
+      },
       '404': {
         description: 'Pantry item not found',
         content: {
@@ -71,7 +82,14 @@ export class PantryItemUpdateEndpoint extends OpenAPIRoute {
     const userName = c.get('userName')
     const db = getDb(c.env.db)
 
-    const householdId = await getOrCreateHouseholdId(db, userId, userEmail, userName)
+    const householdId = await getHouseholdId(db, userId)
+
+    if (!householdId) {
+      return c.json(
+        { success: false, error: 'User must join a household first' },
+        403
+      )
+    }
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params

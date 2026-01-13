@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute, Str } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { type AppContext } from '../types'
-import { getDb, pantryItems, getOrCreateHouseholdId } from '../db'
+import { getDb, pantryItems, getHouseholdId } from '../db'
 
 export class PantryItemDeleteEndpoint extends OpenAPIRoute {
   schema = {
@@ -36,6 +36,17 @@ export class PantryItemDeleteEndpoint extends OpenAPIRoute {
           },
         },
       },
+      '403': {
+        description: 'Forbidden - user must join a household first',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: Bool(),
+              error: z.string(),
+            }),
+          },
+        },
+      },
       '404': {
         description: 'Pantry item not found',
         content: {
@@ -56,7 +67,14 @@ export class PantryItemDeleteEndpoint extends OpenAPIRoute {
     const userName = c.get('userName')
     const db = getDb(c.env.db)
 
-    const householdId = await getOrCreateHouseholdId(db, userId, userEmail, userName)
+    const householdId = await getHouseholdId(db, userId)
+
+    if (!householdId) {
+      return c.json(
+        { success: false, error: 'User must join a household first' },
+        403
+      )
+    }
 
     const data = await this.getValidatedData<typeof this.schema>()
     const { id } = data.params
