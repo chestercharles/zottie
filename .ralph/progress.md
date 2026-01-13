@@ -4,10 +4,32 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "iOS-style bottom sheet for adding pantry items"
 - Implement "iOS-style bottom sheet for adding shopping list items"
 
 ## Recently Completed
+
+### iOS-style bottom sheet for adding pantry items
+
+**Frontend (Mobile) changes:**
+- Updated `PantryListScreen` in `features/pantry/PantryListScreen.tsx`:
+  - Added bottom sheet modal using React Native's `Modal` component with `animationType="slide"`
+  - Sheet contains: item name input (autofocused), status selector with "In Stock" (default), "Running Low", "Out of Stock" options, and "Add" button
+  - Sheet dismissible by tapping backdrop
+  - Added `KeyboardAvoidingView` for proper keyboard handling on iOS
+  - Uses `useCreatePantryItem` hook for creating items
+- Added `+` button in header bar next to settings icon using `useNavigation().setOptions()`
+- Removed FAB (floating action button) from bottom of screen
+- Updated empty state "Add Item" button to open bottom sheet instead of navigating to `/pantry/create`
+- Simplified `_layout.tsx` - removed static `headerRight` since it's now set dynamically
+
+**New styles added:**
+- `modalContainer`, `backdrop`, `sheet`, `sheetHandle`, `sheetTitle`
+- `sheetInput`, `sheetLabel`, `sheetStatusContainer`, `sheetStatusButton`, `sheetStatusButtonActive`
+- `sheetStatusButtonText`, `sheetStatusButtonTextActive`, `sheetAddButton`, `sheetAddButtonDisabled`, `sheetAddButtonText`
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Swipe actions for quick status changes on pantry items
 

@@ -2,7 +2,7 @@
   {
     "name": "iOS-style bottom sheet for adding pantry items",
     "description": "Replace the current FAB (floating action button) and full-screen form with an iOS-native bottom sheet pattern. A '+' button appears in the pantry screen's header bar (next to the settings icon). Tapping it opens a bottom sheet that slides up from the bottom of the screen. The sheet contains: a text input for item name (autofocused), a status selector with options 'In Stock' (default), 'Running Low', and 'Out of Stock', and an 'Add' button. The sheet can be dismissed by swiping down or tapping the backdrop. This replaces the current navigation to /pantry/create.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "iOS-style bottom sheet for adding shopping list items",

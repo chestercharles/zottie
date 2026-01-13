@@ -8,12 +8,16 @@ import {
   RefreshControl,
   TextInput,
   ActionSheetIOS,
+  Modal,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native'
-import { useState, useRef } from 'react'
-import { useRouter } from 'expo-router'
+import { useState, useRef, useLayoutEffect } from 'react'
+import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { Swipeable } from 'react-native-gesture-handler'
-import { usePantryItems, useUpdatePantryItem, useDeletePantryItem } from './hooks'
+import { usePantryItems, useUpdatePantryItem, useDeletePantryItem, useCreatePantryItem } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -84,14 +88,69 @@ function PantryItemRow({
   )
 }
 
+const addItemStatusOptions: { label: string; value: PantryItemStatus }[] = [
+  { label: 'In Stock', value: 'in_stock' },
+  { label: 'Running Low', value: 'running_low' },
+  { label: 'Out of Stock', value: 'out_of_stock' },
+]
+
 export function PantryListScreen() {
   const router = useRouter()
+  const navigation = useNavigation()
   const [searchTerm, setSearchTerm] = useState('')
   const { items, mainListItems, plannedItems, isLoading, isRefreshing, error, refetch } =
     usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
   const updatePantryItem = useUpdatePantryItem()
   const deletePantryItem = useDeletePantryItem()
+  const createPantryItem = useCreatePantryItem()
+
+  const [isAddSheetVisible, setIsAddSheetVisible] = useState(false)
+  const [newItemName, setNewItemName] = useState('')
+  const [newItemStatus, setNewItemStatus] = useState<PantryItemStatus>('in_stock')
+  const nameInputRef = useRef<TextInput>(null)
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => setIsAddSheetVisible(true)}
+            style={{ marginRight: 16 }}
+          >
+            <Ionicons name="add" size={28} color="#3498DB" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/pantry/settings')}
+            style={{ marginRight: 8 }}
+          >
+            <Ionicons name="settings-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
+      ),
+    })
+  }, [navigation, router])
+
+  const handleAddItem = () => {
+    if (!newItemName.trim()) return
+
+    createPantryItem.mutate(
+      { name: newItemName.trim(), status: newItemStatus },
+      {
+        onSuccess: () => {
+          setIsAddSheetVisible(false)
+          setNewItemName('')
+          setNewItemStatus('in_stock')
+        },
+      }
+    )
+  }
+
+  const closeAddSheet = () => {
+    setIsAddSheetVisible(false)
+    setNewItemName('')
+    setNewItemStatus('in_stock')
+  }
 
   const showStapleActionSheet = (item: PantryItem) => {
     ActionSheetIOS.showActionSheetWithOptions(
@@ -193,7 +252,7 @@ export function PantryListScreen() {
           </Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.push('/pantry/create')}
+            onPress={() => setIsAddSheetVisible(true)}
           >
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
@@ -268,14 +327,72 @@ export function PantryListScreen() {
           </ScrollView>
         </>
       )}
-      {items.length > 0 && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => router.push('/pantry/create')}
+      <Modal
+        visible={isAddSheetVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={closeAddSheet}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalContainer}
         >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      )}
+          <Pressable style={styles.backdrop} onPress={closeAddSheet} />
+          <View style={styles.sheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Add Item</Text>
+            <TextInput
+              ref={nameInputRef}
+              style={styles.sheetInput}
+              value={newItemName}
+              onChangeText={setNewItemName}
+              placeholder="Item name"
+              placeholderTextColor="#999"
+              autoFocus
+              editable={!createPantryItem.isPending}
+              onSubmitEditing={handleAddItem}
+              returnKeyType="done"
+            />
+            <Text style={styles.sheetLabel}>Status</Text>
+            <View style={styles.sheetStatusContainer}>
+              {addItemStatusOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.sheetStatusButton,
+                    newItemStatus === option.value && styles.sheetStatusButtonActive,
+                  ]}
+                  onPress={() => setNewItemStatus(option.value)}
+                  disabled={createPantryItem.isPending}
+                >
+                  <Text
+                    style={[
+                      styles.sheetStatusButtonText,
+                      newItemStatus === option.value && styles.sheetStatusButtonTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.sheetAddButton,
+                (!newItemName.trim() || createPantryItem.isPending) && styles.sheetAddButtonDisabled,
+              ]}
+              onPress={handleAddItem}
+              disabled={!newItemName.trim() || createPantryItem.isPending}
+            >
+              {createPantryItem.isPending ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.sheetAddButtonText}>Add</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   )
 }
@@ -408,27 +525,90 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#3498DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
-  fabText: {
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#ddd',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  sheetInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  sheetLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+  },
+  sheetStatusContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+  },
+  sheetStatusButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  sheetStatusButtonActive: {
+    backgroundColor: '#3498DB',
+    borderColor: '#3498DB',
+  },
+  sheetStatusButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  sheetStatusButtonTextActive: {
     color: '#fff',
-    fontSize: 28,
-    fontWeight: '400',
-    lineHeight: 30,
+  },
+  sheetAddButton: {
+    backgroundColor: '#27AE60',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  sheetAddButtonDisabled: {
+    opacity: 0.5,
+  },
+  sheetAddButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   plannedSection: {
     marginBottom: 16,
