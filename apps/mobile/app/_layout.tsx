@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router'
 import { Auth0Provider } from 'react-native-auth0'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Constants from 'expo-constants'
 import { queryClient } from '../lib/query'
 
@@ -22,9 +23,10 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
-        <Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
+          <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
           <Stack.Screen
@@ -41,8 +43,9 @@ export default function RootLayout() {
               headerBackTitle: 'Back',
             }}
           />
-        </Stack>
-      </Auth0Provider>
-    </QueryClientProvider>
+          </Stack>
+        </Auth0Provider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   )
 }
