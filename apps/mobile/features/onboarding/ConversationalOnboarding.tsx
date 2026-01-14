@@ -11,9 +11,10 @@ import { useHouseholdMembership, useCreateHousehold } from '@/features/household
 import { NewPantryInputScreen } from './NewPantryInputScreen'
 import { NewShoppingListInputScreen } from './NewShoppingListInputScreen'
 import { NewProcessingScreen } from './NewProcessingScreen'
+import { NewHouseholdInvitationScreen } from './NewHouseholdInvitationScreen'
 import { useOnboardingItemParsing } from './hooks'
 
-type OnboardingStep = 'pantry' | 'shopping' | 'processing'
+type OnboardingStep = 'pantry' | 'shopping' | 'processing' | 'invitation'
 
 interface ProcessingState {
   pantryText: string
@@ -116,7 +117,7 @@ export function ConversationalOnboarding() {
         }
 
         if (!processingState.pantryError && !processingState.shoppingError) {
-          router.replace('/(authenticated)/pantry')
+          setCurrentStep('invitation')
         }
       } catch (error) {
         console.error('Error processing items:', error)
@@ -195,7 +196,7 @@ export function ConversationalOnboarding() {
             )}
             <TouchableOpacity
               style={styles.skipErrorButton}
-              onPress={() => router.replace('/(authenticated)/pantry')}
+              onPress={() => setCurrentStep('invitation')}
             >
               <Text style={styles.skipErrorButtonText}>Continue anyway</Text>
             </TouchableOpacity>
@@ -212,6 +213,15 @@ export function ConversationalOnboarding() {
           : 'shopping'
 
     return <NewProcessingScreen step={step} />
+  }
+
+  if (currentStep === 'invitation') {
+    return (
+      <NewHouseholdInvitationScreen
+        onContinue={() => router.replace('/(authenticated)/pantry')}
+        onSkip={() => router.replace('/(authenticated)/pantry')}
+      />
+    )
   }
 
   return null

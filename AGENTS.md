@@ -29,3 +29,7 @@ zottie is built with deep empathy for users. Every interaction should make users
 **Subtle, warm interactions**: Follow iOS design patterns with gentle, continuous animations using spring physics. Avoid jarring or anxiety-inducing elements like harsh spinners. Use subtle pulsing, breathing animations that feel warm and engaging. Make wait times feel shorter and more pleasant.
 
 **Reassurance over perfection**: Remind users they can adjust things later. Don't make every decision feel high-stakes. Help users feel confident they can experiment and refine as they go.
+
+## Important
+
+This is a public repo, NEVER commit any senstive data such as API keys.
