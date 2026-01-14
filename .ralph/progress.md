@@ -1,5 +1,63 @@
 # zottie Development Progress
 
+## 2026-01-14: Onboarding feature flag API endpoint
+
+Implemented a backend API endpoint that determines which onboarding experience to show users.
+
+### What was built
+
+- Created `/api/onboarding/flag` endpoint that returns either 'original' or 'conversational'
+- Added `config/onboarding-flag.txt` file to store the current flag value
+- Configured Cloudflare Workers static assets binding to serve the flag file
+- Added comprehensive e2e tests for the endpoint
+
+### How it works
+
+The endpoint reads from a hardcoded text file (`config/onboarding-flag.txt`) that contains either "original" or "conversational". The file is served as a static asset through Cloudflare Workers' ASSETS binding. When the mobile app calls this endpoint before showing onboarding, it receives the current flag value and can determine which flow to use.
+
+### User experience
+
+1. Mobile app starts up and needs to show onboarding
+2. App calls `GET /api/onboarding/flag` endpoint
+3. Endpoint reads the flag from the static config file
+4. App receives either "original" or "conversational" flag
+5. App shows the corresponding onboarding experience
+
+### Benefits
+
+- Allows toggling between onboarding experiences without rebuilding the mobile app
+- Simple file-based configuration that can be updated via deployment
+- Graceful fallback to "original" if the file is missing or unreadable
+- No database changes required
+- Uses Cloudflare Workers' native static asset serving
+
+### Technical implementation
+
+- Uses Cloudflare Workers Assets binding to serve static files
+- `wrangler.jsonc` configured with `assets: { directory: "./config/", binding: "ASSETS" }`
+- Endpoint reads file via `c.env.ASSETS.fetch('/onboarding-flag.txt')`
+- Defaults to "original" if file is missing or contains invalid value
+- Added `OnboardingFlagType` and `OnboardingFlagResponse` Zod schemas
+- Requires authentication (uses bearerAuth security)
+
+### Files changed
+
+- `apps/api/config/onboarding-flag.txt`: New config file (default value: "original")
+- `apps/api/src/types.ts`: Added OnboardingFlagType enum and OnboardingFlagResponse schema
+- `apps/api/src/endpoints/onboardingFlag.ts`: New endpoint implementation
+- `apps/api/src/endpoints/onboardingFlag.test.ts`: E2e tests for the endpoint
+- `apps/api/src/index.ts`: Registered new endpoint at `/api/onboarding/flag`
+- `apps/api/wrangler.jsonc`: Added assets configuration
+
+### Testing
+
+Created 3 e2e tests:
+- Returns 401 when no authorization header is provided
+- Returns the onboarding flag for authenticated user
+- Returns "original" flag by default (current config file value)
+
+All tests pass successfully.
+
 ## 2026-01-14: Commands dictation stop feedback
 
 Implemented immediate feedback when recording stops (either manually or automatically) through a subtle animation and haptic feedback.

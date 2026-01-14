@@ -52,7 +52,7 @@
   {
     "name": "Onboarding feature flag API endpoint",
     "description": "Create a backend API endpoint that returns which onboarding experience to show (original vs new conversational onboarding). The endpoint reads from a hardcoded text file in the repo (e.g., config/onboarding-flag.txt) that contains either 'original' or 'conversational'. This allows us to toggle between onboarding experiences by manually editing the text file and deploying, without needing to rebuild the mobile app. The mobile app calls this endpoint before showing onboarding to determine which flow to use.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Onboarding text parsing backend endpoint",
@@ -102,6 +102,11 @@
   {
     "name": "Commands processing enhanced animation",
     "description": "Replace the basic ActivityIndicator shown during command processing with a more polished, iOS-native animation. The current implementation (line 230-238 in CommandsScreen.tsx) shows a spinner in the mic button when recordingState is 'processing'. Instead, implement a subtle animation that feels warm and engaging: use a gentle pulsing/breathing animation on the mic button with spring physics (withSpring from react-native-reanimated), possibly combined with a subtle color transition. The animation should clearly communicate that processing is happening without being distracting or anxiety-inducing. Consider adding a subtle animation to the 'Processing command...' text as well (gentle fade or scale). Follow iOS design patterns for processing states - think of how iOS handles background processing (gentle, continuous, reassuring). The goal is to make the wait feel shorter and more pleasant while maintaining clarity about what's happening.",
+    "completed": false
+  },
+  {
+    "name": "Commands feedback empathetic UI presentation",
+    "description": "Replace the danger box styling currently used to display command feedback when the system doesn't understand user input. The feedback should feel like a response from someone trying to help, not an error message. Remove red/danger colors and harsh styling. Instead, use a neutral or warm color scheme with a conversational, supportive design that matches the tone of helpful guidance. The visual treatment should make the feedback feel like part of a conversation rather than a warning or failure state. Consider using a message bubble design or a subtle info card with softer styling. The goal is to make users feel supported and guided toward success, not like they've made a mistake.",
     "completed": false
   }
 ]

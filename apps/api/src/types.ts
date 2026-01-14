@@ -9,6 +9,7 @@ declare global {
     AUTH0_AUDIENCE: string
     TEST_JWT_SECRET?: string
     OPENAI_API_KEY?: string
+    ASSETS?: Fetcher
   }
 }
 
@@ -108,4 +109,10 @@ export const CommandParseRequest = z.object({
 export const CommandParseResponse = z.object({
   actions: z.array(CommandAction),
   message: Str({ example: 'I added apples to your pantry!' }).optional(),
+})
+
+export const OnboardingFlagType = z.enum(['original', 'conversational'])
+
+export const OnboardingFlagResponse = z.object({
+  flag: OnboardingFlagType,
 })
