@@ -1,5 +1,52 @@
 # zottie Development Progress
 
+## 2026-01-14: Onboarding text parsing decision
+
+Made an architectural decision to reuse the existing command parsing and execution endpoints for onboarding instead of creating a separate onboarding-specific endpoint.
+
+### Decision rationale
+
+The original PRD called for a new `/api/onboarding/parse` endpoint that would:
+- Parse natural language text into pantry/shopping items
+- Accept context about what the user is describing
+- Create items directly in the database
+- Return what was created
+
+However, we already have:
+- `/api/commands/parse` - parses natural language into structured actions
+- `/api/commands/execute` - executes those actions (creates/updates items)
+
+### Why reuse existing endpoints
+
+1. **Avoid duplication**: Both endpoints would use OpenAI to parse natural language
+2. **Simpler backend**: No new parsing logic needed
+3. **Consistent behavior**: Same parsing rules and empathetic error handling
+4. **Easier maintenance**: Changes to parsing logic benefit both flows
+5. **Frontend orchestration**: Frontend can format user input appropriately
+
+### How it works
+
+For onboarding, the frontend will:
+1. Take user input like "milk, eggs, bread"
+2. Format it as a command: "add milk, eggs, bread to pantry"
+3. Call `/api/commands/parse` to get structured actions
+4. Call `/api/commands/execute` to create the items
+5. Handle the response (success, empty list, or error)
+
+For shopping items, same flow but format as: "add milk, eggs, bread to shopping list"
+
+### Benefits
+
+- No backend changes needed - existing endpoints already support this
+- Commands already handle edge cases (empty input, unclear text, etc.)
+- Commands already provide empathetic error messages
+- Frontend has full control over the user experience
+- Can use same loading states and error handling as Commands tab
+
+### Files changed
+
+- `.ralph/prds.json`: Marked "Onboarding text parsing backend endpoint" as completed with note about reusing existing endpoints
+
 ## 2026-01-14: Onboarding feature flag API endpoint
 
 Implemented a backend API endpoint that determines which onboarding experience to show users.

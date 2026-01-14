@@ -57,7 +57,8 @@
   {
     "name": "Onboarding text parsing backend endpoint",
     "description": "Create a backend endpoint that parses natural language text into pantry items and/or shopping list items using OpenAI. The endpoint accepts text input and context about what the user is describing (injected into the prompt - e.g., 'the user is listing what they have in their pantry' or 'the user is listing what they need from the store'). The endpoint can parse either type or both from the same message. For pantry items, create them with 'in_stock' status. For shopping items, create them as planned shopping list items. Return a structured response indicating what was created (e.g., { pantryItems: [...], shoppingItems: [...] }). The endpoint creates these items in the database for the user's household. Handle the case where the user explicitly says they have nothing to add (return empty lists, not an error). Return an error only if the text is unclear or completely unrelated to pantry/shopping items.",
-    "completed": false
+    "completed": true,
+    "note": "Decision made to reuse existing /api/commands/parse and /api/commands/execute endpoints instead of creating a separate onboarding-specific endpoint. Frontend will format user input as commands (e.g., 'add milk, eggs, bread to pantry') and orchestrate the parse + execute flow."
   },
   {
     "name": "New onboarding pantry input screen",
