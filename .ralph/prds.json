@@ -1,42 +1,52 @@
 [
   {
     "name": "Onboarding quick-add inventory screen",
-    "description": "Create a new onboarding screen that displays common pantry items grouped by category (vegetables, fruits, baking, proteins, dairy, pantry staples, etc.). The curated list should be hardcoded in the frontend. Users can tap items to select/deselect them. All selected items default to 'in_stock' status - users can adjust status later in the pantry if needed. After confirming selections, users are taken to their pantry screen with the items added. Users can skip this step to start with an empty pantry. This screen is only shown during onboarding and is not accessible later."
+    "description": "Create a new onboarding screen that displays common pantry items grouped by category (vegetables, fruits, baking, proteins, dairy, pantry staples, etc.). The curated list should be hardcoded in the frontend. Users can tap items to select/deselect them. All selected items default to 'in_stock' status - users can adjust status later in the pantry if needed. After confirming selections, users are taken to their pantry screen with the items added. Users can skip this step to start with an empty pantry. This screen is only shown during onboarding and is not accessible later.",
+    "completed": false
   },
   {
     "name": "Commands tab screen dictation",
-    "description": "Create a new tab screen with a clean UI featuring a microphone button. When pressed, the app records speech and transcribes it using a speech-to-text library. The transcription is not shown to the user - instead, it is sent directly to the parsing backend endpoint. The screen should not show command history - just the mic button when idle. Add an appropriate speech-to-text library (evaluate expo-speech-recognition or react-native-voice for best fit)."
+    "description": "Create a new tab screen with a clean UI featuring a microphone button. When pressed, the app records speech and transcribes it using a speech-to-text library. The transcription is not shown to the user - instead, it is sent directly to the parsing backend endpoint. The screen should not show command history - just the mic button when idle. Add an appropriate speech-to-text library (evaluate expo-speech-recognition or react-native-voice for best fit).",
+    "completed": false
   },
   {
     "name": "Commands tab screen execution",
-    "description": "After the parsing endpoint returns, display the parsed actions to the user in a simple list format (e.g., 'Add apples to pantry (in stock)', 'Mark milk as running low') with confirm and cancel buttons. When the user confirms, send the actions to the execution endpoint. On successful execution, invalidate the pantry and shopping list queries to refresh data. Handle loading states appropriately during parsing and execution."
+    "description": "After the parsing endpoint returns, display the parsed actions to the user in a simple list format (e.g., 'Add apples to pantry (in stock)', 'Mark milk as running low') with confirm and cancel buttons. When the user confirms, send the actions to the execution endpoint. On successful execution, invalidate the pantry and shopping list queries to refresh data. Handle loading states appropriately during parsing and execution.",
+    "completed": false
   },
   {
     "name": "Commands parsing backend endpoint",
-    "description": "Create a backend endpoint that processes natural language commands using OpenAI. The endpoint should fetch the user's current pantry and shopping list for context, then use the AI to determine the actions needed to fulfill the command. Supported actions: add an item to the pantry, mark an item as running low, mark an item as out of stock, add an item to the shopping list, remove an item from the shopping list. The endpoint returns a list of actions in a structured format (e.g., { actions: [{ type: 'add_to_pantry', item: 'apples', status: 'in_stock' }] }). Be smart about user intent - if a user says 'mark apples as running low' but apples aren't in the pantry, add them with running_low status rather than returning an error. The app should meet users where they are."
+    "description": "Create a backend endpoint that processes natural language commands using OpenAI. The endpoint should fetch the user's current pantry and shopping list for context, then use the AI to determine the actions needed to fulfill the command. Supported actions: add an item to the pantry, mark an item as running low, mark an item as out of stock, add an item to the shopping list, remove an item from the shopping list. The endpoint returns a list of actions in a structured format (e.g., { actions: [{ type: 'add_to_pantry', item: 'apples', status: 'in_stock' }] }). Be smart about user intent - if a user says 'mark apples as running low' but apples aren't in the pantry, add them with running_low status rather than returning an error. The app should meet users where they are.",
+    "completed": false
   },
   {
     "name": "Commands execution backend endpoint",
-    "description": "Create a backend endpoint that executes the actions sent by the frontend. The actions should be in the same structured format as the response from the parsing endpoint, allowing execution to be tested independently of parsing. The endpoint executes each action (adding pantry items, updating statuses, modifying shopping list) and returns a success/failure response."
+    "description": "Create a backend endpoint that executes the actions sent by the frontend. The actions should be in the same structured format as the response from the parsing endpoint, allowing execution to be tested independently of parsing. The endpoint executes each action (adding pantry items, updating statuses, modifying shopping list) and returns a success/failure response.",
+    "completed": false
   },
   {
     "name": "Commands parsing empathetic error responses",
-    "description": "When the commands parsing endpoint cannot identify any actions from user input, replace the generic 'no actions found in your command. please try again' error with a helpful, empathetic response. The response should explain why we couldn't understand the input (e.g., 'I couldn't find any pantry or shopping list actions in that command'), and provide a recommendation for what to do next based on the context of what the user said. Try to understand what the user might have meant and guide them toward success. The tone should be validating and supportive (acknowledging their effort) without being patronizing or elitist. This follows the pattern of the 'Try saying' section, which helps users feel in control and understand how to use the app effectively."
+    "description": "When the commands parsing endpoint cannot identify any actions from user input, replace the generic 'no actions found in your command. please try again' error with a helpful, empathetic response. The response should explain why we couldn't understand the input (e.g., 'I couldn't find any pantry or shopping list actions in that command'), and provide a recommendation for what to do next based on the context of what the user said. Try to understand what the user might have meant and guide them toward success. The tone should be validating and supportive (acknowledging their effort) without being patronizing or elitist. This follows the pattern of the 'Try saying' section, which helps users feel in control and understand how to use the app effectively.",
+    "completed": false
   },
   {
     "name": "Commands dictation manual stop",
-    "description": "Allow users to manually stop recording by pressing the microphone button again while recording is in progress. When pressed during recording, the button should stop the speech recognition, submit the captured audio for transcription, and proceed with command parsing. This provides users with control over when their command is complete, rather than relying solely on automatic silence detection."
+    "description": "Allow users to manually stop recording by pressing the microphone button again while recording is in progress. When pressed during recording, the button should stop the speech recognition, submit the captured audio for transcription, and proceed with command parsing. This provides users with control over when their command is complete, rather than relying solely on automatic silence detection.",
+    "completed": false
   },
   {
     "name": "Commands dictation automatic timeout",
-    "description": "Configure automatic timeout behavior for speech recognition to stop recording after a reasonable period of silence. On iOS, the platform handles this automatically (3 seconds on iOS 17 and earlier, until final result on iOS 18+). On Android, configure androidIntentOptions with EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS and EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS to control silence detection timing. The goal is to stop recording naturally when the user pauses speaking, without requiring manual intervention."
+    "description": "Configure automatic timeout behavior for speech recognition to stop recording after a reasonable period of silence. On iOS, the platform handles this automatically (3 seconds on iOS 17 and earlier, until final result on iOS 18+). On Android, configure androidIntentOptions with EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS and EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS to control silence detection timing. The goal is to stop recording naturally when the user pauses speaking, without requiring manual intervention.",
+    "completed": false
   },
   {
     "name": "Commands dictation recording animation",
-    "description": "Add a subtle animation to the microphone button while recording is in progress to provide visual feedback that the app is actively listening. Follow iOS design patterns for recording indicators: use a gentle pulsing or breathing animation (scale transform with spring physics) on the button. The animation should be continuous and smooth, using iOS-native spring physics (withSpring in react-native-reanimated) rather than linear timing. Keep the animation subtle to avoid being distracting - the goal is to provide ambient awareness that recording is active."
+    "description": "Add a subtle animation to the microphone button while recording is in progress to provide visual feedback that the app is actively listening. Follow iOS design patterns for recording indicators: use a gentle pulsing or breathing animation (scale transform with spring physics) on the button. The animation should be continuous and smooth, using iOS-native spring physics (withSpring in react-native-reanimated) rather than linear timing. Keep the animation subtle to avoid being distracting - the goal is to provide ambient awareness that recording is active.",
+    "completed": false
   },
   {
     "name": "Commands dictation stop feedback",
-    "description": "Provide immediate feedback when recording stops (either manually or automatically). Add a subtle animation to the microphone button (a brief scale-down spring animation) and play a short system sound to indicate recording has ended. For the sound, use iOS system sounds via expo-av or react-native-sound - choose a gentle, non-intrusive sound similar to the iOS keyboard click or message send sound. The animation and sound should happen together to create a cohesive 'recording complete' moment. Follow iOS patterns for this type of feedback - brief, subtle, and reassuring rather than loud or jarring."
+    "description": "Provide immediate feedback when recording stops (either manually or automatically). Add a subtle animation to the microphone button (a brief scale-down spring animation) and play a short system sound to indicate recording has ended. For the sound, use iOS system sounds via expo-av or react-native-sound - choose a gentle, non-intrusive sound similar to the iOS keyboard click or message send sound. The animation and sound should happen together to create a cohesive 'recording complete' moment. Follow iOS patterns for this type of feedback - brief, subtle, and reassuring rather than loud or jarring.",
+    "completed": false
   }
 ]
