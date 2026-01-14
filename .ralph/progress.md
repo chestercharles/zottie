@@ -1,5 +1,103 @@
 # zottie Development Progress
 
+## 2026-01-14: New onboarding household invitation screen
+
+Implemented the household invitation screen that allows users to invite their household partner after completing the initial setup. This completes the full conversational onboarding flow.
+
+### What was built
+
+- Created `NewHouseholdInvitationScreen` component with empathetic copy explaining the value of inviting someone
+- Automatically generates a household invite code when the screen loads
+- Displays the invite code in a visually prominent way
+- Integrated native Share API to allow users to share the invite link
+- Added clearly visible "Skip" button since this step is entirely optional
+- Updated `ConversationalOnboarding` orchestrator to include invitation step in the flow
+
+### User experience
+
+1. After items are successfully processed, user sees the invitation screen
+2. Screen shows a "people" icon with friendly title "Invite your household"
+3. Subtitle explains the value: "Share your grocery lists and coordinate shopping together"
+4. While invite code is generating, user sees a loading spinner with "Creating your invite link..."
+5. Once generated, invite code is displayed in a prominent card
+6. User can tap "Share invite" to open native share sheet with pre-formatted message
+7. User can tap "Skip" to proceed to the pantry without inviting anyone
+8. After sharing or skipping, user navigates to the pantry screen
+
+### Design decisions
+
+**Empathetic messaging:**
+- Title asks a question that feels inviting: "Invite your household"
+- Subtitle explains the value proposition without being pushy
+- Lists examples: "partner, roommate, or anyone you share a kitchen with"
+- Hint text guides the user: "Tap 'Share invite' to send this link"
+
+**Automatic invite generation:**
+- Uses existing `useCreateHouseholdInvite` hook from household feature
+- Generates invite code automatically on screen load (no user input required)
+- Shows loading state while generating
+- Handles errors gracefully with alert dialog suggesting they can skip
+
+**Native sharing:**
+- Uses React Native's Share API for platform-native experience
+- Pre-formats message: "Join my household on zottie! Use this link: zottie://invite/[code]"
+- On iOS, this opens the native share sheet
+- After sharing, automatically navigates to pantry
+
+**Visual consistency:**
+- Follows the same design patterns as pantry and shopping input screens
+- Same layout structure, typography, button styles
+- Skip button on left, primary action on right
+- Safe area insets for proper spacing on all devices
+
+### Technical implementation
+
+**NewHouseholdInvitationScreen.tsx:**
+- Accepts `onContinue` and `onSkip` callbacks for navigation
+- Uses `useCreateHouseholdInvite` hook to generate invite
+- `useEffect` triggers invite creation on mount
+- Loading state while invite is pending or code not yet set
+- `handleShare` function uses React Native Share API
+- Error handling with Alert.alert for failed invite creation
+
+**ConversationalOnboarding.tsx:**
+- Added 'invitation' to `OnboardingStep` type union
+- Updated processing success path to navigate to 'invitation' instead of pantry
+- Updated error "Continue anyway" to navigate to 'invitation' instead of pantry
+- Added conditional render for invitation step
+- Both "Share invite" and "Skip" navigate to pantry screen
+
+### Flow behavior
+
+The complete conversational onboarding now flows:
+1. Auto-create household with "My Household"
+2. Show pantry input screen (can skip or enter text)
+3. Show shopping list input screen (can skip or enter text)
+4. Show processing screen with warm animation
+5. Parse and execute both inputs in parallel
+6. On success: Show household invitation screen
+7. On error: Show retry UI, then invitation screen if user continues anyway
+8. Show invitation screen (can share or skip)
+9. Navigate to pantry screen
+
+### Files changed
+
+- `apps/mobile/features/onboarding/NewHouseholdInvitationScreen.tsx`: New invitation screen component
+- `apps/mobile/features/onboarding/index.ts`: Export new screen
+- `apps/mobile/features/onboarding/ConversationalOnboarding.tsx`: Updated orchestration to include invitation step
+
+### Next steps
+
+This completes the core conversational onboarding feature set. The remaining PRDs focus on:
+1. Eval system for command parsing
+2. Maximizing empathy in command parsing behavior
+3. Enhanced animations for command processing
+4. Voice input component abstraction and integration
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: New onboarding processing screen
 
 Implemented the processing screen that handles parsing and executing user input from both pantry and shopping list onboarding screens. This completes the core conversational onboarding flow.

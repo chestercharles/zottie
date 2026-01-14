@@ -18,7 +18,8 @@
   {
     "name": "New onboarding household invitation screen",
     "description": "Create a screen that prompts users to invite their household partner. Show copy explaining the value of inviting someone (shared lists, coordination, etc.). Provide an input for entering an email or phone number to send an invitation. Include a clearly visible 'Skip' button - this step is entirely optional. After submitting an invitation or skipping, navigate to the pantry screen where they can see their populated pantry and shopping list.",
-    "completed": false
+    "completed": true,
+    "note": "Implemented with automatic invite code generation and native Share API integration. Screen shows empathetic copy, displays invite code prominently, and includes clearly visible Skip button. Both sharing and skipping navigate to pantry screen."
   },
   {
     "name": "New onboarding household creation",
