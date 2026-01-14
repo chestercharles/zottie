@@ -1,5 +1,51 @@
 # zottie Development Progress
 
+## 2026-01-13: Commands tab screen with dictation and execution
+
+Implemented the Commands tab in the mobile app, allowing users to give voice commands to manage their pantry and shopping list.
+
+### What was built
+
+- Added `expo-speech-recognition` dependency for speech-to-text functionality
+- Created `commands` feature module with:
+  - `CommandsScreen.tsx`: Main UI component with microphone button and confirmation flow
+  - `api.ts`: API client for parse and execute endpoints
+  - `types.ts`: TypeScript types for command actions
+  - `hooks/useCommandMutations.ts`: React Query hooks for parsing and executing commands
+- Added Commands tab to the bottom navigation with mic icon
+- Integrated with existing backend parse and execute endpoints
+
+### User flow
+
+1. User taps the microphone button on the Commands tab
+2. App requests microphone permission (if needed)
+3. Speech recognition starts, button turns red while listening
+4. When user finishes speaking, transcription is sent to parsing endpoint
+5. Parsed actions are displayed in a list for confirmation (e.g., "Add apples to pantry (in stock)")
+6. User can confirm or cancel the actions
+7. On confirm, actions are executed via the execution endpoint
+8. Pantry and shopping list queries are invalidated to refresh the UI
+
+### Features
+
+- Clean, centered UI with large microphone button that changes color based on state:
+  - Blue: idle
+  - Red: recording
+  - Orange: processing
+- Contextual strings provided to speech recognition for better accuracy (pantry, shopping, in stock, running low, out of stock)
+- Action confirmation screen shows formatted descriptions of what will be executed
+- Loading states during parsing and execution
+- Error handling with clear error messages
+- Cancel functionality to discard parsed actions
+
+### Technical implementation
+
+- Used `expo-speech-recognition` for on-device speech recognition
+- Speech recognition events handled via hooks (start, end, result, error)
+- Confirmation UI conditionally rendered based on state (confirming vs executing)
+- Actions are displayed in a scrollable list with checkmark icons
+- Confirm and cancel buttons at the bottom with proper disabled states during execution
+
 ## 2026-01-13: Commands execution backend endpoint
 
 Implemented the `POST /api/commands/execute` endpoint that executes structured actions from command parsing.

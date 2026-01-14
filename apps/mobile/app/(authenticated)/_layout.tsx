@@ -51,6 +51,16 @@ export default function AuthenticatedLayout() {
         }}
       />
       <Tabs.Screen
+        name="commands"
+        options={{
+          title: 'Commands',
+          headerShown: true,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="mic-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="home"
         options={{
           href: null,

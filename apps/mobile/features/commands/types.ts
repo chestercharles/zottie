@@ -1,0 +1,33 @@
+export type CommandActionType =
+  | 'add_to_pantry'
+  | 'update_pantry_status'
+  | 'remove_from_shopping_list'
+
+export type PantryStatus = 'in_stock' | 'running_low' | 'out_of_stock'
+
+export interface CommandAction {
+  type: CommandActionType
+  item: string
+  status?: PantryStatus
+}
+
+export interface CommandParseRequest {
+  command: string
+}
+
+export interface CommandParseResponse {
+  result: {
+    actions: CommandAction[]
+  }
+}
+
+export interface CommandExecuteRequest {
+  actions: CommandAction[]
+}
+
+export interface CommandExecuteResponse {
+  result: {
+    executedCount: number
+    failedCount: number
+  }
+}
