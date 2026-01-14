@@ -1,5 +1,63 @@
 # zottie Development Progress
 
+## 2026-01-14: Onboarding quick-add inventory screen
+
+Implemented a new onboarding screen that allows users to quickly populate their pantry with common items during initial setup.
+
+### What was built
+
+- Created `curatedItems.ts` with a hardcoded list of common pantry items organized by category:
+  - Vegetables (9 items)
+  - Fruits (7 items)
+  - Proteins (7 items)
+  - Dairy (6 items)
+  - Pantry Staples (12 items)
+  - Baking (5 items)
+  - Canned & Jarred (6 items)
+  - Seasonings & Spices (9 items)
+- Created `QuickAddInventoryScreen` component with tap-to-select UI
+- Updated onboarding flow to show quick-add screen after household creation
+- Modified `app/onboarding.tsx` to manage two-step onboarding flow
+
+### User flow
+
+1. User creates household on initial onboarding screen
+2. Quick-add screen appears showing categorized common pantry items
+3. User taps items to select/deselect them
+4. All selected items show a checkmark and highlighted state
+5. Footer shows count of selected items
+6. User can "Skip" to start with empty pantry or "Add to Pantry" to create items
+7. All selected items are created with `in_stock` status and `staple` item type
+8. After completion, user is taken to their pantry screen with items added
+
+### Features
+
+- Clean, scrollable UI with items organized by category
+- Tap-to-toggle selection with visual feedback (checkmark, color change)
+- Selected item count displayed in footer
+- Skip option for users who want to start with an empty pantry
+- Bulk creation of items via parallel API calls
+- Loading state during item creation
+- Error handling with clear error messages
+- Screen only shown during onboarding (not accessible later)
+
+### Technical implementation
+
+- Items stored locally in `curatedItems.ts` as hardcoded data
+- Uses `createPantryItem` API for each selected item
+- Parallel API calls via `Promise.all` for efficient bulk creation
+- Invalidates pantry query cache after successful creation
+- Integrates with existing auth flow via `useAuth0` and `useAuth` hooks
+- State management handles onboarding flow transition from household creation to quick-add
+- Responsive layout with safe area insets for iOS notch/home indicator
+
+### Files changed
+
+- `apps/mobile/features/onboarding/curatedItems.ts`: New file with curated item categories
+- `apps/mobile/features/onboarding/QuickAddInventoryScreen.tsx`: New screen component
+- `apps/mobile/features/onboarding/index.ts`: Export new screen
+- `apps/mobile/app/onboarding.tsx`: Updated to manage two-step flow
+
 ## 2026-01-13: Commands parsing empathetic error responses
 
 Implemented personalized, empathetic error messages when the commands parsing endpoint cannot identify actions from user input.

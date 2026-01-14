@@ -1,12 +1,21 @@
-import { OnboardingScreen } from '@/features/onboarding'
+import { useState } from 'react'
+import {
+  OnboardingScreen,
+  QuickAddInventoryScreen,
+} from '@/features/onboarding'
 import { useRouter, Redirect } from 'expo-router'
 import { useHouseholdMembership } from '@/features/household'
 
 export default function OnboardingRoute() {
   const router = useRouter()
   const { hasHousehold, isLoading } = useHouseholdMembership()
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
 
-  const handleSuccess = () => {
+  const handleHouseholdCreated = () => {
+    setShowQuickAdd(true)
+  }
+
+  const handleQuickAddComplete = () => {
     router.replace('/(authenticated)/pantry')
   }
 
@@ -18,5 +27,9 @@ export default function OnboardingRoute() {
     return <Redirect href="/(authenticated)/pantry" />
   }
 
-  return <OnboardingScreen onSuccess={handleSuccess} />
+  if (showQuickAdd) {
+    return <QuickAddInventoryScreen onComplete={handleQuickAddComplete} />
+  }
+
+  return <OnboardingScreen onSuccess={handleHouseholdCreated} />
 }
