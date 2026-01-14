@@ -63,7 +63,7 @@
   {
     "name": "New onboarding pantry input screen",
     "description": "Create the first screen of the new conversational onboarding that asks users what they have in their pantry. Show empathetic, encouraging copy that prompts them to just start listing items, and reassure them they can add more or change things easily later. Provide a text input (or voice input if preferred) for them to list pantry items. Include a clearly visible 'Skip' button. When they submit, immediately move to the next screen (shopping list input) without waiting for backend parsing - trigger the parsing API call in the background with context indicating this is pantry items. Store the parsing promise/request so we can wait for it later.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "New onboarding shopping list input screen",
