@@ -10,6 +10,26 @@ Features should be implemented consistently with iOS native design patterns. Pre
 - Place primary actions in the navigation header bar rather than floating action buttons
 - Follow iOS conventions for dismiss gestures (swipe down, tap backdrop)
 
+### Implementing native-feeling interactions
+
+Before hand-rolling gesture-driven UI (bottom sheets, drawers, pickers), check if a mature library exists. Custom implementations often miss subtle iOS behaviors that users notice subconsciously.
+
+**Use established libraries when available:**
+- Bottom sheets: `@gorhom/bottom-sheet` (keyboard avoidance, spring physics, snap points)
+- Date/time pickers: `@react-native-community/datetimepicker`
+- Action sheets: `ActionSheetIOS` (already native)
+
+**When you must build custom interactions:**
+- Use `withSpring` not `withTiming` for gesture-driven animations—iOS uses spring physics everywhere
+- Incorporate gesture velocity into animations (the `velocityY` from pan gestures should influence the spring)
+- Handle keyboard appearance—content should shift to remain visible
+- Test on device, not just simulator—timing/physics feel different with real touch input
+
+**Signs you're over-engineering:**
+- Managing multiple `useSharedValue` for what should be a single component's state
+- Writing gesture handlers that a library would provide
+- Animating backdrop + content + gestures separately when they should move together
+
 ## Code organization
 
 We like to colocate cohesive code. Instead of organization things in to folders by type (eg. /components, /hooks, /queries), we like to organization things by feature (eg. /onboarding, /profile, /grocery-list, /grocery-item).

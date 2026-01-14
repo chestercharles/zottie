@@ -6,23 +6,24 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  TextInput,
   ActionSheetIOS,
-  Modal,
-  Pressable,
-  Dimensions,
+  TextInput,
 } from 'react-native'
-import { useState, useRef, useLayoutEffect } from 'react'
+import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { Swipeable, Gesture, GestureDetector } from 'react-native-gesture-handler'
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated'
-import { usePantryItems, useUpdatePantryItem, useDeletePantryItem, useCreatePantryItem } from './hooks'
+import { Swipeable } from 'react-native-gesture-handler'
+import BottomSheet, {
+  BottomSheetTextInput,
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet'
+import {
+  usePantryItems,
+  useUpdatePantryItem,
+  useDeletePantryItem,
+  useCreatePantryItem,
+} from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -49,7 +50,8 @@ function PantryItemRow({
   onSwipeAction: (item: PantryItem) => void
 }) {
   const swipeableRef = useRef<Swipeable>(null)
-  const showPlannedIndicator = item.itemType === 'planned' && item.status !== 'planned'
+  const showPlannedIndicator =
+    item.itemType === 'planned' && item.status !== 'planned'
 
   const renderRightActions = () => {
     return (
@@ -76,7 +78,12 @@ function PantryItemRow({
           <View style={styles.itemNameContainer}>
             <Text style={styles.itemName}>{item.name}</Text>
             {showPlannedIndicator && (
-              <Ionicons name="pricetag-outline" size={14} color="#9B59B6" style={styles.plannedIcon} />
+              <Ionicons
+                name="pricetag-outline"
+                size={14}
+                color="#9B59B6"
+                style={styles.plannedIcon}
+              />
             )}
           </View>
           <View
@@ -103,69 +110,56 @@ export function PantryListScreen() {
   const router = useRouter()
   const navigation = useNavigation()
   const [searchTerm, setSearchTerm] = useState('')
-  const { items, mainListItems, plannedItems, isLoading, isRefreshing, error, refetch } =
-    usePantryItems(searchTerm)
+  const {
+    items,
+    mainListItems,
+    plannedItems,
+    isLoading,
+    isRefreshing,
+    error,
+    refetch,
+  } = usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
   const updatePantryItem = useUpdatePantryItem()
   const deletePantryItem = useDeletePantryItem()
   const createPantryItem = useCreatePantryItem()
 
-  const [isAddSheetVisible, setIsAddSheetVisible] = useState(false)
   const [newItemName, setNewItemName] = useState('')
-  const [newItemStatus, setNewItemStatus] = useState<PantryItemStatus>('in_stock')
+  const [newItemStatus, setNewItemStatus] =
+    useState<PantryItemStatus>('in_stock')
+  const bottomSheetRef = useRef<BottomSheet>(null)
 
-  const screenHeight = Dimensions.get('window').height
-  const sheetTopOffset = 50
-  const backdropOpacity = useSharedValue(0)
-  const sheetTranslateY = useSharedValue(screenHeight)
+  const openAddSheet = useCallback(() => {
+    bottomSheetRef.current?.expand()
+  }, [])
 
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }))
+  const closeAddSheet = useCallback(() => {
+    bottomSheetRef.current?.close()
+  }, [])
 
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sheetTranslateY.value }],
-  }))
+  const handleSheetChange = useCallback((index: number) => {
+    if (index === -1) {
+      setNewItemName('')
+      setNewItemStatus('in_stock')
+    }
+  }, [])
 
-  const openAddSheet = () => {
-    setIsAddSheetVisible(true)
-    backdropOpacity.value = withTiming(1, { duration: 300 })
-    sheetTranslateY.value = withTiming(sheetTopOffset, { duration: 350 })
-  }
-
-  const closeAddSheet = () => {
-    backdropOpacity.value = withTiming(0, { duration: 250 })
-    sheetTranslateY.value = withTiming(screenHeight, { duration: 300 }, () => {
-      runOnJS(setIsAddSheetVisible)(false)
-      runOnJS(setNewItemName)('')
-      runOnJS(setNewItemStatus)('in_stock')
-    })
-  }
-
-  const panGesture = Gesture.Pan()
-    .onUpdate((event) => {
-      if (event.translationY > 0) {
-        sheetTranslateY.value = sheetTopOffset + event.translationY
-        backdropOpacity.value = Math.max(0, 1 - event.translationY / 300)
-      }
-    })
-    .onEnd((event) => {
-      if (event.translationY > 150 || event.velocityY > 500) {
-        runOnJS(closeAddSheet)()
-      } else {
-        sheetTranslateY.value = withTiming(sheetTopOffset, { duration: 250 })
-        backdropOpacity.value = withTiming(1, { duration: 150 })
-      }
-    })
+  const renderBackdrop = useCallback(
+    (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    []
+  )
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
-            onPress={openAddSheet}
-            style={{ marginRight: 16 }}
-          >
+          <TouchableOpacity onPress={openAddSheet} style={{ marginRight: 16 }}>
             <Ionicons name="add" size={28} color="#3498DB" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -193,7 +187,12 @@ export function PantryListScreen() {
   const showStapleActionSheet = (item: PantryItem) => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['Cancel', 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item'],
+        options: [
+          'Cancel',
+          'Mark as Running Low',
+          'Mark as Out of Stock',
+          'Delete Item',
+        ],
         destructiveButtonIndex: 3,
         cancelButtonIndex: 0,
         title: item.name,
@@ -230,7 +229,11 @@ export function PantryListScreen() {
         } else if (buttonIndex === 2) {
           deletePantryItem.mutate(item.id)
         } else if (buttonIndex === 3) {
-          updatePantryItem.mutate({ itemId: item.id, itemType: 'staple', status: 'out_of_stock' })
+          updatePantryItem.mutate({
+            itemId: item.id,
+            itemType: 'staple',
+            status: 'out_of_stock',
+          })
         } else if (buttonIndex === 4) {
           deletePantryItem.mutate(item.id)
         }
@@ -288,10 +291,7 @@ export function PantryListScreen() {
           <Text style={styles.emptySubtext}>
             Add your first item to start tracking your pantry
           </Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={openAddSheet}
-          >
+          <TouchableOpacity style={styles.addButton} onPress={openAddSheet}>
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
         </View>
@@ -322,134 +322,130 @@ export function PantryListScreen() {
               <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
             }
           >
-          {plannedItems.length > 0 && (
-            <View style={styles.plannedSection}>
-              <TouchableOpacity
-                style={styles.plannedHeader}
-                onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
-              >
-                <View style={styles.plannedHeaderLeft}>
-                  <Text style={styles.plannedHeaderText}>Planned Items</Text>
-                  <View style={styles.plannedCountBadge}>
-                    <Text style={styles.plannedCountText}>
-                      {plannedItems.length}
-                    </Text>
+            {plannedItems.length > 0 && (
+              <View style={styles.plannedSection}>
+                <TouchableOpacity
+                  style={styles.plannedHeader}
+                  onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
+                >
+                  <View style={styles.plannedHeaderLeft}>
+                    <Text style={styles.plannedHeaderText}>Planned Items</Text>
+                    <View style={styles.plannedCountBadge}>
+                      <Text style={styles.plannedCountText}>
+                        {plannedItems.length}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <Text style={styles.chevron}>
-                  {isPlannedExpanded ? '▼' : '▶'}
-                </Text>
-              </TouchableOpacity>
-              {isPlannedExpanded && (
-                <View style={styles.plannedContent}>
-                  {plannedItems.map((item) => (
-                    <PantryItemRow
-                      key={item.id}
-                      item={item}
-                      onPress={() => navigateToItem(item)}
-                      onSwipeAction={handleSwipeAction}
-                    />
-                  ))}
-                </View>
-              )}
-            </View>
-          )}
-          {mainListItems.map((item) => (
-            <PantryItemRow
-              key={item.id}
-              item={item}
-              onPress={() => navigateToItem(item)}
-              onSwipeAction={handleSwipeAction}
-            />
-          ))}
+                  <Text style={styles.chevron}>
+                    {isPlannedExpanded ? '▼' : '▶'}
+                  </Text>
+                </TouchableOpacity>
+                {isPlannedExpanded && (
+                  <View style={styles.plannedContent}>
+                    {plannedItems.map((item) => (
+                      <PantryItemRow
+                        key={item.id}
+                        item={item}
+                        onPress={() => navigateToItem(item)}
+                        onSwipeAction={handleSwipeAction}
+                      />
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+            {mainListItems.map((item) => (
+              <PantryItemRow
+                key={item.id}
+                item={item}
+                onPress={() => navigateToItem(item)}
+                onSwipeAction={handleSwipeAction}
+              />
+            ))}
           </ScrollView>
         </>
       )}
-      <Modal
-        visible={isAddSheetVisible}
-        animationType="none"
-        transparent
-        onRequestClose={closeAddSheet}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={['90%']}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        onChange={handleSheetChange}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
+        handleIndicatorStyle={styles.sheetHandle}
       >
-        <View style={styles.modalContainer}>
-          <Animated.View style={[styles.backdrop, backdropStyle]}>
-            <Pressable style={StyleSheet.absoluteFill} onPress={closeAddSheet} />
-          </Animated.View>
-          <GestureDetector gesture={panGesture}>
-            <Animated.View style={[styles.sheetWrapper, sheetStyle]}>
-              <View style={styles.sheet}>
-                <View style={styles.sheetHandleContainer}>
-                  <View style={styles.sheetHandle} />
-                </View>
-                <View style={styles.sheetHeader}>
-                  <TouchableOpacity
-                    style={styles.sheetHeaderButton}
-                    onPress={closeAddSheet}
-                    disabled={createPantryItem.isPending}
-                  >
-                    <Ionicons name="close" size={28} color="#333" />
-                  </TouchableOpacity>
-                  <Text style={styles.sheetTitle}>Add Item</Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.sheetHeaderButton,
-                      (!newItemName.trim() || createPantryItem.isPending) && styles.sheetHeaderButtonDisabled,
-                    ]}
-                    onPress={handleAddItem}
-                    disabled={!newItemName.trim() || createPantryItem.isPending}
-                  >
-                    {createPantryItem.isPending ? (
-                      <ActivityIndicator color="#3498DB" />
-                    ) : (
-                      <Ionicons
-                        name="checkmark"
-                        size={28}
-                        color={newItemName.trim() ? '#3498DB' : '#ccc'}
-                      />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              <View style={styles.sheetBody}>
-                <TextInput
-                  style={styles.sheetInput}
-                  value={newItemName}
-                  onChangeText={setNewItemName}
-                  placeholder="Item name"
-                  placeholderTextColor="#999"
-                  autoFocus
-                  editable={!createPantryItem.isPending}
-                  onSubmitEditing={handleAddItem}
-                  returnKeyType="done"
+        <BottomSheetView style={styles.sheetContent}>
+          <View style={styles.sheetHeader}>
+            <TouchableOpacity
+              style={styles.sheetHeaderButton}
+              onPress={closeAddSheet}
+              disabled={createPantryItem.isPending}
+            >
+              <Ionicons name="close" size={28} color="#333" />
+            </TouchableOpacity>
+            <Text style={styles.sheetTitle}>Add Item</Text>
+            <TouchableOpacity
+              style={[
+                styles.sheetHeaderButton,
+                (!newItemName.trim() || createPantryItem.isPending) &&
+                  styles.sheetHeaderButtonDisabled,
+              ]}
+              onPress={handleAddItem}
+              disabled={!newItemName.trim() || createPantryItem.isPending}
+            >
+              {createPantryItem.isPending ? (
+                <ActivityIndicator color="#3498DB" />
+              ) : (
+                <Ionicons
+                  name="checkmark"
+                  size={28}
+                  color={newItemName.trim() ? '#3498DB' : '#ccc'}
                 />
-                <Text style={styles.sheetLabel}>Status</Text>
-                <View style={styles.sheetStatusContainer}>
-                  {addItemStatusOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.value}
-                      style={[
-                        styles.sheetStatusButton,
-                        newItemStatus === option.value && styles.sheetStatusButtonActive,
-                      ]}
-                      onPress={() => setNewItemStatus(option.value)}
-                      disabled={createPantryItem.isPending}
-                    >
-                      <Text
-                        style={[
-                          styles.sheetStatusButtonText,
-                          newItemStatus === option.value && styles.sheetStatusButtonTextActive,
-                        ]}
-                      >
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-              </View>
-            </Animated.View>
-          </GestureDetector>
-        </View>
-      </Modal>
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.sheetBody}>
+            <BottomSheetTextInput
+              style={styles.sheetInput}
+              value={newItemName}
+              onChangeText={setNewItemName}
+              placeholder="Item name"
+              placeholderTextColor="#999"
+              autoFocus
+              editable={!createPantryItem.isPending}
+              onSubmitEditing={handleAddItem}
+              returnKeyType="done"
+            />
+            <Text style={styles.sheetLabel}>Status</Text>
+            <View style={styles.sheetStatusContainer}>
+              {addItemStatusOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.sheetStatusButton,
+                    newItemStatus === option.value &&
+                      styles.sheetStatusButtonActive,
+                  ]}
+                  onPress={() => setNewItemStatus(option.value)}
+                  disabled={createPantryItem.isPending}
+                >
+                  <Text
+                    style={[
+                      styles.sheetStatusButtonText,
+                      newItemStatus === option.value &&
+                        styles.sheetStatusButtonTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   )
 }
@@ -582,32 +578,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  modalContainer: {
+  sheetContent: {
     flex: 1,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  sheetWrapper: {
-    flex: 1,
-  },
-  sheet: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  sheetHandleContainer: {
-    alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 4,
   },
   sheetHandle: {
-    width: 36,
-    height: 5,
     backgroundColor: '#c0c0c0',
-    borderRadius: 2.5,
   },
   sheetHeader: {
     flexDirection: 'row',
