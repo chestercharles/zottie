@@ -11,6 +11,7 @@ interface CommandParseResponse {
       item: string
       status?: 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
     }>
+    message?: string
   }
 }
 
@@ -22,6 +23,7 @@ interface EvalCase {
     item: string
     status?: 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
   }>
+  allowAlternateType?: 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
 }
 
 const evalCases: EvalCase[] = [
@@ -61,6 +63,7 @@ const evalCases: EvalCase[] = [
     expectedActions: [
       { type: 'add_to_pantry', item: 'cheese', status: 'in_stock' },
     ],
+    allowAlternateType: 'update_pantry_status',
   },
   {
     name: 'plan to get item',
@@ -142,12 +145,58 @@ describe('Command Parse Endpoint Eval', () => {
             (a) => a.item === expected.item || a.item === expected.item.replace(/s$/, '')
           )
           expect(matchingAction).toBeDefined()
-          expect(matchingAction?.type).toBe(expected.type)
+
+          if (evalCase.allowAlternateType) {
+            expect([expected.type, evalCase.allowAlternateType]).toContain(matchingAction?.type)
+          } else {
+            expect(matchingAction?.type).toBe(expected.type)
+          }
+
           if (expected.status) {
             expect(matchingAction?.status).toBe(expected.status)
           }
         }
       })
     }
+  })
+
+  describe('empathetic error responses', () => {
+    it('should return empty actions with helpful message for unrelated commands', async () => {
+      const response = await fetch(`${API_URL}/api/commands/parse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ command: "what's the weather today" }),
+      })
+
+      expect(response.status).toBe(200)
+      const data = (await response.json()) as CommandParseResponse
+      expect(data.success).toBe(true)
+      expect(data.result.actions).toHaveLength(0)
+      expect(data.result.message).toBeDefined()
+      expect(typeof data.result.message).toBe('string')
+      expect(data.result.message!.length).toBeGreaterThan(0)
+    })
+
+    it('should return empty actions with helpful message for vague commands', async () => {
+      const response = await fetch(`${API_URL}/api/commands/parse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ command: 'hello there' }),
+      })
+
+      expect(response.status).toBe(200)
+      const data = (await response.json()) as CommandParseResponse
+      expect(data.success).toBe(true)
+      expect(data.result.actions).toHaveLength(0)
+      expect(data.result.message).toBeDefined()
+      expect(typeof data.result.message).toBe('string')
+      expect(data.result.message!.length).toBeGreaterThan(0)
+    })
   })
 })

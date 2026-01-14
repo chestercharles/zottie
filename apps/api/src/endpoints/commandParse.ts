@@ -6,6 +6,7 @@ import {
   type AppContext,
   CommandAction,
   CommandParseRequest,
+  CommandParseResponse,
   PantryItem,
 } from '../types'
 import { getDb, pantryItems, getHouseholdId } from '../db'
@@ -38,10 +39,28 @@ Be smart about user intent:
 - If user says "we're out of X" or "need X", use "update_pantry_status" with status "out_of_stock" (or "add_to_pantry" if not in pantry)
 - Normalize item names to lowercase singular form (e.g., "Apples" -> "apple", "Milk" -> "milk")
 
-Return a JSON object with an "actions" array. Each action has:
+Return a JSON object with:
+- "actions": an array of actions (can be empty if no valid actions found)
+- "message": (optional) a helpful message to display to the user
+
+Each action has:
 - "type": one of the action types above
 - "item": the item name (lowercase, singular)
-- "status": the status to set (required for add_to_pantry and update_pantry_status)`
+- "status": the status to set (required for add_to_pantry and update_pantry_status)
+
+If you cannot identify any pantry or shopping list actions from the user's input, return an empty actions array and include a helpful, empathetic message that:
+1. References what the user actually said to show you understood their input
+2. Explains why you couldn't process it as a pantry/shopping action
+3. Provides a specific, contextual recommendation based on what they might have meant
+4. Uses a validating, supportive tone without being patronizing
+5. IMPORTANT: Keep it short - two sentences maximum
+
+Examples:
+- User says "what's the weather": {"actions": [], "message": "I can't check the weather, but I can help with your pantry and shopping list. Try saying 'add milk' or 'mark eggs as running low'."}
+- User says "hello": {"actions": [], "message": "Hi! I'm here to help manage your pantry and shopping list. Try telling me to 'add apples' or 'mark bread as out of stock'."}
+- User says "remind me to call mom": {"actions": [], "message": "I can't set reminders, but I can track your pantry items. Try saying 'add tomatoes' or 'we're out of pasta'."}
+
+Make the message personal by referencing their specific input when possible.`
 
 export class CommandParseEndpoint extends OpenAPIRoute {
   schema = {
@@ -64,9 +83,7 @@ export class CommandParseEndpoint extends OpenAPIRoute {
           'application/json': {
             schema: z.object({
               success: Bool(),
-              result: z.object({
-                actions: z.array(CommandAction),
-              }),
+              result: CommandParseResponse,
             }),
           },
         },
@@ -196,6 +213,7 @@ export class CommandParseEndpoint extends OpenAPIRoute {
             .optional(),
         })
       ),
+      message: z.string().optional(),
     })
 
     const result = actionsSchema.safeParse(parsed)
@@ -214,6 +232,7 @@ export class CommandParseEndpoint extends OpenAPIRoute {
       success: true,
       result: {
         actions: result.data.actions,
+        message: result.data.message,
       },
     }
   }

@@ -18,6 +18,7 @@ export interface CommandParseRequest {
 export interface CommandParseResponse {
   result: {
     actions: CommandAction[]
+    message?: string
   }
 }
 

@@ -42,8 +42,11 @@ export function CommandsScreen() {
       parseCommand.mutate(transcript, {
         onSuccess: (response) => {
           const actions = response.result.actions
+          const message = response.result.message
           if (actions.length === 0) {
-            setError('No actions found in your command. Please try again.')
+            setError(
+              message || 'No actions found in your command. Please try again.'
+            )
             setRecordingState('idle')
           } else {
             setPendingActions(actions)

@@ -107,4 +107,5 @@ export const CommandParseRequest = z.object({
 
 export const CommandParseResponse = z.object({
   actions: z.array(CommandAction),
+  message: Str({ example: 'I added apples to your pantry!' }).optional(),
 })

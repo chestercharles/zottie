@@ -1,5 +1,40 @@
 # zottie Development Progress
 
+## 2026-01-13: Commands parsing empathetic error responses
+
+Implemented personalized, empathetic error messages when the commands parsing endpoint cannot identify actions from user input.
+
+### What was built
+
+- Enhanced OpenAI system prompt to generate contextual, empathetic error messages
+- Updated backend response schema to include optional `message` field
+- Modified `CommandParseEndpoint` to return helpful messages when no actions are found
+- Updated frontend `CommandsScreen` to display backend-provided error messages
+- Added e2e tests to verify error message generation
+
+### Error message behavior
+
+When the parsing endpoint receives input that isn't related to pantry or shopping tasks, it now:
+- References what the user actually said to show understanding
+- Explains why it couldn't process the input
+- Provides specific recommendations based on context
+- Keeps responses short (two sentences max)
+- Uses a supportive tone without being patronizing
+
+### Examples
+
+- User says "what's the weather" → "I can't check the weather, but I can help with your pantry and shopping list. Try saying 'add milk' or 'mark eggs as running low'."
+- User says "hello" → "Hi! I'm here to help manage your pantry and shopping list. Try telling me to 'add apples' or 'mark bread as out of stock'."
+- User says "remind me to call mom" → "I can't set reminders, but I can track your pantry items. Try saying 'add tomatoes' or 'we're out of pasta'."
+
+### Technical changes
+
+- `apps/api/src/types.ts`: Added optional `message` field to `CommandParseResponse`
+- `apps/api/src/endpoints/commandParse.ts`: Updated prompt and response handling to generate personalized messages
+- `apps/mobile/features/commands/types.ts`: Updated frontend type to include optional `message`
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Display backend message when available
+- `apps/api/src/endpoints/commandParse.eval.ts`: Added tests for empathetic error responses
+
 ## 2026-01-13: Commands tab screen with dictation and execution
 
 Implemented the Commands tab in the mobile app, allowing users to give voice commands to manage their pantry and shopping list.
