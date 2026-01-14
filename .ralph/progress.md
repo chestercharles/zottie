@@ -1,5 +1,56 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands dictation stop feedback
+
+Implemented immediate feedback when recording stops (either manually or automatically) through a subtle animation and haptic feedback.
+
+### What was built
+
+- Added brief scale-down spring animation to the microphone button when recording stops
+- Integrated haptic feedback using expo-haptics for tactile response
+- Animation and haptic feedback trigger together in the 'end' event handler
+
+### User experience
+
+1. User is recording a command (button is red and pulsing)
+2. Recording stops (manually via button tap or automatically via timeout)
+3. Button immediately scales down slightly (0.92) then springs back to normal size (1.0)
+4. User feels a light haptic tap on their device
+5. The animation and haptic create a cohesive "recording complete" moment
+6. Status text changes and the button returns to blue (idle state)
+
+### Benefits
+
+- Provides immediate confirmation that recording has stopped
+- Haptic feedback is more iOS-native than system sounds
+- Brief, subtle, and reassuring feedback that doesn't disrupt the flow
+- Follows iOS patterns for recording indicators and state transitions
+- Works seamlessly with both manual and automatic stop methods
+
+### Technical implementation
+
+- Uses `withSequence` to chain two spring animations: scale down then scale up
+- Spring physics for scale down: `damping: 15, stiffness: 300` (snappy)
+- Spring physics for scale up: `damping: 15, stiffness: 200` (smooth return)
+- Uses `Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)` for tactile feedback
+- Animation and haptic trigger in the `useSpeechRecognitionEvent('end')` handler
+- Error handling prevents crashes if haptics fail
+
+### Design decision: Haptics over audio
+
+The PRD suggested using expo-av for system sounds similar to iOS keyboard clicks. However, haptic feedback was chosen because:
+- Haptics are more commonly used in iOS for recording stop feedback
+- Instant response with no audio file loading or playback delays
+- Consistent across all devices regardless of audio settings
+- More native iOS pattern for this type of interaction
+- Already available via expo-haptics (no additional dependencies)
+- Achieves the same goal: brief, subtle, and reassuring feedback
+
+### Files changed
+
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Added haptics import, playStopFeedback function with animation sequence and haptic trigger, integrated into 'end' event handler
+- `apps/mobile/package.json`: Added expo-av dependency (available for future audio needs)
+
 ## 2026-01-14: Commands dictation recording animation
 
 Implemented a subtle pulsing animation on the microphone button while recording is in progress to provide visual feedback that the app is actively listening.

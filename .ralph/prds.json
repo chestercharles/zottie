@@ -47,7 +47,7 @@
   {
     "name": "Commands dictation stop feedback",
     "description": "Provide immediate feedback when recording stops (either manually or automatically). Add a subtle animation to the microphone button (a brief scale-down spring animation) and play a short system sound to indicate recording has ended. For the sound, use iOS system sounds via expo-av or react-native-sound - choose a gentle, non-intrusive sound similar to the iOS keyboard click or message send sound. The animation and sound should happen together to create a cohesive 'recording complete' moment. Follow iOS patterns for this type of feedback - brief, subtle, and reassuring rather than loud or jarring.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Onboarding feature flag API endpoint",

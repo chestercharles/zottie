@@ -17,8 +17,10 @@ import Animated, {
   useAnimatedStyle,
   withRepeat,
   withSpring,
+  withSequence,
   cancelAnimation,
 } from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
 import { useParseCommand, useExecuteCommand } from './hooks'
 import type { CommandAction } from './types'
 
@@ -56,6 +58,23 @@ export function CommandsScreen() {
     transform: [{ scale: scale.value }],
   }))
 
+  const playStopFeedback = () => {
+    scale.value = withSequence(
+      withSpring(0.92, {
+        damping: 15,
+        stiffness: 300,
+      }),
+      withSpring(1, {
+        damping: 15,
+        stiffness: 200,
+      })
+    )
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch((error) => {
+      console.warn('Failed to play haptic feedback:', error)
+    })
+  }
+
   useSpeechRecognitionEvent('start', () => {
     setRecordingState('recording')
     setError(null)
@@ -63,6 +82,7 @@ export function CommandsScreen() {
 
   useSpeechRecognitionEvent('end', () => {
     if (recordingState === 'recording') {
+      playStopFeedback()
       setRecordingState('idle')
     }
   })
