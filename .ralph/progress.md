@@ -1,5 +1,49 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands dictation automatic timeout
+
+Configured automatic timeout behavior for speech recognition on iOS.
+
+### What was built
+
+- iOS handles automatic timeout natively without additional configuration
+- No code changes required - the feature works out of the box
+
+### How it works
+
+iOS automatically stops recording after detecting silence:
+- **iOS 17 and earlier**: Recording stops after 3 seconds of silence
+- **iOS 18+**: Recording continues until a final result is detected
+
+The `continuous: false` option in the speech recognition configuration ensures this behavior is enabled.
+
+### User experience
+
+1. User starts recording by tapping the microphone button
+2. User speaks their command
+3. When the user stops speaking, iOS detects the silence
+4. After the appropriate timeout period, recording automatically stops
+5. The transcription is processed and sent to the parsing endpoint
+6. User sees the parsed actions for confirmation
+
+### Benefits
+
+- Natural conversation flow - users don't have to manually stop every time
+- Platform-native behavior that iOS users expect
+- Works seamlessly alongside manual stop (user can tap to stop early if desired)
+- No additional code or configuration needed
+
+### Technical notes
+
+- iOS 17 and earlier use a fixed 3-second silence detection window
+- iOS 18+ use more sophisticated detection that waits for a "final result"
+- The existing configuration with `continuous: false` enables this automatic behavior
+- No Android implementation (app is iOS-only)
+
+### Files changed
+
+- None - this feature is provided by iOS automatically
+
 ## 2026-01-14: Commands dictation manual stop
 
 Implemented manual stop functionality for voice recording, allowing users to manually stop recording by pressing the microphone button again while recording is in progress.

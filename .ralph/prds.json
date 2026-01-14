@@ -32,12 +32,12 @@
   {
     "name": "Commands dictation manual stop",
     "description": "Allow users to manually stop recording by pressing the microphone button again while recording is in progress. When pressed during recording, the button should stop the speech recognition, submit the captured audio for transcription, and proceed with command parsing. This provides users with control over when their command is complete, rather than relying solely on automatic silence detection.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands dictation automatic timeout",
     "description": "Configure automatic timeout behavior for speech recognition to stop recording after a reasonable period of silence. On iOS, the platform handles this automatically (3 seconds on iOS 17 and earlier, until final result on iOS 18+). On Android, configure androidIntentOptions with EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS and EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS to control silence detection timing. The goal is to stop recording naturally when the user pauses speaking, without requiring manual intervention.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands dictation recording animation",
