@@ -53,9 +53,7 @@
       "indexes": {
         "household_invites_code_unique": {
           "name": "household_invites_code_unique",
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "isUnique": true
         }
       },
@@ -64,12 +62,8 @@
           "name": "household_invites_household_id_households_id_fk",
           "tableFrom": "household_invites",
           "tableTo": "households",
-          "columnsFrom": [
-            "household_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["household_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -127,9 +121,7 @@
       "indexes": {
         "household_members_user_id_unique": {
           "name": "household_members_user_id_unique",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": true
         }
       },
@@ -138,12 +130,8 @@
           "name": "household_members_household_id_households_id_fk",
           "tableFrom": "household_members",
           "tableTo": "households",
-          "columnsFrom": [
-            "household_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["household_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -265,12 +253,8 @@
           "name": "pantry_items_household_id_households_id_fk",
           "tableFrom": "pantry_items",
           "tableTo": "households",
-          "columnsFrom": [
-            "household_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["household_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

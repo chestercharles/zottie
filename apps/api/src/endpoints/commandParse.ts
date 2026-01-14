@@ -128,11 +128,12 @@ export class CommandParseEndpoint extends OpenAPIRoute {
       .from(pantryItems)
       .where(eq(pantryItems.householdId, householdId))
 
-    const pantryContext = items.length > 0
-      ? `Current pantry items:\n${items.map((item) => `- ${item.name} (${item.status})`).join('\n')}`
-      : 'The pantry is currently empty.'
+    const pantryContext =
+      items.length > 0
+        ? `Current pantry items:\n${items.map((item) => `- ${item.name} (${item.status})`).join('\n')}`
+        : 'The pantry is currently empty.'
 
-    const openaiApiKey = (c.env as unknown as { OPENAI_API_KEY?: string }).OPENAI_API_KEY
+    const openaiApiKey = c.env.OPENAI_API_KEY
 
     if (!openaiApiKey) {
       return c.json(
@@ -160,7 +161,10 @@ export class CommandParseEndpoint extends OpenAPIRoute {
 
     if (!responseText) {
       return c.json(
-        { success: false, error: 'Failed to parse command - no response from AI' },
+        {
+          success: false,
+          error: 'Failed to parse command - no response from AI',
+        },
         500
       )
     }
@@ -170,7 +174,10 @@ export class CommandParseEndpoint extends OpenAPIRoute {
       parsed = JSON.parse(responseText)
     } catch {
       return c.json(
-        { success: false, error: 'Failed to parse command - invalid JSON response' },
+        {
+          success: false,
+          error: 'Failed to parse command - invalid JSON response',
+        },
         500
       )
     }
@@ -178,9 +185,15 @@ export class CommandParseEndpoint extends OpenAPIRoute {
     const actionsSchema = z.object({
       actions: z.array(
         z.object({
-          type: z.enum(['add_to_pantry', 'update_pantry_status', 'remove_from_shopping_list']),
+          type: z.enum([
+            'add_to_pantry',
+            'update_pantry_status',
+            'remove_from_shopping_list',
+          ]),
           item: z.string(),
-          status: z.enum(['in_stock', 'running_low', 'out_of_stock', 'planned']).optional(),
+          status: z
+            .enum(['in_stock', 'running_low', 'out_of_stock', 'planned'])
+            .optional(),
         })
       ),
     })
@@ -189,7 +202,10 @@ export class CommandParseEndpoint extends OpenAPIRoute {
 
     if (!result.success) {
       return c.json(
-        { success: false, error: 'Failed to parse command - unexpected response format' },
+        {
+          success: false,
+          error: 'Failed to parse command - unexpected response format',
+        },
         500
       )
     }

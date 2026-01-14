@@ -18,8 +18,12 @@ export function useCreateHousehold() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.household(user.id) })
-        queryClient.invalidateQueries({ queryKey: queryKeys.householdMembership(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.household(user.id),
+        })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.householdMembership(user.id),
+        })
       }
     },
   })

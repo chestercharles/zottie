@@ -8,7 +8,13 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native'
-import { useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react'
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ReanimatedSwipeable, {
@@ -25,8 +31,16 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from '@gorhom/bottom-sheet'
-import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
-import { useShoppingItems, useMarkAsPurchased, useCreatePlannedItem } from './hooks'
+import {
+  getCheckedItems,
+  toggleCheckedItem,
+  clearCheckedItems,
+} from './checkedItemsStorage'
+import {
+  useShoppingItems,
+  useMarkAsPurchased,
+  useCreatePlannedItem,
+} from './hooks'
 import { useDeletePantryItem } from '@/features/pantry/hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
@@ -74,7 +88,8 @@ function SwipeActionButton({
   const animatedStyle = useAnimatedStyle(() => {
     const dragValue = Math.abs(drag.value)
     const scale = Math.min(1, dragValue / 60)
-    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / 2) : 0
+    const translateX =
+      dragValue > 0 ? (totalWidth - dragValue) * (position / 2) : 0
 
     return {
       transform: [{ scale }, { translateX }],
@@ -83,7 +98,9 @@ function SwipeActionButton({
   })
 
   return (
-    <Reanimated.View style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}>
+    <Reanimated.View
+      style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}
+    >
       <TouchableOpacity
         style={[styles.swipeActionContent, { backgroundColor: color }]}
         onPress={onPress}
@@ -193,7 +210,9 @@ function ShoppingItemRow({
         </TouchableOpacity>
         <TouchableOpacity style={styles.itemContent} onPress={onPress}>
           <View style={styles.itemDetails}>
-            <Text style={[styles.itemName, isChecked && styles.itemNameChecked]}>
+            <Text
+              style={[styles.itemName, isChecked && styles.itemNameChecked]}
+            >
               {item.name}
             </Text>
             <Text style={styles.itemType}>{itemTypeLabels[item.itemType]}</Text>
@@ -284,7 +303,9 @@ export function ShoppingListScreen() {
       onError: (err) => {
         Alert.alert(
           'Error',
-          err instanceof Error ? err.message : 'Failed to mark items as purchased'
+          err instanceof Error
+            ? err.message
+            : 'Failed to mark items as purchased'
         )
       },
     })
@@ -392,7 +413,11 @@ export function ShoppingListScreen() {
       {checkedCount > 0 && (
         <View style={styles.purchaseButtonContainer}>
           <TouchableOpacity
-            style={[styles.purchaseButton, markAsPurchasedMutation.isPending && styles.purchaseButtonDisabled]}
+            style={[
+              styles.purchaseButton,
+              markAsPurchasedMutation.isPending &&
+                styles.purchaseButtonDisabled,
+            ]}
             onPress={handleMarkAsPurchased}
             disabled={markAsPurchasedMutation.isPending}
           >
@@ -400,9 +425,15 @@ export function ShoppingListScreen() {
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
-                <Ionicons name="cart" size={20} color="#fff" style={styles.purchaseButtonIcon} />
+                <Ionicons
+                  name="cart"
+                  size={20}
+                  color="#fff"
+                  style={styles.purchaseButtonIcon}
+                />
                 <Text style={styles.purchaseButtonText}>
-                  Mark {checkedCount} {checkedCount === 1 ? 'item' : 'items'} as purchased
+                  Mark {checkedCount} {checkedCount === 1 ? 'item' : 'items'} as
+                  purchased
                 </Text>
               </>
             )}
@@ -412,7 +443,12 @@ export function ShoppingListScreen() {
             onPress={handleResetCheckmarks}
             disabled={markAsPurchasedMutation.isPending}
           >
-            <Ionicons name="refresh" size={16} color="#666" style={styles.resetButtonIcon} />
+            <Ionicons
+              name="refresh"
+              size={16}
+              color="#666"
+              style={styles.resetButtonIcon}
+            />
             <Text style={styles.resetButtonText}>Reset checkmarks</Text>
           </TouchableOpacity>
         </View>
@@ -445,7 +481,9 @@ export function ShoppingListScreen() {
                   styles.sheetHeaderButtonDisabled,
               ]}
               onPress={handleCreatePlannedItem}
-              disabled={!newItemName.trim() || createPlannedItemMutation.isPending}
+              disabled={
+                !newItemName.trim() || createPlannedItemMutation.isPending
+              }
             >
               {createPlannedItemMutation.isPending ? (
                 <ActivityIndicator color="#9B59B6" />

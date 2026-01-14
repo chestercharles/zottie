@@ -18,6 +18,7 @@ Your task is to clean up the project documentation by moving completed items to 
 4. Verify all files are valid (JSON is parseable, markdown is well-formed)
 
 IMPORTANT:
+
 - Always preserve file formatting and structure
 - Don't lose any data during the move
 - Keep the most recent 2-3 completed items visible in progress.md for context

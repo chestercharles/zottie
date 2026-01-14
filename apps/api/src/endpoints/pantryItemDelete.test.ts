@@ -31,7 +31,10 @@ async function createPantryItem(
   name: string,
   status = 'in_stock'
 ) {
-  const token = await createTestToken({ userId, email: `${userId}@example.com` })
+  const token = await createTestToken({
+    userId,
+    email: `${userId}@example.com`,
+  })
   const response = await fetch(`${API_URL}/api/pantry-items`, {
     method: 'POST',
     headers: {
@@ -46,12 +49,9 @@ async function createPantryItem(
 
 describe('DELETE /api/pantry-items/:id', () => {
   it('should return 401 when no authorization header is provided', async () => {
-    const response = await fetch(
-      `${API_URL}/api/pantry-items/some-fake-id`,
-      {
-        method: 'DELETE',
-      }
-    )
+    const response = await fetch(`${API_URL}/api/pantry-items/some-fake-id`, {
+      method: 'DELETE',
+    })
 
     expect(response.status).toBe(401)
     const data = (await response.json()) as ErrorResponse
@@ -61,7 +61,10 @@ describe('DELETE /api/pantry-items/:id', () => {
 
   it('should delete a pantry item with valid JWT token', async () => {
     const userId = 'auth0|test-user-delete-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Milk to delete')
 
@@ -93,7 +96,10 @@ describe('DELETE /api/pantry-items/:id', () => {
 
   it('should return 404 when pantry item does not exist', async () => {
     const userId = 'auth0|test-user-delete-456'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const response = await fetch(
       `${API_URL}/api/pantry-items/non-existent-id`,
@@ -117,7 +123,10 @@ describe('DELETE /api/pantry-items/:id', () => {
 
     const item = await createPantryItem(userId1, 'Bread to keep')
 
-    const token2 = await createTestToken({ userId: userId2, email: `${userId2}@example.com` })
+    const token2 = await createTestToken({
+      userId: userId2,
+      email: `${userId2}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items/${item.id}`, {
       method: 'DELETE',
       headers: {
@@ -130,7 +139,10 @@ describe('DELETE /api/pantry-items/:id', () => {
     expect(data.success).toBe(false)
     expect(data.error).toBe('Pantry item not found')
 
-    const token1 = await createTestToken({ userId: userId1, email: `${userId1}@example.com` })
+    const token1 = await createTestToken({
+      userId: userId1,
+      email: `${userId1}@example.com`,
+    })
     const verifyResponse = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'GET',
       headers: {
@@ -140,7 +152,9 @@ describe('DELETE /api/pantry-items/:id', () => {
     const listData = (await verifyResponse.json()) as {
       result: { pantryItems: { id: string }[] }
     }
-    const stillExists = listData.result.pantryItems.find((i) => i.id === item.id)
+    const stillExists = listData.result.pantryItems.find(
+      (i) => i.id === item.id
+    )
     expect(stillExists).toBeDefined()
   })
 })

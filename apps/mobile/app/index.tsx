@@ -6,7 +6,8 @@ import { Redirect } from 'expo-router'
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth()
   const { pendingInvite, isChecking } = usePendingInvite()
-  const { hasHousehold, isLoading: isLoadingHousehold } = useHouseholdMembership()
+  const { hasHousehold, isLoading: isLoadingHousehold } =
+    useHouseholdMembership()
 
   if (isLoading || isChecking) {
     return null

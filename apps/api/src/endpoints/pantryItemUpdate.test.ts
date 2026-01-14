@@ -27,7 +27,10 @@ async function createPantryItem(
   name: string,
   status = 'in_stock'
 ) {
-  const token = await createTestToken({ userId, email: `${userId}@example.com` })
+  const token = await createTestToken({
+    userId,
+    email: `${userId}@example.com`,
+  })
   const response = await fetch(`${API_URL}/api/pantry-items`, {
     method: 'POST',
     headers: {
@@ -42,18 +45,15 @@ async function createPantryItem(
 
 describe('PATCH /api/pantry-items/:id', () => {
   it('should return 401 when no authorization header is provided', async () => {
-    const response = await fetch(
-      `${API_URL}/api/pantry-items/some-fake-id`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'running_low',
-        }),
-      }
-    )
+    const response = await fetch(`${API_URL}/api/pantry-items/some-fake-id`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: 'running_low',
+      }),
+    })
 
     expect(response.status).toBe(401)
     const data = (await response.json()) as ErrorResponse
@@ -63,7 +63,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should update a pantry item with valid JWT token', async () => {
     const userId = 'auth0|test-user-update-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Milk', 'in_stock')
 
@@ -94,7 +97,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should return 404 when pantry item does not exist', async () => {
     const userId = 'auth0|test-user-update-456'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const response = await fetch(
       `${API_URL}/api/pantry-items/non-existent-id`,
@@ -122,7 +128,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
     const item = await createPantryItem(userId1, 'Bread')
 
-    const token2 = await createTestToken({ userId: userId2, email: `${userId2}@example.com` })
+    const token2 = await createTestToken({
+      userId: userId2,
+      email: `${userId2}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items/${item.id}`, {
       method: 'PATCH',
       headers: {
@@ -142,7 +151,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should reject invalid status values', async () => {
     const userId = 'auth0|test-user-update-invalid'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Cheese')
 
@@ -162,7 +174,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should update status to out_of_stock', async () => {
     const userId = 'auth0|test-user-update-oos'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Eggs', 'in_stock')
 
@@ -185,7 +200,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should update item name only', async () => {
     const userId = 'auth0|test-user-update-name'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Milk', 'in_stock')
 
@@ -209,7 +227,10 @@ describe('PATCH /api/pantry-items/:id', () => {
 
   it('should update both name and status', async () => {
     const userId = 'auth0|test-user-update-both'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
 
     const item = await createPantryItem(userId, 'Butter', 'in_stock')
 

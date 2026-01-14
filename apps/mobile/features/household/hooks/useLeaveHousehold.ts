@@ -18,7 +18,9 @@ export function useLeaveHousehold() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.household(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.household(user.id),
+        })
         queryClient.invalidateQueries({
           queryKey: queryKeys.householdMembership(user.id),
         })

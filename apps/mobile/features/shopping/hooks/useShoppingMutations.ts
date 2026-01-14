@@ -22,7 +22,9 @@ export function useMarkAsPurchased() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.pantryItems(user.id),
+        })
       }
     },
   })
@@ -46,7 +48,9 @@ export function useCreatePlannedItem() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.pantryItems(user.id),
+        })
       }
     },
   })

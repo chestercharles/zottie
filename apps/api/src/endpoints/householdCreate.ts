@@ -1,7 +1,12 @@
 import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { type AppContext, Household, HouseholdCreate, HouseholdMember } from '../types'
+import {
+  type AppContext,
+  Household,
+  HouseholdCreate,
+  HouseholdMember,
+} from '../types'
 import { getDb, households, householdMembers } from '../db'
 
 export class HouseholdCreateEndpoint extends OpenAPIRoute {
@@ -74,7 +79,10 @@ export class HouseholdCreateEndpoint extends OpenAPIRoute {
       .limit(1)
 
     if (existingMembership.length > 0) {
-      return c.json({ success: false, error: 'User already belongs to a household' }, 409)
+      return c.json(
+        { success: false, error: 'User already belongs to a household' },
+        409
+      )
     }
 
     const householdId = crypto.randomUUID()

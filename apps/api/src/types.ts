@@ -100,7 +100,9 @@ export const CommandAction = z.object({
 })
 
 export const CommandParseRequest = z.object({
-  command: Str({ example: 'add apples to the pantry and mark milk as running low' }),
+  command: Str({
+    example: 'add apples to the pantry and mark milk as running low',
+  }),
 })
 
 export const CommandParseResponse = z.object({

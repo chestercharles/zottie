@@ -27,22 +27,25 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
           <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="onboarding"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="join/[code]"
-            options={{
-              headerShown: true,
-              title: 'Join Household',
-              headerBackTitle: 'Back',
-            }}
-          />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="(authenticated)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="onboarding"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="join/[code]"
+              options={{
+                headerShown: true,
+                title: 'Join Household',
+                headerBackTitle: 'Back',
+              }}
+            />
           </Stack>
         </Auth0Provider>
       </QueryClientProvider>

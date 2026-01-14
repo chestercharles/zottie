@@ -32,7 +32,10 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
   const handleCreateHousehold = async () => {
     const trimmedName = householdName.trim()
     if (!trimmedName) {
-      Alert.alert('Household Name Required', 'Please enter a name for your household.')
+      Alert.alert(
+        'Household Name Required',
+        'Please enter a name for your household.'
+      )
       return
     }
 
@@ -99,7 +102,10 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.primaryButton, isButtonDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isButtonDisabled && styles.disabledButton,
+          ]}
           onPress={handleCreateHousehold}
           disabled={isButtonDisabled}
         >
@@ -120,12 +126,15 @@ export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
           <Ionicons name="link-outline" size={24} color="#7F8C8D" />
           <Text style={styles.joinTitle}>Join an Existing Household</Text>
           <Text style={styles.joinMessage}>
-            Ask someone in the household to send you an invite link. Open the link to join their household.
+            Ask someone in the household to send you an invite link. Open the
+            link to join their household.
           </Text>
         </View>
       </View>
 
-      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+      <View
+        style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}
+      >
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}

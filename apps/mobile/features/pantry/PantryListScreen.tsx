@@ -72,7 +72,8 @@ function SwipeActionButton({
   const animatedStyle = useAnimatedStyle(() => {
     const dragValue = Math.abs(drag.value)
     const scale = Math.min(1, dragValue / 60)
-    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / buttonCount) : 0
+    const translateX =
+      dragValue > 0 ? (totalWidth - dragValue) * (position / buttonCount) : 0
 
     return {
       transform: [{ scale }, { translateX }],
@@ -81,7 +82,9 @@ function SwipeActionButton({
   })
 
   return (
-    <Reanimated.View style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}>
+    <Reanimated.View
+      style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}
+    >
       <TouchableOpacity
         style={[styles.swipeActionContent, { backgroundColor: color }]}
         onPress={onPress}
@@ -313,11 +316,7 @@ export function PantryListScreen() {
   const showStapleActionSheet = (item: PantryItem) => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: [
-          'Cancel',
-          'Mark as Running Low',
-          'Mark as Out of Stock',
-        ],
+        options: ['Cancel', 'Mark as Running Low', 'Mark as Out of Stock'],
         cancelButtonIndex: 0,
         title: item.name,
       },
@@ -460,11 +459,7 @@ export function PantryListScreen() {
         )}
       </View>
     )
-  }, [
-    plannedItems,
-    isPlannedExpanded,
-    updatePantryItem,
-  ])
+  }, [plannedItems, isPlannedExpanded, updatePantryItem])
 
   return (
     <View style={styles.container}>

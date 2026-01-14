@@ -62,7 +62,9 @@ export function PantryItemDetailScreen() {
 
   const createdAt = parseInt(params.createdAt || '0', 10)
   const updatedAt = parseInt(params.updatedAt || '0', 10)
-  const purchasedAt = params.purchasedAt ? parseInt(params.purchasedAt, 10) : null
+  const purchasedAt = params.purchasedAt
+    ? parseInt(params.purchasedAt, 10)
+    : null
 
   const handleSaveName = () => {
     const trimmedName = editedName.trim()
@@ -169,7 +171,11 @@ export function PantryItemDetailScreen() {
     )
   }
 
-  const statuses: PantryItemStatus[] = ['in_stock', 'running_low', 'out_of_stock']
+  const statuses: PantryItemStatus[] = [
+    'in_stock',
+    'running_low',
+    'out_of_stock',
+  ]
 
   return (
     <ScrollView style={styles.container}>
@@ -225,9 +231,7 @@ export function PantryItemDetailScreen() {
               { backgroundColor: statusColors[currentStatus] },
             ]}
           >
-            <Text style={styles.statusText}>
-              {statusLabels[currentStatus]}
-            </Text>
+            <Text style={styles.statusText}>{statusLabels[currentStatus]}</Text>
           </View>
         </View>
 
@@ -253,8 +257,7 @@ export function PantryItemDetailScreen() {
                   <Text
                     style={[
                       styles.statusButtonText,
-                      currentStatus === status &&
-                        styles.statusButtonTextActive,
+                      currentStatus === status && styles.statusButtonTextActive,
                     ]}
                   >
                     {statusLabels[status]}

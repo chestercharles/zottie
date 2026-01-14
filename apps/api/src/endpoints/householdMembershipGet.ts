@@ -61,7 +61,10 @@ export class HouseholdMembershipGetEndpoint extends OpenAPIRoute {
       .limit(1)
 
     if (existingMembership.length === 0) {
-      return c.json({ success: false, error: 'No household membership found' }, 404)
+      return c.json(
+        { success: false, error: 'No household membership found' },
+        404
+      )
     }
 
     const householdId = existingMembership[0].householdId

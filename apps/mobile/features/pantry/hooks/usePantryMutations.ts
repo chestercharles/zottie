@@ -3,7 +3,11 @@ import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { queryKeys } from '@/lib/query'
 import { createPantryItem, updatePantryItem, deletePantryItem } from '../api'
-import type { CreatePantryItemRequest, PantryItemStatus, ItemType } from '../types'
+import type {
+  CreatePantryItemRequest,
+  PantryItemStatus,
+  ItemType,
+} from '../types'
 
 export function useCreatePantryItem() {
   const { user } = useAuth()
@@ -23,7 +27,9 @@ export function useCreatePantryItem() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.pantryItems(user.id),
+        })
       }
     },
   })
@@ -53,11 +59,18 @@ export function useUpdatePantryItem() {
       if (!credentials?.accessToken) {
         throw new Error('No access token available')
       }
-      return updatePantryItem(itemId, { status, name, itemType }, credentials.accessToken, user.id)
+      return updatePantryItem(
+        itemId,
+        { status, name, itemType },
+        credentials.accessToken,
+        user.id
+      )
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.pantryItems(user.id),
+        })
       }
     },
   })
@@ -81,7 +94,9 @@ export function useDeletePantryItem() {
     },
     onSuccess: () => {
       if (user?.id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.pantryItems(user.id),
+        })
       }
     },
   })

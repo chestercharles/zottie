@@ -72,7 +72,10 @@ export class HouseholdJoinEndpoint extends OpenAPIRoute {
       })
       .from(householdInvites)
       .where(
-        and(eq(householdInvites.code, code), gt(householdInvites.expiresAt, now))
+        and(
+          eq(householdInvites.code, code),
+          gt(householdInvites.expiresAt, now)
+        )
       )
       .limit(1)
 

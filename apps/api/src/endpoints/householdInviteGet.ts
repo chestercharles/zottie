@@ -71,7 +71,10 @@ export class HouseholdInviteGetEndpoint extends OpenAPIRoute {
       .from(householdInvites)
       .innerJoin(households, eq(householdInvites.householdId, households.id))
       .where(
-        and(eq(householdInvites.code, code), gt(householdInvites.expiresAt, now))
+        and(
+          eq(householdInvites.code, code),
+          gt(householdInvites.expiresAt, now)
+        )
       )
       .limit(1)
 

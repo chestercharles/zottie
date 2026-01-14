@@ -1,4 +1,8 @@
-export type PantryItemStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+export type PantryItemStatus =
+  | 'in_stock'
+  | 'running_low'
+  | 'out_of_stock'
+  | 'planned'
 
 export type ItemType = 'staple' | 'planned'
 

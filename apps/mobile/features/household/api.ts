@@ -170,7 +170,11 @@ export async function joinHousehold(
   code: string,
   authToken: string,
   userId: string
-): Promise<{ household: Household; members: HouseholdMember[]; alreadyMember?: boolean }> {
+): Promise<{
+  household: Household
+  members: HouseholdMember[]
+  alreadyMember?: boolean
+}> {
   const response = await fetch(`${API_BASE_URL}/api/household/join/${code}`, {
     method: 'POST',
     headers: {

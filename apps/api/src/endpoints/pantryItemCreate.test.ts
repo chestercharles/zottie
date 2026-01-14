@@ -42,7 +42,10 @@ describe('POST /api/pantry-items', () => {
 
   it('should create a pantry item with valid JWT token', async () => {
     const userId = 'auth0|test-user-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
@@ -68,7 +71,10 @@ describe('POST /api/pantry-items', () => {
 
   it('should create a pantry item with custom status', async () => {
     const userId = 'auth0|test-user-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
@@ -90,7 +96,10 @@ describe('POST /api/pantry-items', () => {
 
   it('should reject invalid status values', async () => {
     const userId = 'auth0|test-user-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
@@ -109,7 +118,10 @@ describe('POST /api/pantry-items', () => {
 
   it('should require name field', async () => {
     const userId = 'auth0|test-user-123'
-    const token = await createTestToken({ userId, email: `${userId}@example.com` })
+    const token = await createTestToken({
+      userId,
+      email: `${userId}@example.com`,
+    })
     const response = await fetch(`${API_URL}/api/pantry-items`, {
       method: 'POST',
       headers: {
