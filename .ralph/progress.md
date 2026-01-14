@@ -1,5 +1,106 @@
 # zottie Development Progress
 
+## 2026-01-14: New onboarding processing screen
+
+Implemented the processing screen that handles parsing and executing user input from both pantry and shopping list onboarding screens. This completes the core conversational onboarding flow.
+
+### What was built
+
+- Created `NewProcessingScreen` component with warm, breathing animation using spring physics
+- Implemented `useOnboardingItemParsing` hook to parse and execute commands in one operation
+- Updated `ConversationalOnboarding` orchestrator to manage the three-step flow
+- Added empathetic error handling with specific retry options
+- Processing happens immediately after shopping input screen (non-blocking)
+
+### User experience
+
+1. After entering shopping list items, user sees the processing screen
+2. Screen shows a gentle pulsing animation (not a harsh spinner) with reassuring copy
+3. Behind the scenes, both pantry and shopping text are parsed and executed in parallel
+4. If both succeed, user automatically navigates to the pantry screen
+5. If either fails, user sees a friendly error message with specific retry options:
+   - "Retry pantry items" button (if pantry parsing failed)
+   - "Retry shopping items" button (if shopping parsing failed)
+   - "Continue anyway" button to skip the error and proceed
+
+### Design decisions
+
+**Loading animation:**
+- Used `withSpring` physics for organic, iOS-native feel
+- Pulsing/breathing animation on checkmark icon (scale: 1 → 1.15 → 1)
+- Gentle opacity fade (0.6 → 1 → 0.6) synchronized with scale
+- No harsh spinner that creates anxiety
+- Empathetic copy: "Setting up your kitchen...", "This will just take a moment"
+
+**Error handling:**
+- Warm, supportive error UI (not red/danger styling)
+- Clear explanation of what went wrong
+- Specific retry options for each failed step
+- "Continue anyway" option so users aren't blocked
+- Errors don't lose user's input - retry takes them back to the relevant screen
+
+**API integration:**
+- Created contextual commands for better parsing:
+  - Pantry: "I have: [user text]"
+  - Shopping: "I need to buy: [user text]"
+- Parse and execute happen in one operation per context
+- Both operations run in parallel using `Promise.allSettled`
+- Automatically invalidates pantry items query on success
+
+### Technical implementation
+
+**NewProcessingScreen.tsx:**
+- Accepts `step` prop: 'pantry' | 'shopping' | 'both'
+- Uses `react-native-reanimated` for smooth animations
+- Spring physics: `damping: 8, stiffness: 100`
+- Opacity animation: 1200ms duration with ease-in-out easing
+- Clean, centered layout with helpful messaging
+
+**useOnboardingItemParsing.ts:**
+- Wraps existing `parseCommand` and `executeCommand` API clients
+- Adds contextual phrasing to improve parsing accuracy
+- Handles auth token and user ID internally
+- Invalidates pantry items cache on success
+- Returns parse response for potential future use
+
+**ConversationalOnboarding.tsx:**
+- Added 'processing' step to onboarding flow
+- State now tracks both pantry and shopping text plus any errors
+- `useEffect` triggers parsing when entering 'processing' step
+- Error state shows empathetic retry UI with specific buttons
+- Success automatically navigates to pantry screen
+
+### Flow behavior
+
+The complete conversational onboarding now flows:
+1. Auto-create household with "My Household"
+2. Show pantry input screen (can skip or enter text)
+3. Show shopping list input screen (can skip or enter text)
+4. Show processing screen with warm animation
+5. Parse and execute both inputs in parallel
+6. On success: Navigate to pantry screen
+7. On error: Show retry UI with specific options
+
+### Files changed
+
+- `apps/mobile/features/onboarding/NewProcessingScreen.tsx`: New loading screen component
+- `apps/mobile/features/onboarding/hooks/useOnboardingItemParsing.ts`: New parsing hook
+- `apps/mobile/features/onboarding/hooks/index.ts`: Export new hook
+- `apps/mobile/features/onboarding/ConversationalOnboarding.tsx`: Updated orchestration with processing step and error handling
+- `apps/mobile/features/onboarding/index.ts`: Export new screen and hooks
+- `apps/mobile/app/onboarding.tsx`: Cleanup unused styles
+
+### Next steps
+
+According to the PRD sequence, the remaining screen to implement is:
+1. Household invitation screen (optional step to invite household partner after processing completes)
+
+The processing screen is now complete and ready to be followed by the invitation screen.
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: New onboarding shopping list input screen
 
 Implemented the second screen of the new conversational onboarding flow that asks users what they need from the store.
