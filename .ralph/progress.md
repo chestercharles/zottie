@@ -4,9 +4,31 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Native iOS swipe actions for pantry list"
+- Implement "Migrate pantry list to FlatList"
 
 ## Recently Completed
+
+### Native iOS swipe actions for pantry list
+
+**Frontend (Mobile) changes:**
+- Replaced deprecated `Swipeable` with `ReanimatedSwipeable` from `react-native-gesture-handler/ReanimatedSwipeable`
+- Refactored `PantryItemRow` component with native iOS-style swipe actions:
+  - **Staple items**: Swipe left reveals "Low" (orange), "Out" (red), and "Delete" (dark red) action buttons
+  - **Planned items**: Swipe left reveals "More" (blue) and "Delete" (red) action buttons
+  - Each button has an icon and short label, similar to iOS Mail
+- Added haptic feedback using `expo-haptics`:
+  - Medium impact when tapping "Low" or "Out" buttons
+  - Heavy impact when tapping "Delete" button
+  - Light impact when tapping "More" button
+  - Success notification feedback on full-swipe action
+- Implemented full-swipe gesture to execute primary action (mark as running low) without requiring tap
+- Created animated `SwipeActionButton` component that scales and fades in as user swipes
+- Kept `ActionSheetIOS` accessible via "More" button for planned items (less common actions)
+- Added new styles: `swipeActionsContainer`, `swipeActionButton`, `swipeActionContent`, `swipeActionLabel`
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### iOS-style bottom sheet for adding shopping list items
 

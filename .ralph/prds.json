@@ -17,7 +17,7 @@
   {
     "name": "Native iOS swipe actions for pantry list",
     "description": "Refactor the pantry list to use native-feeling iOS swipe actions. Replace the deprecated Swipeable component with ReanimatedSwipeable from react-native-gesture-handler/ReanimatedSwipeable. Replace the current ellipsis button pattern with direct labeled action buttons that appear on swipe, similar to iOS Mail. For staple items, show: 'Low' (orange, marks as running low), 'Out' (red, marks as out of stock). For all items, show 'Delete' (red) as a destructive action on the far right. Add haptic feedback using expo-haptics when swipe actions are triggered. Support full-swipe gesture to execute the primary action (mark as running low) without requiring a tap. The action buttons should have icons and short labels. Keep ActionSheetIOS as a fallback for less common actions accessible via a 'More' button if needed.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Migrate pantry list to FlatList",

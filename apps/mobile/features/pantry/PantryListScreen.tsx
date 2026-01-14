@@ -12,7 +12,15 @@ import {
 import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { Swipeable } from 'react-native-gesture-handler'
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable'
+import Reanimated, {
+  SharedValue,
+  useAnimatedStyle,
+  runOnJS,
+} from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
 import BottomSheet, {
   BottomSheetTextInput,
   BottomSheetBackdrop,
@@ -40,38 +48,183 @@ const statusColors: Record<PantryItemStatus, string> = {
   planned: '#9B59B6',
 }
 
+const SWIPE_THRESHOLD = -150
+
+function SwipeActionButton({
+  label,
+  icon,
+  color,
+  onPress,
+  drag,
+  position,
+  totalWidth,
+}: {
+  label: string
+  icon: keyof typeof Ionicons.glyphMap
+  color: string
+  onPress: () => void
+  drag: SharedValue<number>
+  position: number
+  totalWidth: number
+}) {
+  const buttonWidth = totalWidth / 3
+  const animatedStyle = useAnimatedStyle(() => {
+    const dragValue = Math.abs(drag.value)
+    const scale = Math.min(1, dragValue / 60)
+    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / 3) : 0
+
+    return {
+      transform: [{ scale }, { translateX }],
+      opacity: scale,
+    }
+  })
+
+  return (
+    <Reanimated.View style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}>
+      <TouchableOpacity
+        style={[styles.swipeActionContent, { backgroundColor: color }]}
+        onPress={onPress}
+      >
+        <Ionicons name={icon} size={22} color="#fff" />
+        <Text style={styles.swipeActionLabel}>{label}</Text>
+      </TouchableOpacity>
+    </Reanimated.View>
+  )
+}
+
 function PantryItemRow({
   item,
   onPress,
-  onSwipeAction,
+  onMarkLow,
+  onMarkOut,
+  onDelete,
+  onMore,
 }: {
   item: PantryItem
   onPress: () => void
-  onSwipeAction: (item: PantryItem) => void
+  onMarkLow: () => void
+  onMarkOut: () => void
+  onDelete: () => void
+  onMore: () => void
 }) {
-  const swipeableRef = useRef<Swipeable>(null)
+  const swipeableRef = useRef<SwipeableMethods>(null)
+  const hasTriggeredHaptic = useRef(false)
   const showPlannedIndicator =
     item.itemType === 'planned' && item.status !== 'planned'
 
-  const renderRightActions = () => {
+  const isStaple = item.itemType === 'staple'
+  const actionsWidth = isStaple ? 180 : 120
+
+  const handleFullSwipe = useCallback(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    onMarkLow()
+    swipeableRef.current?.close()
+  }, [onMarkLow])
+
+  const renderRightActions = (
+    _progress: SharedValue<number>,
+    drag: SharedValue<number>
+  ) => {
+    const checkSwipeThreshold = () => {
+      'worklet'
+      if (drag.value < SWIPE_THRESHOLD && !hasTriggeredHaptic.current) {
+        hasTriggeredHaptic.current = true
+        runOnJS(handleFullSwipe)()
+      }
+    }
+
     return (
-      <TouchableOpacity
-        style={styles.swipeAction}
-        onPress={() => {
-          swipeableRef.current?.close()
-          onSwipeAction(item)
+      <Reanimated.View
+        style={[styles.swipeActionsContainer, { width: actionsWidth }]}
+        onLayout={() => {
+          checkSwipeThreshold()
         }}
       >
-        <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
-      </TouchableOpacity>
+        {isStaple ? (
+          <>
+            <SwipeActionButton
+              label="Low"
+              icon="alert-circle"
+              color="#F39C12"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+                onMarkLow()
+                swipeableRef.current?.close()
+              }}
+              drag={drag}
+              position={0}
+              totalWidth={actionsWidth}
+            />
+            <SwipeActionButton
+              label="Out"
+              icon="close-circle"
+              color="#E74C3C"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+                onMarkOut()
+                swipeableRef.current?.close()
+              }}
+              drag={drag}
+              position={1}
+              totalWidth={actionsWidth}
+            />
+            <SwipeActionButton
+              label="Delete"
+              icon="trash"
+              color="#C0392B"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+                onDelete()
+                swipeableRef.current?.close()
+              }}
+              drag={drag}
+              position={2}
+              totalWidth={actionsWidth}
+            />
+          </>
+        ) : (
+          <>
+            <SwipeActionButton
+              label="More"
+              icon="ellipsis-horizontal"
+              color="#3498DB"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                onMore()
+                swipeableRef.current?.close()
+              }}
+              drag={drag}
+              position={0}
+              totalWidth={actionsWidth}
+            />
+            <SwipeActionButton
+              label="Delete"
+              icon="trash"
+              color="#E74C3C"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+                onDelete()
+                swipeableRef.current?.close()
+              }}
+              drag={drag}
+              position={1}
+              totalWidth={actionsWidth}
+            />
+          </>
+        )}
+      </Reanimated.View>
     )
   }
 
   return (
-    <Swipeable
+    <ReanimatedSwipeable
       ref={swipeableRef}
       renderRightActions={renderRightActions}
       overshootRight={false}
+      rightThreshold={40}
+      onSwipeableWillOpen={() => {
+        hasTriggeredHaptic.current = false
+      }}
     >
       <TouchableOpacity style={styles.itemRow} onPress={onPress}>
         <View style={styles.itemInfo}>
@@ -96,7 +249,7 @@ function PantryItemRow({
           </View>
         </View>
       </TouchableOpacity>
-    </Swipeable>
+    </ReanimatedSwipeable>
   )
 }
 
@@ -241,14 +394,6 @@ export function PantryListScreen() {
     )
   }
 
-  const handleSwipeAction = (item: PantryItem) => {
-    if (item.itemType === 'planned') {
-      showPlannedActionSheet(item)
-    } else {
-      showStapleActionSheet(item)
-    }
-  }
-
   if (isLoading) {
     return (
       <View style={styles.centered}>
@@ -347,7 +492,20 @@ export function PantryListScreen() {
                         key={item.id}
                         item={item}
                         onPress={() => navigateToItem(item)}
-                        onSwipeAction={handleSwipeAction}
+                        onMarkLow={() =>
+                          updatePantryItem.mutate({
+                            itemId: item.id,
+                            status: 'running_low',
+                          })
+                        }
+                        onMarkOut={() =>
+                          updatePantryItem.mutate({
+                            itemId: item.id,
+                            status: 'out_of_stock',
+                          })
+                        }
+                        onDelete={() => deletePantryItem.mutate(item.id)}
+                        onMore={() => showPlannedActionSheet(item)}
                       />
                     ))}
                   </View>
@@ -359,7 +517,24 @@ export function PantryListScreen() {
                 key={item.id}
                 item={item}
                 onPress={() => navigateToItem(item)}
-                onSwipeAction={handleSwipeAction}
+                onMarkLow={() =>
+                  updatePantryItem.mutate({
+                    itemId: item.id,
+                    status: 'running_low',
+                  })
+                }
+                onMarkOut={() =>
+                  updatePantryItem.mutate({
+                    itemId: item.id,
+                    status: 'out_of_stock',
+                  })
+                }
+                onDelete={() => deletePantryItem.mutate(item.id)}
+                onMore={() =>
+                  item.itemType === 'planned'
+                    ? showPlannedActionSheet(item)
+                    : showStapleActionSheet(item)
+                }
               />
             ))}
           </ScrollView>
@@ -494,13 +669,29 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
-  swipeAction: {
-    backgroundColor: '#3498DB',
+  swipeActionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  swipeActionButton: {
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 60,
-    marginBottom: 12,
-    borderRadius: 12,
+  },
+  swipeActionContent: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginHorizontal: 2,
+    gap: 4,
+  },
+  swipeActionLabel: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
   },
   itemInfo: {
     flexDirection: 'row',
