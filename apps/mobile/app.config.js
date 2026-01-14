@@ -55,6 +55,15 @@ export default {
           domain: process.env.AUTH0_DOMAIN,
         },
       ],
+      [
+        'expo-speech-recognition',
+        {
+          microphonePermission:
+            'zottie needs access to your microphone to recognize voice commands for adding items to your grocery list.',
+          speechRecognitionPermission:
+            'zottie uses speech recognition to convert your voice commands into grocery items and meal prep instructions.',
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,

@@ -18,5 +18,25 @@
   {
     "name": "Commands execution backend endpoint",
     "description": "Create a backend endpoint that executes the actions sent by the frontend. The actions should be in the same structured format as the response from the parsing endpoint, allowing execution to be tested independently of parsing. The endpoint executes each action (adding pantry items, updating statuses, modifying shopping list) and returns a success/failure response."
+  },
+  {
+    "name": "Commands parsing empathetic error responses",
+    "description": "When the commands parsing endpoint cannot identify any actions from user input, replace the generic 'no actions found in your command. please try again' error with a helpful, empathetic response. The response should explain why we couldn't understand the input (e.g., 'I couldn't find any pantry or shopping list actions in that command'), and provide a recommendation for what to do next based on the context of what the user said. Try to understand what the user might have meant and guide them toward success. The tone should be validating and supportive (acknowledging their effort) without being patronizing or elitist. This follows the pattern of the 'Try saying' section, which helps users feel in control and understand how to use the app effectively."
+  },
+  {
+    "name": "Commands dictation manual stop",
+    "description": "Allow users to manually stop recording by pressing the microphone button again while recording is in progress. When pressed during recording, the button should stop the speech recognition, submit the captured audio for transcription, and proceed with command parsing. This provides users with control over when their command is complete, rather than relying solely on automatic silence detection."
+  },
+  {
+    "name": "Commands dictation automatic timeout",
+    "description": "Configure automatic timeout behavior for speech recognition to stop recording after a reasonable period of silence. On iOS, the platform handles this automatically (3 seconds on iOS 17 and earlier, until final result on iOS 18+). On Android, configure androidIntentOptions with EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS and EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS to control silence detection timing. The goal is to stop recording naturally when the user pauses speaking, without requiring manual intervention."
+  },
+  {
+    "name": "Commands dictation recording animation",
+    "description": "Add a subtle animation to the microphone button while recording is in progress to provide visual feedback that the app is actively listening. Follow iOS design patterns for recording indicators: use a gentle pulsing or breathing animation (scale transform with spring physics) on the button. The animation should be continuous and smooth, using iOS-native spring physics (withSpring in react-native-reanimated) rather than linear timing. Keep the animation subtle to avoid being distracting - the goal is to provide ambient awareness that recording is active."
+  },
+  {
+    "name": "Commands dictation stop feedback",
+    "description": "Provide immediate feedback when recording stops (either manually or automatically). Add a subtle animation to the microphone button (a brief scale-down spring animation) and play a short system sound to indicate recording has ended. For the sound, use iOS system sounds via expo-av or react-native-sound - choose a gentle, non-intrusive sound similar to the iOS keyboard click or message send sound. The animation and sound should happen together to create a cohesive 'recording complete' moment. Follow iOS patterns for this type of feedback - brief, subtle, and reassuring rather than loud or jarring."
   }
 ]

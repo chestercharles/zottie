@@ -355,25 +355,6 @@ export function PantryListScreen() {
     )
   }
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3498DB" />
-      </View>
-    )
-  }
-
-  if (error) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
   const navigateToItem = (item: PantryItem) => {
     router.push({
       pathname: '/pantry/[id]',
@@ -460,6 +441,25 @@ export function PantryListScreen() {
       </View>
     )
   }, [plannedItems, isPlannedExpanded, updatePantryItem])
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#3498DB" />
+      </View>
+    )
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
