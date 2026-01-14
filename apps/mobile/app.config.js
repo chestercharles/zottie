@@ -17,6 +17,9 @@ export default {
       bundleIdentifier: IS_DEV
         ? 'com.chestercarmer.zottie.dev'
         : 'com.chestercarmer.zottie',
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+      },
     },
     android: {
       package: IS_DEV
