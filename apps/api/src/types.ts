@@ -110,9 +110,3 @@ export const CommandParseResponse = z.object({
   actions: z.array(CommandAction),
   message: Str({ example: 'I added apples to your pantry!' }).optional(),
 })
-
-export const OnboardingFlagType = z.enum(['original', 'conversational'])
-
-export const OnboardingFlagResponse = z.object({
-  flag: OnboardingFlagType,
-})

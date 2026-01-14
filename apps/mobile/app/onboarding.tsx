@@ -1,26 +1,12 @@
-import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 import {
-  useOnboardingFlag,
   ConversationalOnboarding,
-  OriginalOnboarding,
+  // OriginalOnboarding,
 } from '@/features/onboarding'
 
 export default function OnboardingRoute() {
-  const { flag, isLoading } = useOnboardingFlag()
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498DB" />
-      </View>
-    )
-  }
-
-  if (flag === 'conversational') {
-    return <ConversationalOnboarding />
-  }
-
-  return <OriginalOnboarding />
+  return <ConversationalOnboarding />
+  // return <OriginalOnboarding /> // TODO: Uncomment this to toggle between onboarding flows
 }
 
 const styles = StyleSheet.create({
