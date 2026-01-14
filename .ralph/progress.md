@@ -1,5 +1,46 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands dictation recording animation
+
+Implemented a subtle pulsing animation on the microphone button while recording is in progress to provide visual feedback that the app is actively listening.
+
+### What was built
+
+- Added `react-native-reanimated` integration to the Commands screen
+- Implemented a gentle breathing/pulsing animation using spring physics
+- Animation scales the microphone button from 1.0 to 1.08 and back continuously while recording
+- Animation stops smoothly with spring physics when recording ends
+
+### User experience
+
+1. User taps microphone button to start recording
+2. Button changes to red color and begins a subtle pulsing animation
+3. The animation provides ambient awareness that recording is active
+4. When recording stops (manually or automatically), the animation smoothly returns to normal size
+5. The animation feels natural and iOS-native thanks to spring physics
+
+### Benefits
+
+- Provides clear visual feedback that the app is actively listening
+- Follows iOS design patterns for recording indicators (gentle, continuous movement)
+- Uses spring physics (`withSpring`) rather than linear timing for natural iOS feel
+- Subtle and non-distracting - creates ambient awareness without being annoying
+- Works seamlessly with both manual and automatic stop functionality
+
+### Technical implementation
+
+- Uses `react-native-reanimated` with `useSharedValue`, `useAnimatedStyle`, and `withRepeat`
+- Spring physics configuration: `damping: 3, stiffness: 100` for the pulsing animation
+- Spring physics configuration: `damping: 15, stiffness: 200` for returning to normal size
+- Animation runs infinitely (`withRepeat` with `-1`) and reverses (`reverse: true`) while recording
+- `useEffect` hook manages animation lifecycle based on `recordingState`
+- `cancelAnimation` ensures clean teardown when recording stops
+- Wrapped `TouchableOpacity` in `Animated.View` to apply transform
+
+### Files changed
+
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Added reanimated imports, animation logic, and animated styles
+
 ## 2026-01-14: Commands dictation automatic timeout
 
 Configured automatic timeout behavior for speech recognition on iOS.

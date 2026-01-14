@@ -6,12 +6,19 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import {
   useSpeechRecognitionEvent,
   ExpoSpeechRecognitionModule,
 } from 'expo-speech-recognition'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSpring,
+  cancelAnimation,
+} from 'react-native-reanimated'
 import { useParseCommand, useExecuteCommand } from './hooks'
 import type { CommandAction } from './types'
 
@@ -23,6 +30,31 @@ export function CommandsScreen() {
   const [pendingActions, setPendingActions] = useState<CommandAction[]>([])
   const parseCommand = useParseCommand()
   const executeCommand = useExecuteCommand()
+
+  const scale = useSharedValue(1)
+
+  useEffect(() => {
+    if (recordingState === 'recording') {
+      scale.value = withRepeat(
+        withSpring(1.08, {
+          damping: 3,
+          stiffness: 100,
+        }),
+        -1,
+        true
+      )
+    } else {
+      cancelAnimation(scale)
+      scale.value = withSpring(1, {
+        damping: 15,
+        stiffness: 200,
+      })
+    }
+  }, [recordingState])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }))
 
   useSpeechRecognitionEvent('start', () => {
     setRecordingState('recording')
@@ -221,22 +253,24 @@ export function CommandsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <TouchableOpacity
-          style={[styles.micButton, { backgroundColor: getMicButtonColor() }]}
-          onPress={handleMicPress}
-          disabled={recordingState !== 'idle' && recordingState !== 'recording'}
-          activeOpacity={0.7}
-        >
-          {recordingState === 'processing' ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : (
-            <Ionicons
-              name={recordingState === 'recording' ? 'mic' : 'mic-outline'}
-              size={80}
-              color="#fff"
-            />
-          )}
-        </TouchableOpacity>
+        <Animated.View style={animatedStyle}>
+          <TouchableOpacity
+            style={[styles.micButton, { backgroundColor: getMicButtonColor() }]}
+            onPress={handleMicPress}
+            disabled={recordingState !== 'idle' && recordingState !== 'recording'}
+            activeOpacity={0.7}
+          >
+            {recordingState === 'processing' ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : (
+              <Ionicons
+                name={recordingState === 'recording' ? 'mic' : 'mic-outline'}
+                size={80}
+                color="#fff"
+              />
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
         <Text style={styles.statusText}>{getStatusText()}</Text>
 

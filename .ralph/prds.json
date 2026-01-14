@@ -42,7 +42,7 @@
   {
     "name": "Commands dictation recording animation",
     "description": "Add a subtle animation to the microphone button while recording is in progress to provide visual feedback that the app is actively listening. Follow iOS design patterns for recording indicators: use a gentle pulsing or breathing animation (scale transform with spring physics) on the button. The animation should be continuous and smooth, using iOS-native spring physics (withSpring in react-native-reanimated) rather than linear timing. Keep the animation subtle to avoid being distracting - the goal is to provide ambient awareness that recording is active.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands dictation stop feedback",
