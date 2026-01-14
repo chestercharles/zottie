@@ -7,7 +7,7 @@
   {
     "name": "New onboarding shopping list input screen",
     "description": "Create the second screen of the new conversational onboarding that asks users if there's anything they want to get from the store. Show empathetic copy encouraging them to list shopping items. Provide a text input (or voice input if preferred). Include a clearly visible 'Skip' button. When they submit, trigger the parsing API call in the background with context indicating this is shopping list items and immediately move to the loading/processing screen. Do not wait for the API response before navigating.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "New onboarding processing screen",

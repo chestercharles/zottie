@@ -1,5 +1,76 @@
 # zottie Development Progress
 
+## 2026-01-14: New onboarding shopping list input screen
+
+Implemented the second screen of the new conversational onboarding flow that asks users what they need from the store.
+
+### What was built
+
+- Created `NewShoppingListInputScreen` component with empathetic, encouraging copy
+- Text input allows users to list shopping items naturally
+- Clearly visible "Skip" button for users who want to skip this step
+- "Continue" button to proceed (disabled when input is empty)
+- Responsive layout with keyboard avoidance for iOS
+- Updated `ConversationalOnboarding` orchestrator to manage flow between pantry and shopping screens
+
+### User experience
+
+1. After completing or skipping the pantry input screen, user sees "What do you need from the store?"
+2. Subtitle encourages: "List anything you want to pick up on your next shopping trip. You can always add more or make changes later."
+3. Large multiline text input for listing items (e.g., "bananas, chicken, olive oil...")
+4. Helper text: "List as many items as you need, or skip if you're all set for now."
+5. Skip button allows proceeding with no shopping list
+6. Continue button proceeds to final destination (only enabled when text is entered)
+
+### Design decisions
+
+- Mirrored the design and UX patterns of the pantry input screen for consistency
+- Used shopping cart icon instead of basket to differentiate the screens
+- Empathetic copy reduces pressure: "You can always add more or make changes later", "skip if you're all set for now"
+- Large input area (140px min height) encourages users to list multiple items
+- Placeholder shows example format to guide user input
+- Auto-focus on input for immediate typing
+- Skip button is prominently displayed, not hidden or secondary
+
+### Technical implementation
+
+- Component accepts `onSubmit` and `onSkip` callbacks
+- `onSubmit` receives trimmed text when user taps Continue
+- Uses `KeyboardAvoidingView` for iOS keyboard handling
+- Safe area insets for proper footer positioning on devices with notch/home indicator
+- Continue button disabled when input is empty (trimmed)
+- Updated `ConversationalOnboarding.tsx` to manage step state (`pantry` | `shopping`)
+- State management tracks pantry input for future API integration
+- Navigation flows: pantry → shopping → pantry screen
+
+### Flow behavior
+
+The conversational onboarding now flows:
+1. Auto-create household with "My Household"
+2. Show pantry input screen
+3. Show shopping list input screen
+4. Navigate to pantry screen
+
+Both pantry and shopping screens can be skipped independently.
+
+### Files changed
+
+- `apps/mobile/features/onboarding/NewShoppingListInputScreen.tsx`: New screen component
+- `apps/mobile/features/onboarding/index.ts`: Export new screen
+- `apps/mobile/features/onboarding/ConversationalOnboarding.tsx`: Updated orchestration to manage two-screen flow
+
+### Next steps
+
+According to the PRD sequence, the remaining screens to implement are:
+1. Processing screen (waits for both pantry and shopping API parsing to complete)
+2. Household invitation screen (optional step to invite household partner)
+
+The PRD also specifies that when users submit text, the parsing API should be called in the background and the promise stored for later. This will be implemented when the processing screen is built.
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: New onboarding flow orchestration
 
 Implemented the orchestration layer that determines which onboarding experience to show users based on a feature flag, enabling toggling between the original and new conversational onboarding flows.

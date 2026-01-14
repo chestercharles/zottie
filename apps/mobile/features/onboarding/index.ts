@@ -1,6 +1,7 @@
 export { CreateHouseholdScreen } from './CreateHouseholdScreen'
 export { QuickAddInventoryScreen } from './QuickAddInventoryScreen'
 export { NewPantryInputScreen } from './NewPantryInputScreen'
+export { NewShoppingListInputScreen } from './NewShoppingListInputScreen'
 export { useOnboardingFlag } from './hooks'
 export { ConversationalOnboarding } from './ConversationalOnboarding'
 export { OriginalOnboarding } from './OriginalOnboarding'
