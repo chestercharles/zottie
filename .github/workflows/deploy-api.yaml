@@ -35,7 +35,7 @@ jobs:
         run: pnpm run tsc
 
       - name: Run database migrations
-        run: npx wrangler d1 migrations apply zottie-db
+        run: npx wrangler d1 migrations apply zottie-db --remote
 
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy
