@@ -193,5 +193,41 @@
     "name": "Swipe actions for quick status changes on pantry items",
     "description": "Users can swipe left on pantry items to reveal a button that opens an iOS action sheet with contextual options. For staple items, the action sheet shows: 'Mark as Running Low', 'Mark as Out of Stock', 'Delete Item', and Cancel. For planned items, the action sheet shows: 'Mark as Running Low', 'Finished - Remove from Pantry', 'Finished - Convert to Staple', 'Delete Item', and Cancel. The 'Finished - Remove from Pantry' option removes the planned item entirely. The 'Finished - Convert to Staple' option changes the item's type to 'staple' and sets its status to 'out_of_stock' so it appears on the shopping list for re-purchase. This replaces the confusing behavior where tapping 'Out of Stock' on a planned item would trigger a removal confirmation.",
     "completed": true
+  },
+
+  {
+    "name": "iOS-style bottom sheet for adding pantry items",
+    "description": "Replace the current FAB (floating action button) and full-screen form with an iOS-native bottom sheet pattern. A '+' button appears in the pantry screen's header bar (next to the settings icon). Tapping it opens a bottom sheet that slides up from the bottom of the screen. The sheet contains: a text input for item name (autofocused), a status selector with options 'In Stock' (default), 'Running Low', and 'Out of Stock', and an 'Add' button. The sheet can be dismissed by swiping down or tapping the backdrop. This replaces the current navigation to /pantry/create.",
+    "completed": true
+  },
+  {
+    "name": "Full-screen add item sheet for pantry (iOS Calendar style)",
+    "description": "Enhance the pantry add-item bottom sheet to follow the iOS Calendar 'new event' pattern. The sheet should expand to full screen height. Replace the current header/controls with: an X button in the top left corner to dismiss the sheet, and a checkmark button in the top right corner to add the item (replacing the current 'Add' button at the bottom). The text input and status selector remain in the body of the sheet. This provides a more spacious, focused experience for adding items and follows established iOS patterns.",
+    "completed": true
+  },
+  {
+    "name": "iOS-style bottom sheet for adding shopping list items",
+    "description": "Replace the current inline text input at the top of the shopping list with an iOS-native full-screen bottom sheet pattern that matches the pantry add-item experience. A '+' button appears in the shopping screen's header bar. Tapping it opens a full-screen bottom sheet (iOS Calendar style). The sheet has: an X button in the top left corner to dismiss, a checkmark button in the top right corner to add the item, and a text input for item name (autofocused) in the body. The status is always 'planned' so no selector is shown. This provides consistency with the pantry add-item UX.",
+    "completed": true
+  },
+  {
+    "name": "Native iOS swipe actions for pantry list",
+    "description": "Refactor the pantry list to use native-feeling iOS swipe actions. Replace the deprecated Swipeable component with ReanimatedSwipeable from react-native-gesture-handler/ReanimatedSwipeable. Replace the current ellipsis button pattern with direct labeled action buttons that appear on swipe, similar to iOS Mail. For staple items, show: 'Low' (orange, marks as running low), 'Out' (red, marks as out of stock). For all items, show 'Delete' (red) as a destructive action on the far right. Add haptic feedback using expo-haptics when swipe actions are triggered. Support full-swipe gesture to execute the primary action (mark as running low) without requiring a tap. The action buttons should have icons and short labels. Keep ActionSheetIOS as a fallback for less common actions accessible via a 'More' button if needed.",
+    "completed": true
+  },
+  {
+    "name": "Migrate pantry list to FlatList",
+    "description": "Replace ScrollView with FlatList in PantryListScreen for better performance and consistency with ShoppingListScreen. Extract the PantryItemRow component to work with FlatList's renderItem pattern. Maintain the existing planned items collapsible section as a ListHeaderComponent or SectionList section. Ensure pull-to-refresh continues to work with RefreshControl. This improves scroll performance for users with many pantry items and aligns with React Native best practices for lists.",
+    "completed": true
+  },
+  {
+    "name": "Native iOS swipe actions for shopping list",
+    "description": "Add native-feeling iOS swipe actions to the shopping list, consistent with the pantry list implementation. Use ReanimatedSwipeable from react-native-gesture-handler/ReanimatedSwipeable. Swipe left to reveal: 'Purchased' (green, marks single item as purchased immediately) and 'Delete' (red, removes the item). Add haptic feedback using expo-haptics when swipe actions are triggered. Support full-swipe gesture to execute the primary action (mark as purchased). The existing checkbox pattern remains for batch operations, but swipe provides a quick single-item action. This complements the pantry swipe actions and provides a consistent interaction model across both lists.",
+    "completed": true
+  },
+  {
+    "name": "Deleteing a pantry item should only be possible from the item detail page",
+    "description": "Deleteing a pantry item should only be possible from the item detail page. The delete button should be visible at the bottom of the item detail page. The delete button should open a confirmation dialog before deleting the item. The confirmation dialog should have a Cancel and Delete button. The Delete button should be destructive and should delete the item immediately. The Cancel button should close the confirmation dialog and should not delete the item. Users should not be able to delete a pantry item from the pantry list screen.",
+    "completed": true
   }
 ]
