@@ -108,7 +108,6 @@ export function authMiddleware(): MiddlewareHandler<{
         | boolean
         | undefined
 
-      console.log('payload', payload)
       c.set('userId', payload.sub)
       c.set('userEmail', email)
       c.set('userEmailVerified', emailVerified)
