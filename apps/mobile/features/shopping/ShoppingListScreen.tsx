@@ -7,12 +7,15 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
-  TextInput,
-  Keyboard,
 } from 'react-native'
-import { useEffect, useState, useCallback, memo } from 'react'
-import { useRouter } from 'expo-router'
+import { useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react'
+import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import BottomSheet, {
+  BottomSheetTextInput,
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet'
 import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
 import { useShoppingItems, useMarkAsPurchased, useCreatePlannedItem } from './hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
@@ -35,6 +38,8 @@ const itemTypeLabels: Record<ItemType, string> = {
   staple: 'Staple',
   planned: 'Planned',
 }
+
+const SHEET_SNAP_POINTS = ['90%']
 
 function ShoppingItemRow({
   item,
@@ -80,54 +85,50 @@ function ShoppingItemRow({
   )
 }
 
-const AddPlannedItemInput = memo(function AddPlannedItemInput({
-  value,
-  onChangeText,
-  onSubmit,
-  isCreating,
-}: {
-  value: string
-  onChangeText: (text: string) => void
-  onSubmit: () => void
-  isCreating: boolean
-}) {
-  return (
-    <View style={styles.addItemContainer}>
-      <TextInput
-        style={styles.addItemInput}
-        placeholder="Add a planned item..."
-        placeholderTextColor="#999"
-        value={value}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmit}
-        returnKeyType="done"
-        editable={!isCreating}
-      />
-      <TouchableOpacity
-        style={[
-          styles.addItemButton,
-          (!value.trim() || isCreating) && styles.addItemButtonDisabled,
-        ]}
-        onPress={onSubmit}
-        disabled={!value.trim() || isCreating}
-      >
-        {isCreating ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Ionicons name="add" size={24} color="#fff" />
-        )}
-      </TouchableOpacity>
-    </View>
-  )
-})
-
 export function ShoppingListScreen() {
   const router = useRouter()
+  const navigation = useNavigation()
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [newItemName, setNewItemName] = useState('')
+  const bottomSheetRef = useRef<BottomSheet>(null)
+
+  const openAddSheet = useCallback(() => {
+    bottomSheetRef.current?.expand()
+  }, [])
+
+  const closeAddSheet = useCallback(() => {
+    bottomSheetRef.current?.close()
+  }, [])
+
+  const handleSheetChange = useCallback((index: number) => {
+    if (index === -1) {
+      setNewItemName('')
+    }
+  }, [])
+
+  const renderBackdrop = useCallback(
+    (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    []
+  )
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={openAddSheet} style={{ marginRight: 8 }}>
+          <Ionicons name="add" size={28} color="#9B59B6" />
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation, openAddSheet])
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()
@@ -184,10 +185,7 @@ export function ShoppingListScreen() {
     if (!trimmedName) return
 
     createPlannedItemMutation.mutate(trimmedName, {
-      onSuccess: () => {
-        setNewItemName('')
-        Keyboard.dismiss()
-      },
+      onSuccess: closeAddSheet,
       onError: (err) => {
         Alert.alert(
           'Error',
@@ -218,33 +216,22 @@ export function ShoppingListScreen() {
     )
   }
 
-  const addItemInput = (
-    <AddPlannedItemInput
-      value={newItemName}
-      onChangeText={setNewItemName}
-      onSubmit={handleCreatePlannedItem}
-      isCreating={createPlannedItemMutation.isPending}
-    />
-  )
-
   return (
     <View style={styles.container}>
       {items.length === 0 ? (
-        <View style={styles.emptyStateContainer}>
-          {addItemInput}
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>You're all set!</Text>
-            <Text style={styles.emptySubtext}>
-              Items that are running low or out of stock will appear here.
-              Add planned items above for one-time purchases.
-            </Text>
-          </View>
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>You're all set!</Text>
+          <Text style={styles.emptySubtext}>
+            Items that are running low or out of stock will appear here.
+          </Text>
+          <TouchableOpacity style={styles.addButton} onPress={openAddSheet}>
+            <Text style={styles.addButtonText}>Add Planned Item</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
-          ListHeaderComponent={addItemInput}
           renderItem={({ item }) => (
             <ShoppingItemRow
               item={item}
@@ -300,6 +287,62 @@ export function ShoppingListScreen() {
           </TouchableOpacity>
         </View>
       )}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={SHEET_SNAP_POINTS}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        onChange={handleSheetChange}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
+        handleIndicatorStyle={styles.sheetHandle}
+      >
+        <BottomSheetView style={styles.sheetContent}>
+          <View style={styles.sheetHeader}>
+            <TouchableOpacity
+              style={styles.sheetHeaderButton}
+              onPress={closeAddSheet}
+              disabled={createPlannedItemMutation.isPending}
+            >
+              <Ionicons name="close" size={28} color="#333" />
+            </TouchableOpacity>
+            <Text style={styles.sheetTitle}>Add Planned Item</Text>
+            <TouchableOpacity
+              style={[
+                styles.sheetHeaderButton,
+                (!newItemName.trim() || createPlannedItemMutation.isPending) &&
+                  styles.sheetHeaderButtonDisabled,
+              ]}
+              onPress={handleCreatePlannedItem}
+              disabled={!newItemName.trim() || createPlannedItemMutation.isPending}
+            >
+              {createPlannedItemMutation.isPending ? (
+                <ActivityIndicator color="#9B59B6" />
+              ) : (
+                <Ionicons
+                  name="checkmark"
+                  size={28}
+                  color={newItemName.trim() ? '#9B59B6' : '#ccc'}
+                />
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.sheetBody}>
+            <BottomSheetTextInput
+              style={styles.sheetInput}
+              value={newItemName}
+              onChangeText={setNewItemName}
+              placeholder="Item name"
+              placeholderTextColor="#999"
+              autoFocus
+              editable={!createPlannedItemMutation.isPending}
+              onSubmitEditing={handleCreatePlannedItem}
+              returnKeyType="done"
+            />
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   )
 }
@@ -318,36 +361,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-  },
-  emptyStateContainer: {
-    flex: 1,
-  },
-  addItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    paddingBottom: 8,
-    gap: 12,
-  },
-  addItemInput: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-  },
-  addItemButton: {
-    backgroundColor: '#9B59B6',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addItemButtonDisabled: {
-    backgroundColor: '#D7BDE2',
   },
   itemRow: {
     flexDirection: 'row',
@@ -410,6 +423,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  addButton: {
+    backgroundColor: '#9B59B6',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   errorText: {
     fontSize: 16,
@@ -468,5 +493,46 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: '#666',
     fontSize: 14,
+  },
+  sheetContent: {
+    flex: 1,
+  },
+  sheetHandle: {
+    backgroundColor: '#c0c0c0',
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ddd',
+  },
+  sheetHeaderButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetHeaderButtonDisabled: {
+    opacity: 0.5,
+  },
+  sheetTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#333',
+  },
+  sheetBody: {
+    padding: 24,
+  },
+  sheetInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
   },
 })

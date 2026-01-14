@@ -12,7 +12,7 @@
   {
     "name": "iOS-style bottom sheet for adding shopping list items",
     "description": "Replace the current inline text input at the top of the shopping list with an iOS-native full-screen bottom sheet pattern that matches the pantry add-item experience. A '+' button appears in the shopping screen's header bar. Tapping it opens a full-screen bottom sheet (iOS Calendar style). The sheet has: an X button in the top left corner to dismiss, a checkmark button in the top right corner to add the item, and a text input for item name (autofocused) in the body. The status is always 'planned' so no selector is shown. This provides consistency with the pantry add-item UX.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Native iOS swipe actions for pantry list",

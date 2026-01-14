@@ -4,9 +4,29 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "iOS-style bottom sheet for adding shopping list items"
+- Implement "Native iOS swipe actions for pantry list"
 
 ## Recently Completed
+
+### iOS-style bottom sheet for adding shopping list items
+
+**Frontend (Mobile) changes:**
+- Updated `ShoppingListScreen` in `features/shopping/ShoppingListScreen.tsx`:
+  - Added `@gorhom/bottom-sheet` for the add-item sheet
+  - Added `+` button in header bar using `useNavigation().setOptions()`
+  - Created full-screen bottom sheet (90% snap point) with iOS Calendar style header:
+    - X button (close icon) in top left to dismiss
+    - Centered "Add Planned Item" title
+    - Checkmark button in top right to add (purple #9B59B6, disabled when input empty)
+  - Sheet uses `BottomSheetTextInput` with autoFocus for keyboard-aware input
+  - Sheet dismissible by swiping down or tapping backdrop
+- Removed inline `AddPlannedItemInput` component from list header
+- Updated empty state to show "Add Planned Item" button that opens sheet
+- Added styles: `sheetContent`, `sheetHandle`, `sheetHeader`, `sheetHeaderButton`, `sheetHeaderButtonDisabled`, `sheetTitle`, `sheetBody`, `sheetInput`, `addButton`, `addButtonText`
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Full-screen add item sheet for pantry (iOS Calendar style)
 
