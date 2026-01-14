@@ -14,6 +14,7 @@ import { PantryItemDeleteEndpoint } from './endpoints/pantryItemDelete'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
 import { PantryItemUpdateEndpoint } from './endpoints/pantryItemUpdate'
 import { CommandParseEndpoint } from './endpoints/commandParse'
+import { CommandExecuteEndpoint } from './endpoints/commandExecute'
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env; Variables: AuthVariables }>()
@@ -44,6 +45,7 @@ openapi.delete('/api/pantry-items/:id', PantryItemDeleteEndpoint)
 
 // Command endpoints
 openapi.post('/api/commands/parse', CommandParseEndpoint)
+openapi.post('/api/commands/execute', CommandExecuteEndpoint)
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))
