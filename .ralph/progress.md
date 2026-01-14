@@ -1,5 +1,43 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands dictation manual stop
+
+Implemented manual stop functionality for voice recording, allowing users to manually stop recording by pressing the microphone button again while recording is in progress.
+
+### What was built
+
+- Modified `handleMicPress` function to handle both starting and stopping recording
+- When the button is pressed during recording, it calls `ExpoSpeechRecognitionModule.stop()`
+- Updated the microphone button to remain enabled during recording (not disabled)
+- Updated status text to show "Tap to stop" during recording instead of "Listening..."
+
+### User experience
+
+1. User taps microphone button to start recording
+2. Button turns red and status text changes to "Tap to stop"
+3. User can tap the button again at any time to manually stop recording
+4. When stopped, the captured audio is submitted for transcription
+5. The flow continues with command parsing as normal
+
+### Benefits
+
+- Users have full control over when their command is complete
+- No need to rely solely on automatic silence detection
+- Provides a clear visual cue that the button can be pressed to stop
+- Simple, intuitive interaction pattern
+
+### Technical implementation
+
+- Added conditional logic in `handleMicPress` to check if `recordingState === 'recording'`
+- Calls `ExpoSpeechRecognitionModule.stop()` to stop speech recognition
+- Error handling for stop failures
+- Updated button disabled state to allow interaction during recording: `disabled={recordingState !== 'idle' && recordingState !== 'recording'}`
+- Status text updated to guide user action: "Tap to stop" when recording
+
+### Files changed
+
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Updated button handler, status text, and disabled logic
+
 ## 2026-01-14: Onboarding quick-add inventory screen
 
 Implemented a new onboarding screen that allows users to quickly populate their pantry with common items during initial setup.

@@ -67,6 +67,15 @@ export function CommandsScreen() {
   })
 
   const handleMicPress = async () => {
+    if (recordingState === 'recording') {
+      try {
+        ExpoSpeechRecognitionModule.stop()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to stop recording')
+      }
+      return
+    }
+
     if (recordingState !== 'idle') {
       return
     }
@@ -133,7 +142,7 @@ export function CommandsScreen() {
   const getStatusText = () => {
     switch (recordingState) {
       case 'recording':
-        return 'Listening...'
+        return 'Tap to stop'
       case 'processing':
         return 'Processing command...'
       case 'executing':
@@ -215,7 +224,7 @@ export function CommandsScreen() {
         <TouchableOpacity
           style={[styles.micButton, { backgroundColor: getMicButtonColor() }]}
           onPress={handleMicPress}
-          disabled={recordingState !== 'idle'}
+          disabled={recordingState !== 'idle' && recordingState !== 'recording'}
           activeOpacity={0.7}
         >
           {recordingState === 'processing' ? (
