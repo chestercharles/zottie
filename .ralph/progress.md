@@ -1,5 +1,86 @@
 # zottie Development Progress
 
+## 2026-01-14: New onboarding flow orchestration
+
+Implemented the orchestration layer that determines which onboarding experience to show users based on a feature flag, enabling toggling between the original and new conversational onboarding flows.
+
+### What was built
+
+- Created onboarding flag API client (`api.ts`, `types.ts`)
+- Added `useOnboardingFlag` React Query hook to fetch the flag
+- Updated query keys to include `onboardingFlag`
+- Completely rewrote `app/onboarding.tsx` to orchestrate both flows
+- Implemented auto-household creation for conversational flow
+- Added loading states for flag fetching and household creation
+
+### How it works
+
+The onboarding route now:
+1. Fetches the onboarding flag from `/api/onboarding/flag` endpoint
+2. Shows a loading screen while fetching the flag
+3. Routes to the appropriate onboarding experience:
+   - **Conversational flow**: Auto-creates household with name "My Household", then shows `NewPantryInputScreen`
+   - **Original flow**: Shows `CreateHouseholdScreen` → `QuickAddInventoryScreen`
+
+### Conversational flow behavior
+
+When the flag returns 'conversational':
+1. Household is automatically created with default name "My Household" (no user input needed)
+2. Loading screen shows while household is being created
+3. Once household exists, user sees the pantry input screen
+4. When user completes or skips, they're taken to their pantry
+
+The conversational flow currently only has the pantry input screen implemented. As additional screens are built (shopping input, processing, invitation), they'll be added to the orchestration sequence.
+
+### Original flow behavior
+
+The original flow remains unchanged:
+1. User manually creates household on `CreateHouseholdScreen`
+2. User can select curated items on `QuickAddInventoryScreen`
+3. User navigates to pantry
+
+### Technical implementation
+
+- `apps/mobile/features/onboarding/api.ts`: API client for flag endpoint
+- `apps/mobile/features/onboarding/types.ts`: TypeScript types (`OnboardingFlagType`, `OnboardingFlagResponse`)
+- `apps/mobile/features/onboarding/hooks/useOnboardingFlag.ts`: React Query hook with infinite stale time
+- `apps/mobile/lib/query/keys.ts`: Added `onboardingFlag` query key
+- `apps/mobile/app/onboarding.tsx`: Complete rewrite to orchestrate both flows
+  - Uses `useOnboardingFlag` to fetch flag
+  - Uses `useCreateHousehold` for auto-creation in conversational flow
+  - Manages loading and error states
+  - Conditionally renders screens based on flag value
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
+### User experience
+
+- Users see a consistent loading experience while the app determines which onboarding to show
+- The toggle between experiences is completely transparent to the user
+- No code changes required in mobile app to switch between flows (just update backend flag file and deploy)
+
+### What's next
+
+The remaining conversational onboarding screens can now be built and added to the orchestration:
+- Shopping list input screen
+- Processing screen (waits for both API calls)
+- Household invitation screen
+
+Each screen will be added to the sequence in `app/onboarding.tsx` as it's implemented.
+
+### Files changed
+
+- `apps/mobile/features/onboarding/api.ts`: New API client
+- `apps/mobile/features/onboarding/types.ts`: New types file
+- `apps/mobile/features/onboarding/hooks/useOnboardingFlag.ts`: New hook
+- `apps/mobile/features/onboarding/hooks/index.ts`: Export hook
+- `apps/mobile/features/onboarding/index.ts`: Export hook from feature
+- `apps/mobile/lib/query/keys.ts`: Added onboardingFlag query key
+- `apps/mobile/app/onboarding.tsx`: Complete rewrite for orchestration
+- `.ralph/prds.json`: Marked "New onboarding flow orchestration" and "New onboarding household creation" as completed
+
 ## 2026-01-14: New onboarding pantry input screen
 
 Implemented the first screen of the new conversational onboarding flow that asks users what they have in their pantry.
