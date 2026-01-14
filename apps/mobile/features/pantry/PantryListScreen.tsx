@@ -29,7 +29,6 @@ import BottomSheet, {
 import {
   usePantryItems,
   useUpdatePantryItem,
-  useDeletePantryItem,
   useCreatePantryItem,
 } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
@@ -58,6 +57,7 @@ function SwipeActionButton({
   drag,
   position,
   totalWidth,
+  buttonCount = 2,
 }: {
   label: string
   icon: keyof typeof Ionicons.glyphMap
@@ -66,12 +66,13 @@ function SwipeActionButton({
   drag: SharedValue<number>
   position: number
   totalWidth: number
+  buttonCount?: number
 }) {
-  const buttonWidth = totalWidth / 3
+  const buttonWidth = totalWidth / buttonCount
   const animatedStyle = useAnimatedStyle(() => {
     const dragValue = Math.abs(drag.value)
     const scale = Math.min(1, dragValue / 60)
-    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / 3) : 0
+    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / buttonCount) : 0
 
     return {
       transform: [{ scale }, { translateX }],
@@ -97,14 +98,12 @@ function PantryItemRow({
   onPress,
   onMarkLow,
   onMarkOut,
-  onDelete,
   onMore,
 }: {
   item: PantryItem
   onPress: () => void
   onMarkLow: () => void
   onMarkOut: () => void
-  onDelete: () => void
   onMore: () => void
 }) {
   const swipeableRef = useRef<SwipeableMethods>(null)
@@ -113,7 +112,7 @@ function PantryItemRow({
     item.itemType === 'planned' && item.status !== 'planned'
 
   const isStaple = item.itemType === 'staple'
-  const actionsWidth = isStaple ? 180 : 120
+  const actionsWidth = isStaple ? 120 : 60
 
   const handleFullSwipe = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
@@ -154,6 +153,7 @@ function PantryItemRow({
               drag={drag}
               position={0}
               totalWidth={actionsWidth}
+              buttonCount={2}
             />
             <SwipeActionButton
               label="Out"
@@ -167,50 +167,24 @@ function PantryItemRow({
               drag={drag}
               position={1}
               totalWidth={actionsWidth}
-            />
-            <SwipeActionButton
-              label="Delete"
-              icon="trash"
-              color="#C0392B"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-                onDelete()
-                swipeableRef.current?.close()
-              }}
-              drag={drag}
-              position={2}
-              totalWidth={actionsWidth}
+              buttonCount={2}
             />
           </>
         ) : (
-          <>
-            <SwipeActionButton
-              label="More"
-              icon="ellipsis-horizontal"
-              color="#3498DB"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                onMore()
-                swipeableRef.current?.close()
-              }}
-              drag={drag}
-              position={0}
-              totalWidth={actionsWidth}
-            />
-            <SwipeActionButton
-              label="Delete"
-              icon="trash"
-              color="#E74C3C"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-                onDelete()
-                swipeableRef.current?.close()
-              }}
-              drag={drag}
-              position={1}
-              totalWidth={actionsWidth}
-            />
-          </>
+          <SwipeActionButton
+            label="More"
+            icon="ellipsis-horizontal"
+            color="#3498DB"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              onMore()
+              swipeableRef.current?.close()
+            }}
+            drag={drag}
+            position={0}
+            totalWidth={actionsWidth}
+            buttonCount={1}
+          />
         )}
       </Reanimated.View>
     )
@@ -274,7 +248,6 @@ export function PantryListScreen() {
   } = usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
   const updatePantryItem = useUpdatePantryItem()
-  const deletePantryItem = useDeletePantryItem()
   const createPantryItem = useCreatePantryItem()
 
   const [newItemName, setNewItemName] = useState('')
@@ -344,9 +317,7 @@ export function PantryListScreen() {
           'Cancel',
           'Mark as Running Low',
           'Mark as Out of Stock',
-          'Delete Item',
         ],
-        destructiveButtonIndex: 3,
         cancelButtonIndex: 0,
         title: item.name,
       },
@@ -355,8 +326,6 @@ export function PantryListScreen() {
           updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
         } else if (buttonIndex === 2) {
           updatePantryItem.mutate({ itemId: item.id, status: 'out_of_stock' })
-        } else if (buttonIndex === 3) {
-          deletePantryItem.mutate(item.id)
         }
       }
     )
@@ -368,11 +337,8 @@ export function PantryListScreen() {
         options: [
           'Cancel',
           'Mark as Running Low',
-          'Finished - Remove from Pantry',
           'Finished - Convert to Staple',
-          'Delete Item',
         ],
-        destructiveButtonIndex: 4,
         cancelButtonIndex: 0,
         title: item.name,
       },
@@ -380,15 +346,11 @@ export function PantryListScreen() {
         if (buttonIndex === 1) {
           updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
         } else if (buttonIndex === 2) {
-          deletePantryItem.mutate(item.id)
-        } else if (buttonIndex === 3) {
           updatePantryItem.mutate({
             itemId: item.id,
             itemType: 'staple',
             status: 'out_of_stock',
           })
-        } else if (buttonIndex === 4) {
-          deletePantryItem.mutate(item.id)
         }
       }
     )
@@ -445,7 +407,6 @@ export function PantryListScreen() {
             status: 'out_of_stock',
           })
         }
-        onDelete={() => deletePantryItem.mutate(item.id)}
         onMore={() =>
           item.itemType === 'planned'
             ? showPlannedActionSheet(item)
@@ -453,7 +414,7 @@ export function PantryListScreen() {
         }
       />
     ),
-    [updatePantryItem, deletePantryItem]
+    [updatePantryItem]
   )
 
   const renderListHeader = useCallback(() => {
@@ -492,7 +453,6 @@ export function PantryListScreen() {
                     status: 'out_of_stock',
                   })
                 }
-                onDelete={() => deletePantryItem.mutate(item.id)}
                 onMore={() => showPlannedActionSheet(item)}
               />
             ))}
@@ -504,7 +464,6 @@ export function PantryListScreen() {
     plannedItems,
     isPlannedExpanded,
     updatePantryItem,
-    deletePantryItem,
   ])
 
   return (

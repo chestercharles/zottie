@@ -4,9 +4,30 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Deleting a pantry item should only be possible from the item detail page"
+- None - all PRD items completed
 
 ## Recently Completed
+
+### Deleting a pantry item should only be possible from the item detail page
+
+**Frontend (Mobile) changes:**
+- Removed delete action from pantry list swipe actions in `PantryListScreen.tsx`:
+  - **Staple items**: Swipe left now reveals only "Low" (orange) and "Out" (red) buttons
+  - **Planned items**: Swipe left now reveals only "More" (blue) button
+  - Adjusted swipe action widths from 180/120px to 120/60px
+- Removed "Delete Item" option from both `ActionSheetIOS` menus:
+  - Staple action sheet now shows: "Mark as Running Low", "Mark as Out of Stock"
+  - Planned action sheet now shows: "Mark as Running Low", "Finished - Convert to Staple"
+- Removed "Finished - Remove from Pantry" option (was a delete operation)
+- Removed `useDeletePantryItem` import and usage from `PantryListScreen`
+- Delete functionality remains in `PantryItemDetailScreen.tsx`:
+  - Red "Delete Item" button at bottom of item detail page
+  - Confirmation dialog before deleting with Cancel/Delete options
+  - Navigates back to pantry list after successful deletion
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Native iOS swipe actions for shopping list
 

@@ -32,6 +32,6 @@
   {
     "name": "Deleteing a pantry item should only be possible from the item detail page",
     "description": "Deleteing a pantry item should only be possible from the item detail page. The delete button should be visible at the bottom of the item detail page. The delete button should open a confirmation dialog before deleting the item. The confirmation dialog should have a Cancel and Delete button. The Delete button should be destructive and should delete the item immediately. The Cancel button should close the confirmation dialog and should not delete the item. Users should not be able to delete a pantry item from the pantry list screen.",
-    "completed": false
+    "completed": true
   }
 ]
