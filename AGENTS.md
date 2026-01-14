@@ -12,6 +12,8 @@ Avoid adding code comments. If you truly think an implementation detail is likel
 
 Keep implementations simple and focused.
 
+**Extend through composition**: Start with simple, inline implementations. As the system grows, prefer adding new modules over modifying existing ones with conditionals. When you find complex if/else branches managing distinct behaviors with separate state, that's a signal to extract each behavior into its own implementation. Connect them with a thin coordination layer that selects the right one. This keeps each behavior focused and lets them evolve independently. Don't abstract prematurely—only split when the conditionals become genuinely complex.
+
 ## User experience principles
 
 zottie is built with deep empathy for users. Every interaction should make users feel smart, capable, and in control.
