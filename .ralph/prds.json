@@ -61,7 +61,8 @@
   {
     "name": "Update pantry onboarding screen to use voice input",
     "description": "Replace the TextInput in NewPantryInputScreen with the new VoiceInput component. The screen should show the icon, title, and subtitle as before, but instead of a text input field, display the animated voice recording button. Update the help text to reflect voice input (e.g., 'Tap the microphone and start listing items you have'). The Continue button should be enabled after the user records something and voice transcription completes. When the user finishes recording and the transcript is received, automatically enable the Continue button (no need to wait for them to tap it - though they should have the option to re-record or skip). The transcript should be passed to onSubmit when they tap Continue, maintaining the existing behavior of triggering background parsing. Keep the Skip button visible and functional. Ensure keyboard doesn't interfere since we're no longer using text input. The voice input should feel natural and aligned with the empathetic, supportive tone of the onboarding experience.",
-    "completed": false
+    "completed": true,
+    "note": "Replaced TextInput with VoiceInput component. Screen now uses voice recording button instead of text input. Help text updated to guide voice input. Keyboard-related code removed. Continue button enables after transcript is received. Flow and navigation maintained."
   },
   {
     "name": "Update shopping list onboarding screen to use voice input",

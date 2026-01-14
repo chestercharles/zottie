@@ -4,12 +4,10 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
+import { VoiceInput } from '../../components/VoiceInput'
 
 interface NewPantryInputScreenProps {
   onSubmit: (text: string) => void
@@ -20,18 +18,19 @@ export function NewPantryInputScreen({
   onSubmit,
   onSkip,
 }: NewPantryInputScreenProps) {
-  const [text, setText] = useState('')
+  const [transcript, setTranscript] = useState('')
   const insets = useSafeAreaInsets()
 
+  const handleTranscriptReceived = (text: string) => {
+    setTranscript(text)
+  }
+
   const handleSubmit = () => {
-    onSubmit(text.trim())
+    onSubmit(transcript.trim())
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <View style={styles.content}>
         <Ionicons name="basket" size={64} color="#3498DB" />
         <Text style={styles.title}>What's in your pantry?</Text>
@@ -40,23 +39,19 @@ export function NewPantryInputScreen({
           easily add more or make changes later.
         </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="e.g., milk, eggs, bread, apples..."
-          placeholderTextColor="#BDC3C7"
-          value={text}
-          onChangeText={setText}
-          multiline
-          numberOfLines={6}
-          textAlignVertical="top"
-          autoFocus
-          returnKeyType="done"
-          blurOnSubmit={false}
-        />
+        <View style={styles.voiceInputContainer}>
+          <VoiceInput
+            onTranscriptReceived={handleTranscriptReceived}
+            statusTextIdle="Tap to speak"
+            statusTextRecording="Tap to stop"
+            statusTextProcessing="Processing..."
+            buttonSize={140}
+          />
+        </View>
 
         <Text style={styles.hint}>
-          You can list as many items as you'd like, or skip if you prefer to
-          add things later.
+          Tap the microphone and start listing items you have, or skip if you
+          prefer to add things later.
         </Text>
       </View>
 
@@ -67,14 +62,14 @@ export function NewPantryInputScreen({
           <Text style={styles.skipButtonText}>Skip</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.continueButton, !text.trim() && styles.disabledButton]}
+          style={[styles.continueButton, !transcript.trim() && styles.disabledButton]}
           onPress={handleSubmit}
-          disabled={!text.trim()}
+          disabled={!transcript.trim()}
         >
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 
@@ -100,17 +95,9 @@ const styles = StyleSheet.create({
     color: '#7F8C8D',
     lineHeight: 24,
   },
-  input: {
-    backgroundColor: '#F8F9FA',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C3E50',
-    minHeight: 140,
-    marginTop: 8,
+  voiceInputContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
   },
   hint: {
     fontSize: 14,

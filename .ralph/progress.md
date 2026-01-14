@@ -1,5 +1,95 @@
 # zottie Development Progress
 
+## 2026-01-14: Update pantry onboarding screen to use voice input
+
+Replaced the text input in the pantry onboarding screen with the VoiceInput component, creating a more natural and seamless onboarding experience that allows users to speak instead of type.
+
+### What was built
+
+- Updated `NewPantryInputScreen` to use VoiceInput component instead of TextInput
+- Replaced manual text input with voice recording functionality
+- Updated help text to guide users toward voice input
+- Removed keyboard-related components (no longer needed)
+- Maintained the same user flow and navigation patterns
+
+### User experience
+
+1. User sees the familiar pantry screen with basket icon and empathetic copy
+2. Instead of a text input field, they see an animated microphone button
+3. Hint text now reads: "Tap the microphone and start listing items you have, or skip if you prefer to add things later."
+4. User taps the mic button to start recording
+5. VoiceInput provides visual feedback (color changes, pulsing animation) while recording
+6. User taps again to stop recording
+7. VoiceInput processes the audio and returns transcript
+8. Continue button becomes enabled after transcript is received
+9. User can tap Continue to proceed or Skip to bypass
+
+### Design decisions
+
+**Voice-first experience:**
+- Reduces friction by eliminating typing on mobile keyboards
+- More natural for users to speak their grocery items
+- Maintains empathetic, supportive tone throughout
+- Voice input aligns with conversational onboarding goals
+
+**Consistent interaction patterns:**
+- Uses the same VoiceInput component as CommandsScreen
+- Familiar button size and animations across the app
+- Same spring physics and haptic feedback
+- Status text provides clear guidance at each step
+
+**Progressive enablement:**
+- Continue button only enabled after receiving transcript
+- Users can skip without recording anything
+- No forced voice interaction for users who prefer to skip
+
+**Clean, focused layout:**
+- Removed keyboard-related complexity (KeyboardAvoidingView, Platform checks)
+- Voice input container centered with padding for visual balance
+- Help text updated to reflect voice interaction model
+
+### Technical implementation
+
+**NewPantryInputScreen.tsx changes:**
+- Removed `TextInput`, `KeyboardAvoidingView`, and Platform imports
+- Added `VoiceInput` component import
+- Changed state from `text` to `transcript`
+- Added `handleTranscriptReceived` callback
+- Replaced text input with VoiceInput inside centered container
+- Updated button enablement to check `transcript.trim()` instead of `text.trim()`
+- Removed all text input styling, added `voiceInputContainer` style
+
+**VoiceInput configuration:**
+- Button size: 140px (slightly smaller than default for onboarding context)
+- Default status text (Tap to speak, Tap to stop, Processing...)
+- Uses default colors (blue idle, red recording, orange processing)
+- No external processing state control needed
+
+**Styling changes:**
+- Removed: `input` style object (was for TextInput)
+- Added: `voiceInputContainer` style with center alignment and vertical padding
+- Kept all other styles unchanged (title, subtitle, footer, buttons)
+
+### Files changed
+
+- `apps/mobile/features/onboarding/NewPantryInputScreen.tsx`: Updated to use VoiceInput
+
+### Benefits
+
+1. **More natural input**: Speaking is faster and easier than typing on mobile
+2. **Reduced friction**: No keyboard, autocorrect, or typing errors
+3. **Consistent patterns**: Same voice experience as CommandsScreen
+4. **Simpler code**: Removed keyboard handling complexity
+5. **Empathetic UX**: Voice feels more conversational and supportive
+
+### Next steps
+
+The shopping list onboarding screen should be updated with the same pattern (PRD #13).
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: Abstract voice recording into reusable VoiceInput component
 
 Created a reusable VoiceInput component that encapsulates all voice recording functionality, making it easy to add voice input to any screen in the app. Refactored CommandsScreen to use this new component, significantly reducing code duplication.
