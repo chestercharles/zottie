@@ -25,6 +25,7 @@ function loadDevVars() {
 export default defineConfig({
   test: {
     env: loadDevVars(),
-    exclude: ['**/*.eval.ts', '**/node_modules/**'],
+    include: ['**/*.eval.ts'],
+    testTimeout: 30000,
   },
 })

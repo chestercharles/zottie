@@ -9,6 +9,7 @@
     "cf-typegen": "wrangler types",
     "tsc": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
+    "test:eval": "vitest run --config vitest.eval.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply zottie-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply zottie-db --remote",
