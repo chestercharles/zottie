@@ -49,5 +49,20 @@
     "name": "Commands feedback empathetic UI presentation",
     "description": "Replace the danger box styling currently used to display command feedback when the system doesn't understand user input. The feedback should feel like a response from someone trying to help, not an error message. Remove red/danger colors and harsh styling. Instead, use a neutral or warm color scheme with a conversational, supportive design that matches the tone of helpful guidance. The visual treatment should make the feedback feel like part of a conversation rather than a warning or failure state. Consider using a message bubble design or a subtle info card with softer styling. The goal is to make users feel supported and guided toward success, not like they've made a mistake.",
     "completed": false
+  },
+  {
+    "name": "Abstract voice recording into reusable VoiceInput component",
+    "description": "Extract the voice recording implementation from CommandsScreen into a reusable VoiceInput component. The component should encapsulate: (1) expo-speech-recognition integration with permission handling, (2) animated mic button using react-native-reanimated with spring physics, (3) recording state management (idle, recording, processing), (4) haptic feedback on interactions, (5) visual feedback with color changes based on state, (6) status text display. The component should accept props for: onTranscriptReceived callback (called with final transcript), customizable button size/colors, optional processing state control (for when parent needs to show processing after transcript is received), error display/handling, and optional contextual strings for speech recognition. After creating this component, refactor CommandsScreen to use it. The abstraction should be flexible enough to work in different contexts (commands screen, onboarding, etc.) while maintaining the polished iOS-native feel with smooth animations and interactions.",
+    "completed": false
+  },
+  {
+    "name": "Update pantry onboarding screen to use voice input",
+    "description": "Replace the TextInput in NewPantryInputScreen with the new VoiceInput component. The screen should show the icon, title, and subtitle as before, but instead of a text input field, display the animated voice recording button. Update the help text to reflect voice input (e.g., 'Tap the microphone and start listing items you have'). The Continue button should be enabled after the user records something and voice transcription completes. When the user finishes recording and the transcript is received, automatically enable the Continue button (no need to wait for them to tap it - though they should have the option to re-record or skip). The transcript should be passed to onSubmit when they tap Continue, maintaining the existing behavior of triggering background parsing. Keep the Skip button visible and functional. Ensure keyboard doesn't interfere since we're no longer using text input. The voice input should feel natural and aligned with the empathetic, supportive tone of the onboarding experience.",
+    "completed": false
+  },
+  {
+    "name": "Update shopping list onboarding screen to use voice input",
+    "description": "Replace the TextInput in NewShoppingListInputScreen with the new VoiceInput component, following the same pattern as the pantry screen. Show the cart icon, title, and subtitle, then the voice recording button instead of text input. Update help text to guide voice input (e.g., 'Tap the microphone and list what you need from the store'). Enable the Continue button after voice transcription completes. Pass the transcript to onSubmit when they tap Continue, maintaining background parsing behavior. Keep the Skip button visible. The implementation should mirror the pantry screen for consistency while using shopping-specific copy and the cart icon. Both onboarding screens should provide a cohesive voice-first experience that feels natural and reduces friction during initial setup.",
+    "completed": false
   }
 ]
