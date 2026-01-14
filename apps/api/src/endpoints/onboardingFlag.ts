@@ -47,29 +47,6 @@ export class OnboardingFlagEndpoint extends OpenAPIRoute {
   private async readFlagFromFile(
     c: AppContext
   ): Promise<'original' | 'conversational'> {
-    try {
-      if (!c.env.ASSETS) {
-        return 'original'
-      }
-
-      const response = await c.env.ASSETS.fetch(
-        new URL('/onboarding-flag.txt', c.req.url)
-      )
-
-      if (!response.ok) {
-        return 'original'
-      }
-
-      const content = await response.text()
-      const trimmed = content.trim().toLowerCase()
-
-      if (trimmed === 'conversational') {
-        return 'conversational'
-      }
-
-      return 'original'
-    } catch {
-      return 'original'
-    }
+    return 'conversational'
   }
 }
