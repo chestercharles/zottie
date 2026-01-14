@@ -8,6 +8,25 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Recently Completed
 
+### Full-screen add item sheet for pantry (iOS Calendar style)
+
+**Frontend (Mobile) changes:**
+- Transformed bottom sheet from partial to full-screen layout in `features/pantry/PantryListScreen.tsx`
+- Added iOS Calendar-style header with:
+  - X button (close icon) in top left to dismiss the sheet
+  - Centered "Add Item" title
+  - Checkmark button in top right to add the item (replaces bottom Add button)
+  - Checkmark shows disabled state (gray) when input is empty
+- Removed old elements: sheet handle, bottom Add button
+- Updated animations to slide from full screen height instead of 300px
+- Replaced `KeyboardAvoidingView` with simpler `View` wrapper (full-screen sheet handles keyboard naturally)
+- Updated styles: `sheetWrapper`, `sheetHeader`, `sheetHeaderButton`, `sheetHeaderButtonDisabled`, `sheetBody`
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
+
+
 ### iOS-style bottom sheet for adding pantry items
 
 **Frontend (Mobile) changes:**
