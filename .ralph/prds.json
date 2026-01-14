@@ -27,7 +27,7 @@
   {
     "name": "Native iOS swipe actions for shopping list",
     "description": "Add native-feeling iOS swipe actions to the shopping list, consistent with the pantry list implementation. Use ReanimatedSwipeable from react-native-gesture-handler/ReanimatedSwipeable. Swipe left to reveal: 'Purchased' (green, marks single item as purchased immediately) and 'Delete' (red, removes the item). Add haptic feedback using expo-haptics when swipe actions are triggered. Support full-swipe gesture to execute the primary action (mark as purchased). The existing checkbox pattern remains for batch operations, but swipe provides a quick single-item action. This complements the pantry swipe actions and provides a consistent interaction model across both lists.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Deleteing a pantry item should only be possible from the item detail page",

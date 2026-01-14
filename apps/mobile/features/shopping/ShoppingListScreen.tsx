@@ -11,6 +11,15 @@ import {
 import { useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable'
+import Reanimated, {
+  SharedValue,
+  useAnimatedStyle,
+  runOnJS,
+} from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
 import BottomSheet, {
   BottomSheetTextInput,
   BottomSheetBackdrop,
@@ -18,6 +27,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet'
 import { getCheckedItems, toggleCheckedItem, clearCheckedItems } from './checkedItemsStorage'
 import { useShoppingItems, useMarkAsPurchased, useCreatePlannedItem } from './hooks'
+import { useDeletePantryItem } from '@/features/pantry/hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 
 const statusLabels: Record<PantryItemStatus, string> = {
@@ -41,47 +51,164 @@ const itemTypeLabels: Record<ItemType, string> = {
 
 const SHEET_SNAP_POINTS = ['90%']
 
+const SWIPE_THRESHOLD = -120
+
+function SwipeActionButton({
+  label,
+  icon,
+  color,
+  onPress,
+  drag,
+  position,
+  totalWidth,
+}: {
+  label: string
+  icon: keyof typeof Ionicons.glyphMap
+  color: string
+  onPress: () => void
+  drag: SharedValue<number>
+  position: number
+  totalWidth: number
+}) {
+  const buttonWidth = totalWidth / 2
+  const animatedStyle = useAnimatedStyle(() => {
+    const dragValue = Math.abs(drag.value)
+    const scale = Math.min(1, dragValue / 60)
+    const translateX = dragValue > 0 ? (totalWidth - dragValue) * (position / 2) : 0
+
+    return {
+      transform: [{ scale }, { translateX }],
+      opacity: scale,
+    }
+  })
+
+  return (
+    <Reanimated.View style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}>
+      <TouchableOpacity
+        style={[styles.swipeActionContent, { backgroundColor: color }]}
+        onPress={onPress}
+      >
+        <Ionicons name={icon} size={22} color="#fff" />
+        <Text style={styles.swipeActionLabel}>{label}</Text>
+      </TouchableOpacity>
+    </Reanimated.View>
+  )
+}
+
 function ShoppingItemRow({
   item,
   isChecked,
   onPress,
   onToggleCheck,
+  onMarkPurchased,
+  onDelete,
 }: {
   item: ShoppingItem
   isChecked: boolean
   onPress: () => void
   onToggleCheck: () => void
+  onMarkPurchased: () => void
+  onDelete: () => void
 }) {
-  return (
-    <View style={styles.itemRow}>
-      <TouchableOpacity
-        style={styles.checkbox}
-        onPress={onToggleCheck}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+  const swipeableRef = useRef<SwipeableMethods>(null)
+  const hasTriggeredHaptic = useRef(false)
+  const actionsWidth = 120
+
+  const handleFullSwipe = useCallback(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    onMarkPurchased()
+    swipeableRef.current?.close()
+  }, [onMarkPurchased])
+
+  const renderRightActions = (
+    _progress: SharedValue<number>,
+    drag: SharedValue<number>
+  ) => {
+    const checkSwipeThreshold = () => {
+      'worklet'
+      if (drag.value < SWIPE_THRESHOLD && !hasTriggeredHaptic.current) {
+        hasTriggeredHaptic.current = true
+        runOnJS(handleFullSwipe)()
+      }
+    }
+
+    return (
+      <Reanimated.View
+        style={[styles.swipeActionsContainer, { width: actionsWidth }]}
+        onLayout={() => {
+          checkSwipeThreshold()
+        }}
       >
-        <Ionicons
-          name={isChecked ? 'checkbox' : 'square-outline'}
-          size={24}
-          color={isChecked ? '#27AE60' : '#999'}
+        <SwipeActionButton
+          label="Purchased"
+          icon="checkmark-circle"
+          color="#27AE60"
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+            onMarkPurchased()
+            swipeableRef.current?.close()
+          }}
+          drag={drag}
+          position={0}
+          totalWidth={actionsWidth}
         />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.itemContent} onPress={onPress}>
-        <View style={styles.itemDetails}>
-          <Text style={[styles.itemName, isChecked && styles.itemNameChecked]}>
-            {item.name}
-          </Text>
-          <Text style={styles.itemType}>{itemTypeLabels[item.itemType]}</Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: statusColors[item.status] },
-          ]}
+        <SwipeActionButton
+          label="Delete"
+          icon="trash"
+          color="#E74C3C"
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+            onDelete()
+            swipeableRef.current?.close()
+          }}
+          drag={drag}
+          position={1}
+          totalWidth={actionsWidth}
+        />
+      </Reanimated.View>
+    )
+  }
+
+  return (
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+      rightThreshold={40}
+      onSwipeableWillOpen={() => {
+        hasTriggeredHaptic.current = false
+      }}
+    >
+      <View style={styles.itemRow}>
+        <TouchableOpacity
+          style={styles.checkbox}
+          onPress={onToggleCheck}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
+          <Ionicons
+            name={isChecked ? 'checkbox' : 'square-outline'}
+            size={24}
+            color={isChecked ? '#27AE60' : '#999'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.itemContent} onPress={onPress}>
+          <View style={styles.itemDetails}>
+            <Text style={[styles.itemName, isChecked && styles.itemNameChecked]}>
+              {item.name}
+            </Text>
+            <Text style={styles.itemType}>{itemTypeLabels[item.itemType]}</Text>
+          </View>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: statusColors[item.status] },
+            ]}
+          >
+            <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </ReanimatedSwipeable>
   )
 }
 
@@ -91,6 +218,7 @@ export function ShoppingListScreen() {
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
+  const deletePantryItem = useDeletePantryItem()
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [newItemName, setNewItemName] = useState('')
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -251,6 +379,8 @@ export function ShoppingListScreen() {
                 })
               }
               onToggleCheck={() => handleToggleCheck(item.id)}
+              onMarkPurchased={() => markAsPurchasedMutation.mutate([item.id])}
+              onDelete={() => deletePantryItem.mutate(item.id)}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -534,5 +664,29 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
+  },
+  swipeActionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  swipeActionButton: {
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  swipeActionContent: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginHorizontal: 2,
+    gap: 4,
+  },
+  swipeActionLabel: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
   },
 })

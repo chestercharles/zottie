@@ -4,9 +4,33 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Native iOS swipe actions for shopping list"
+- Implement "Deleting a pantry item should only be possible from the item detail page"
 
 ## Recently Completed
+
+### Native iOS swipe actions for shopping list
+
+**Frontend (Mobile) changes:**
+- Added `ReanimatedSwipeable` from `react-native-gesture-handler/ReanimatedSwipeable` to `ShoppingListScreen`
+- Created `SwipeActionButton` component with animated scale/opacity effects matching pantry implementation
+- Wrapped `ShoppingItemRow` with swipeable functionality
+- Swipe left reveals two action buttons:
+  - **Purchased** (green, checkmark-circle icon): Marks single item as purchased immediately
+  - **Delete** (red, trash icon): Removes the item from the list
+- Added haptic feedback using `expo-haptics`:
+  - Medium impact when tapping "Purchased" button
+  - Heavy impact when tapping "Delete" button
+  - Success notification feedback on full-swipe action
+- Implemented full-swipe gesture to execute primary action (mark as purchased) without requiring tap
+- The existing checkbox pattern remains for batch operations; swipe provides quick single-item action
+- Imported `useDeletePantryItem` from pantry hooks for delete functionality
+
+**New styles added:**
+- `swipeActionsContainer`, `swipeActionButton`, `swipeActionContent`, `swipeActionLabel`
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Migrate pantry list to FlatList
 
