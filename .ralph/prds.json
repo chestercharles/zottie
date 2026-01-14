@@ -22,7 +22,7 @@
   {
     "name": "Migrate pantry list to FlatList",
     "description": "Replace ScrollView with FlatList in PantryListScreen for better performance and consistency with ShoppingListScreen. Extract the PantryItemRow component to work with FlatList's renderItem pattern. Maintain the existing planned items collapsible section as a ListHeaderComponent or SectionList section. Ensure pull-to-refresh continues to work with RefreshControl. This improves scroll performance for users with many pantry items and aligns with React Native best practices for lists.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Native iOS swipe actions for shopping list",

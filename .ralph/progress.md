@@ -4,9 +4,23 @@ See `.ralph/history/completed-progress.md` for completed features.
 
 ## Current Next Steps
 
-- Implement "Migrate pantry list to FlatList"
+- Implement "Native iOS swipe actions for shopping list"
 
 ## Recently Completed
+
+### Migrate pantry list to FlatList
+
+**Frontend (Mobile) changes:**
+- Replaced `ScrollView` with `FlatList` in `PantryListScreen` for improved scroll performance
+- Extracted `renderItem` callback for FlatList's render pattern with proper memoization using `useCallback`
+- Moved the collapsible planned items section to `ListHeaderComponent` via `renderListHeader` callback
+- Maintained the existing planned items collapsible behavior within the header component
+- Pull-to-refresh continues to work with `RefreshControl` passed to FlatList
+- Search input remains as a separate component above the FlatList (not part of the list)
+
+**Testing:**
+- TypeScript compilation successful
+- Mobile linting passing
 
 ### Native iOS swipe actions for pantry list
 

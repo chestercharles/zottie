@@ -3,7 +3,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   ActivityIndicator,
   RefreshControl,
   ActionSheetIOS,
@@ -428,6 +428,85 @@ export function PantryListScreen() {
     })
   }
 
+  const renderItem = useCallback(
+    ({ item }: { item: PantryItem }) => (
+      <PantryItemRow
+        item={item}
+        onPress={() => navigateToItem(item)}
+        onMarkLow={() =>
+          updatePantryItem.mutate({
+            itemId: item.id,
+            status: 'running_low',
+          })
+        }
+        onMarkOut={() =>
+          updatePantryItem.mutate({
+            itemId: item.id,
+            status: 'out_of_stock',
+          })
+        }
+        onDelete={() => deletePantryItem.mutate(item.id)}
+        onMore={() =>
+          item.itemType === 'planned'
+            ? showPlannedActionSheet(item)
+            : showStapleActionSheet(item)
+        }
+      />
+    ),
+    [updatePantryItem, deletePantryItem]
+  )
+
+  const renderListHeader = useCallback(() => {
+    if (plannedItems.length === 0) return null
+
+    return (
+      <View style={styles.plannedSection}>
+        <TouchableOpacity
+          style={styles.plannedHeader}
+          onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
+        >
+          <View style={styles.plannedHeaderLeft}>
+            <Text style={styles.plannedHeaderText}>Planned Items</Text>
+            <View style={styles.plannedCountBadge}>
+              <Text style={styles.plannedCountText}>{plannedItems.length}</Text>
+            </View>
+          </View>
+          <Text style={styles.chevron}>{isPlannedExpanded ? '▼' : '▶'}</Text>
+        </TouchableOpacity>
+        {isPlannedExpanded && (
+          <View style={styles.plannedContent}>
+            {plannedItems.map((item) => (
+              <PantryItemRow
+                key={item.id}
+                item={item}
+                onPress={() => navigateToItem(item)}
+                onMarkLow={() =>
+                  updatePantryItem.mutate({
+                    itemId: item.id,
+                    status: 'running_low',
+                  })
+                }
+                onMarkOut={() =>
+                  updatePantryItem.mutate({
+                    itemId: item.id,
+                    status: 'out_of_stock',
+                  })
+                }
+                onDelete={() => deletePantryItem.mutate(item.id)}
+                onMore={() => showPlannedActionSheet(item)}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+    )
+  }, [
+    plannedItems,
+    isPlannedExpanded,
+    updatePantryItem,
+    deletePantryItem,
+  ])
+
   return (
     <View style={styles.container}>
       {items.length === 0 ? (
@@ -461,83 +540,16 @@ export function PantryListScreen() {
               </TouchableOpacity>
             )}
           </View>
-          <ScrollView
+          <FlatList
+            data={mainListItems}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            ListHeaderComponent={renderListHeader}
             contentContainerStyle={styles.listContent}
             refreshControl={
               <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
             }
-          >
-            {plannedItems.length > 0 && (
-              <View style={styles.plannedSection}>
-                <TouchableOpacity
-                  style={styles.plannedHeader}
-                  onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
-                >
-                  <View style={styles.plannedHeaderLeft}>
-                    <Text style={styles.plannedHeaderText}>Planned Items</Text>
-                    <View style={styles.plannedCountBadge}>
-                      <Text style={styles.plannedCountText}>
-                        {plannedItems.length}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={styles.chevron}>
-                    {isPlannedExpanded ? '▼' : '▶'}
-                  </Text>
-                </TouchableOpacity>
-                {isPlannedExpanded && (
-                  <View style={styles.plannedContent}>
-                    {plannedItems.map((item) => (
-                      <PantryItemRow
-                        key={item.id}
-                        item={item}
-                        onPress={() => navigateToItem(item)}
-                        onMarkLow={() =>
-                          updatePantryItem.mutate({
-                            itemId: item.id,
-                            status: 'running_low',
-                          })
-                        }
-                        onMarkOut={() =>
-                          updatePantryItem.mutate({
-                            itemId: item.id,
-                            status: 'out_of_stock',
-                          })
-                        }
-                        onDelete={() => deletePantryItem.mutate(item.id)}
-                        onMore={() => showPlannedActionSheet(item)}
-                      />
-                    ))}
-                  </View>
-                )}
-              </View>
-            )}
-            {mainListItems.map((item) => (
-              <PantryItemRow
-                key={item.id}
-                item={item}
-                onPress={() => navigateToItem(item)}
-                onMarkLow={() =>
-                  updatePantryItem.mutate({
-                    itemId: item.id,
-                    status: 'running_low',
-                  })
-                }
-                onMarkOut={() =>
-                  updatePantryItem.mutate({
-                    itemId: item.id,
-                    status: 'out_of_stock',
-                  })
-                }
-                onDelete={() => deletePantryItem.mutate(item.id)}
-                onMore={() =>
-                  item.itemType === 'planned'
-                    ? showPlannedActionSheet(item)
-                    : showStapleActionSheet(item)
-                }
-              />
-            ))}
-          </ScrollView>
+          />
         </>
       )}
       <BottomSheet
