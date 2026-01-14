@@ -7,27 +7,27 @@
   {
     "name": "Commands tab screen dictation",
     "description": "Create a new tab screen with a clean UI featuring a microphone button. When pressed, the app records speech and transcribes it using a speech-to-text library. The transcription is not shown to the user - instead, it is sent directly to the parsing backend endpoint. The screen should not show command history - just the mic button when idle. Add an appropriate speech-to-text library (evaluate expo-speech-recognition or react-native-voice for best fit).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands tab screen execution",
     "description": "After the parsing endpoint returns, display the parsed actions to the user in a simple list format (e.g., 'Add apples to pantry (in stock)', 'Mark milk as running low') with confirm and cancel buttons. When the user confirms, send the actions to the execution endpoint. On successful execution, invalidate the pantry and shopping list queries to refresh data. Handle loading states appropriately during parsing and execution.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands parsing backend endpoint",
     "description": "Create a backend endpoint that processes natural language commands using OpenAI. The endpoint should fetch the user's current pantry and shopping list for context, then use the AI to determine the actions needed to fulfill the command. Supported actions: add an item to the pantry, mark an item as running low, mark an item as out of stock, add an item to the shopping list, remove an item from the shopping list. The endpoint returns a list of actions in a structured format (e.g., { actions: [{ type: 'add_to_pantry', item: 'apples', status: 'in_stock' }] }). Be smart about user intent - if a user says 'mark apples as running low' but apples aren't in the pantry, add them with running_low status rather than returning an error. The app should meet users where they are.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands execution backend endpoint",
     "description": "Create a backend endpoint that executes the actions sent by the frontend. The actions should be in the same structured format as the response from the parsing endpoint, allowing execution to be tested independently of parsing. The endpoint executes each action (adding pantry items, updating statuses, modifying shopping list) and returns a success/failure response.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands parsing empathetic error responses",
     "description": "When the commands parsing endpoint cannot identify any actions from user input, replace the generic 'no actions found in your command. please try again' error with a helpful, empathetic response. The response should explain why we couldn't understand the input (e.g., 'I couldn't find any pantry or shopping list actions in that command'), and provide a recommendation for what to do next based on the context of what the user said. Try to understand what the user might have meant and guide them toward success. The tone should be validating and supportive (acknowledging their effort) without being patronizing or elitist. This follows the pattern of the 'Try saying' section, which helps users feel in control and understand how to use the app effectively.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands dictation manual stop",
