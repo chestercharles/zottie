@@ -1,5 +1,135 @@
 # zottie Development Progress
 
+## 2026-01-14: Abstract voice recording into reusable VoiceInput component
+
+Created a reusable VoiceInput component that encapsulates all voice recording functionality, making it easy to add voice input to any screen in the app. Refactored CommandsScreen to use this new component, significantly reducing code duplication.
+
+### What was built
+
+- Created `VoiceInput` component in `apps/mobile/components/VoiceInput.tsx`
+- Extracted all voice recording logic from CommandsScreen
+- Component accepts flexible props for customization
+- Refactored CommandsScreen to use VoiceInput, reducing complexity significantly
+
+### Component features
+
+The VoiceInput component encapsulates:
+1. **expo-speech-recognition integration** with permission handling
+2. **Animated mic button** using react-native-reanimated with spring physics
+3. **Recording state management** (idle, recording, processing)
+4. **Haptic feedback** on interactions
+5. **Visual feedback** with color changes based on state
+6. **Status text display** that updates based on recording state
+
+### Component API
+
+The component accepts these props:
+
+**Required:**
+- `onTranscriptReceived: (transcript: string) => void` - Callback when transcript is received
+
+**Optional customization:**
+- `buttonSize?: number` - Size of mic button (default: 160)
+- `idleColor?: string` - Button color when idle (default: '#3498DB')
+- `recordingColor?: string` - Button color when recording (default: '#E74C3C')
+- `processingColor?: string` - Button color when processing (default: '#F39C12')
+- `isProcessing?: boolean` - External processing state control
+- `showStatusText?: boolean` - Whether to show status text (default: true)
+- `statusTextIdle?: string` - Text when idle (default: 'Tap to speak')
+- `statusTextRecording?: string` - Text when recording (default: 'Tap to stop')
+- `statusTextProcessing?: string` - Text when processing (default: 'Processing...')
+- `contextualStrings?: string[]` - Context hints for speech recognition
+- `onError?: (error: string) => void` - Error callback
+
+### Design decisions
+
+**Flexible and reusable:**
+- Component is highly customizable through props
+- Can work in different contexts (commands, onboarding, etc.)
+- Handles all voice input complexity internally
+- Parent components only need to handle transcript and errors
+
+**Maintains iOS-native feel:**
+- Uses spring physics for all animations (withSpring)
+- Provides haptic feedback on stop
+- Smooth transitions between states
+- Polished visual feedback
+
+**State management:**
+- Internal recording state (idle, recording, processing)
+- External processing state can be controlled via `isProcessing` prop
+- Allows parent to show processing state after transcript is received
+
+**Error handling:**
+- Optional error callback for parent to handle display
+- Handles permission errors gracefully
+- Reports speech recognition errors
+
+### CommandsScreen refactoring
+
+The refactored CommandsScreen is now much cleaner:
+- Removed ~130 lines of voice recording boilerplate
+- Removed all animation code (handled by VoiceInput)
+- Removed all speech recognition event handlers
+- Removed permission handling code
+- Removed haptic feedback code
+- Simplified state management (ProcessingState instead of RecordingState)
+- Kept only command parsing and execution logic
+
+**Before:** 430 lines with mixed concerns
+**After:** ~230 lines focused on command processing
+
+### Usage example
+
+```typescript
+<VoiceInput
+  onTranscriptReceived={handleTranscript}
+  onError={handleError}
+  isProcessing={isProcessing}
+  statusTextProcessing="Processing command..."
+/>
+```
+
+### Technical implementation
+
+**VoiceInput.tsx:**
+- Uses `react-native-reanimated` for smooth animations
+- Spring physics: `damping: 3, stiffness: 100` for recording pulse
+- Spring physics: `damping: 15, stiffness: 200` for idle/stop
+- Handles all speech recognition events internally
+- Manages permission requests automatically
+- Provides visual and haptic feedback
+
+**CommandsScreen.tsx:**
+- Now uses VoiceInput instead of custom implementation
+- Passes transcript to command parsing logic
+- Controls processing state during command parsing
+- Displays errors and help text around VoiceInput
+
+### Files changed
+
+- `apps/mobile/components/VoiceInput.tsx`: New reusable component
+- `apps/mobile/components/index.ts`: Export VoiceInput
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Refactored to use VoiceInput
+
+### Benefits
+
+1. **Code reuse**: Voice input can now be easily added to any screen
+2. **Maintainability**: Voice logic is in one place, easier to update
+3. **Consistency**: All voice inputs will behave the same way
+4. **Simplicity**: Parent components are much simpler
+5. **Testability**: Voice logic can be tested independently
+
+### Next steps
+
+This component is now ready to be used in the onboarding screens:
+1. Update pantry onboarding screen to use VoiceInput (PRD #12)
+2. Update shopping list onboarding screen to use VoiceInput (PRD #13)
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: New onboarding household invitation screen
 
 Implemented the household invitation screen that allows users to invite their household partner after completing the initial setup. This completes the full conversational onboarding flow.

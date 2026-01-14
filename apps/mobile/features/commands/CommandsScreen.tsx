@@ -6,169 +6,56 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import {
-  useSpeechRecognitionEvent,
-  ExpoSpeechRecognitionModule,
-} from 'expo-speech-recognition'
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSpring,
-  withSequence,
-  cancelAnimation,
-} from 'react-native-reanimated'
-import * as Haptics from 'expo-haptics'
+import { VoiceInput } from '../../components'
 import { useParseCommand, useExecuteCommand } from './hooks'
 import type { CommandAction } from './types'
 
-type RecordingState = 'idle' | 'recording' | 'processing' | 'confirming' | 'executing'
+type ProcessingState = 'idle' | 'processing' | 'confirming' | 'executing'
 
 export function CommandsScreen() {
-  const [recordingState, setRecordingState] = useState<RecordingState>('idle')
+  const [processingState, setProcessingState] = useState<ProcessingState>('idle')
   const [error, setError] = useState<string | null>(null)
   const [pendingActions, setPendingActions] = useState<CommandAction[]>([])
   const parseCommand = useParseCommand()
   const executeCommand = useExecuteCommand()
 
-  const scale = useSharedValue(1)
-
-  useEffect(() => {
-    if (recordingState === 'recording') {
-      scale.value = withRepeat(
-        withSpring(1.08, {
-          damping: 3,
-          stiffness: 100,
-        }),
-        -1,
-        true
-      )
-    } else {
-      cancelAnimation(scale)
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 200,
-      })
-    }
-  }, [recordingState])
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }))
-
-  const playStopFeedback = () => {
-    scale.value = withSequence(
-      withSpring(0.92, {
-        damping: 15,
-        stiffness: 300,
-      }),
-      withSpring(1, {
-        damping: 15,
-        stiffness: 200,
-      })
-    )
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch((error) => {
-      console.warn('Failed to play haptic feedback:', error)
+  const handleTranscriptReceived = (transcript: string) => {
+    setProcessingState('processing')
+    parseCommand.mutate(transcript, {
+      onSuccess: (response) => {
+        const actions = response.result.actions
+        const message = response.result.message
+        if (actions.length === 0) {
+          setError(message || 'No actions found in your command. Please try again.')
+          setProcessingState('idle')
+        } else {
+          setPendingActions(actions)
+          setProcessingState('confirming')
+        }
+      },
+      onError: (err) => {
+        setProcessingState('idle')
+        setError(err instanceof Error ? err.message : 'Failed to process command')
+      },
     })
   }
 
-  useSpeechRecognitionEvent('start', () => {
-    setRecordingState('recording')
-    setError(null)
-  })
-
-  useSpeechRecognitionEvent('end', () => {
-    if (recordingState === 'recording') {
-      playStopFeedback()
-      setRecordingState('idle')
-    }
-  })
-
-  useSpeechRecognitionEvent('result', (event) => {
-    const transcript = event.results[0]?.transcript
-    if (transcript && event.isFinal) {
-      setRecordingState('processing')
-      parseCommand.mutate(transcript, {
-        onSuccess: (response) => {
-          const actions = response.result.actions
-          const message = response.result.message
-          if (actions.length === 0) {
-            setError(
-              message || 'No actions found in your command. Please try again.'
-            )
-            setRecordingState('idle')
-          } else {
-            setPendingActions(actions)
-            setRecordingState('confirming')
-          }
-        },
-        onError: (err) => {
-          setRecordingState('idle')
-          setError(err instanceof Error ? err.message : 'Failed to process command')
-        },
-      })
-    }
-  })
-
-  useSpeechRecognitionEvent('error', (event) => {
-    setRecordingState('idle')
-    setError(`Speech recognition error: ${event.error}`)
-  })
-
-  const handleMicPress = async () => {
-    if (recordingState === 'recording') {
-      try {
-        ExpoSpeechRecognitionModule.stop()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to stop recording')
-      }
-      return
-    }
-
-    if (recordingState !== 'idle') {
-      return
-    }
-
-    try {
-      const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync()
-      if (!granted) {
-        setError('Microphone permission is required')
-        return
-      }
-
-      await ExpoSpeechRecognitionModule.start({
-        lang: 'en-US',
-        interimResults: false,
-        maxAlternatives: 1,
-        continuous: false,
-        requiresOnDeviceRecognition: false,
-        addsPunctuation: false,
-        contextualStrings: [
-          'pantry',
-          'shopping',
-          'in stock',
-          'running low',
-          'out of stock',
-        ],
-      })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start recording')
-    }
+  const handleVoiceError = (errorMessage: string) => {
+    setError(errorMessage)
   }
 
   const handleConfirm = () => {
-    setRecordingState('executing')
+    setProcessingState('executing')
     setError(null)
     executeCommand.mutate(pendingActions, {
       onSuccess: () => {
         setPendingActions([])
-        setRecordingState('idle')
+        setProcessingState('idle')
       },
       onError: (err) => {
-        setRecordingState('confirming')
+        setProcessingState('confirming')
         setError(err instanceof Error ? err.message : 'Failed to execute command')
       },
     })
@@ -176,32 +63,8 @@ export function CommandsScreen() {
 
   const handleCancel = () => {
     setPendingActions([])
-    setRecordingState('idle')
+    setProcessingState('idle')
     setError(null)
-  }
-
-  const getMicButtonColor = () => {
-    switch (recordingState) {
-      case 'recording':
-        return '#E74C3C'
-      case 'processing':
-        return '#F39C12'
-      default:
-        return '#3498DB'
-    }
-  }
-
-  const getStatusText = () => {
-    switch (recordingState) {
-      case 'recording':
-        return 'Tap to stop'
-      case 'processing':
-        return 'Processing command...'
-      case 'executing':
-        return 'Executing...'
-      default:
-        return 'Tap to speak'
-    }
   }
 
   const formatAction = (action: CommandAction): string => {
@@ -222,10 +85,10 @@ export function CommandsScreen() {
   }
 
   if (
-    (recordingState === 'confirming' || recordingState === 'executing') &&
+    (processingState === 'confirming' || processingState === 'executing') &&
     pendingActions.length > 0
   ) {
-    const isExecuting = recordingState === 'executing'
+    const isExecuting = processingState === 'executing'
     return (
       <View style={styles.container}>
         <ScrollView style={styles.confirmationContainer}>
@@ -273,26 +136,12 @@ export function CommandsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Animated.View style={animatedStyle}>
-          <TouchableOpacity
-            style={[styles.micButton, { backgroundColor: getMicButtonColor() }]}
-            onPress={handleMicPress}
-            disabled={recordingState !== 'idle' && recordingState !== 'recording'}
-            activeOpacity={0.7}
-          >
-            {recordingState === 'processing' ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : (
-              <Ionicons
-                name={recordingState === 'recording' ? 'mic' : 'mic-outline'}
-                size={80}
-                color="#fff"
-              />
-            )}
-          </TouchableOpacity>
-        </Animated.View>
-
-        <Text style={styles.statusText}>{getStatusText()}</Text>
+        <VoiceInput
+          onTranscriptReceived={handleTranscriptReceived}
+          onError={handleVoiceError}
+          isProcessing={processingState === 'processing'}
+          statusTextProcessing="Processing command..."
+        />
 
         {error && (
           <View style={styles.errorContainer}>
@@ -321,27 +170,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
-  },
-  micButton: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  statusText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 32,
   },
   errorContainer: {
     backgroundColor: '#FADBD8',
