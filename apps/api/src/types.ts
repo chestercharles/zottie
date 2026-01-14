@@ -8,6 +8,7 @@ declare global {
     AUTH0_DOMAIN: string
     AUTH0_AUDIENCE: string
     TEST_JWT_SECRET?: string
+    OPENAI_API_KEY?: string
   }
 }
 
@@ -84,4 +85,24 @@ export const HouseholdInviteInfo = z.object({
   householdId: Str({ example: '550e8400-e29b-41d4-a716-446655440001' }),
   householdName: Str({ example: 'My Household' }),
   expiresAt: z.number(),
+})
+
+export const CommandActionType = z.enum([
+  'add_to_pantry',
+  'update_pantry_status',
+  'remove_from_shopping_list',
+])
+
+export const CommandAction = z.object({
+  type: CommandActionType,
+  item: Str({ example: 'apples' }),
+  status: PantryItemStatusEnum.optional(),
+})
+
+export const CommandParseRequest = z.object({
+  command: Str({ example: 'add apples to the pantry and mark milk as running low' }),
+})
+
+export const CommandParseResponse = z.object({
+  actions: z.array(CommandAction),
 })
