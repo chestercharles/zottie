@@ -88,5 +88,20 @@
     "name": "New onboarding flow orchestration",
     "description": "Create the main orchestrator for the new conversational onboarding experience. When the app determines it needs to show onboarding, call the feature flag API endpoint first to determine which onboarding to show. If the flag returns 'conversational', initiate the new flow: (1) create household with default name, (2) show pantry input screen, (3) show shopping input screen, (4) show processing screen, (5) show household invitation screen, (6) navigate to pantry. If the flag returns 'original', show the existing onboarding flow. Ensure the implementation allows clean toggling between the two experiences and that all state is properly managed throughout the flow.",
     "completed": false
+  },
+  {
+    "name": "Commands parsing comprehensive eval system",
+    "description": "Expand the existing command parsing eval (commandParse.eval.ts) to include comprehensive test coverage of diverse user inputs. Add many more test cases covering: varied phrasings ('I have X', 'got some X', 'X in pantry'), plural/singular variations, common typos, informal language, regional dialects, and edge cases. Evaluate whether to use fuzzy matching (Levenshtein distance) or strict matching for validation. Consider the trade-offs: fuzzy matching is more resilient to prompt changes but requires tuning thresholds; exact matching is simpler but may need updates when prompts change. The eval should test through the API endpoint to remain resilient to implementation changes. Research whether vitest (already in use) is sufficient or if a dedicated eval/testing library would be better suited. The goal is to catch regressions when modifying the system prompt or model, ensuring consistent parsing behavior across a wide range of natural language inputs.",
+    "completed": false
+  },
+  {
+    "name": "Commands parsing maximize empathy behavior",
+    "description": "Strengthen the command parsing system prompt and add specific eval test cases to ensure maximum empathy toward user intent. When a user mentions having an item (e.g., 'I have apples', 'got milk', 'we have bread'), the system should immediately create an add_to_pantry action with appropriate status rather than returning a message asking if they want to add it. The system should always assume the user wants to take action when they mention items in the context of their pantry or shopping. Add eval test cases specifically for empathy scenarios: mentioning items without explicit 'add' commands, implicit status indicators ('almost out of X' should map to running_low), and context-dependent intents. The tone of any messages returned should be supportive and action-oriented, never questioning whether the user actually wants to do something. Update the system prompt in commandParse.ts to emphasize this empathetic, action-first approach.",
+    "completed": false
+  },
+  {
+    "name": "Commands processing enhanced animation",
+    "description": "Replace the basic ActivityIndicator shown during command processing with a more polished, iOS-native animation. The current implementation (line 230-238 in CommandsScreen.tsx) shows a spinner in the mic button when recordingState is 'processing'. Instead, implement a subtle animation that feels warm and engaging: use a gentle pulsing/breathing animation on the mic button with spring physics (withSpring from react-native-reanimated), possibly combined with a subtle color transition. The animation should clearly communicate that processing is happening without being distracting or anxiety-inducing. Consider adding a subtle animation to the 'Processing command...' text as well (gentle fade or scale). Follow iOS design patterns for processing states - think of how iOS handles background processing (gentle, continuous, reassuring). The goal is to make the wait feel shorter and more pleasant while maintaining clarity about what's happening.",
+    "completed": false
   }
 ]
