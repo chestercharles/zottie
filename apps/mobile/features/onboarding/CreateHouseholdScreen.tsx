@@ -17,11 +17,13 @@ import { useCreateHousehold } from '@/features/household/hooks'
 import { useAuth } from '@/features/auth'
 import { queryClient } from '@/lib/query/client'
 
-interface OnboardingScreenProps {
+interface CreateHouseholdScreenProps {
   onSuccess: () => void
 }
 
-export function OnboardingScreen({ onSuccess }: OnboardingScreenProps) {
+export function CreateHouseholdScreen({
+  onSuccess,
+}: CreateHouseholdScreenProps) {
   const [householdName, setHouseholdName] = useState('')
   const createMutation = useCreateHousehold()
   const [isCreating, setIsCreating] = useState(false)

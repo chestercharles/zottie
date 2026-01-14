@@ -2,7 +2,7 @@
   {
     "name": "Onboarding quick-add inventory screen",
     "description": "Create a new onboarding screen that displays common pantry items grouped by category (vegetables, fruits, baking, proteins, dairy, pantry staples, etc.). The curated list should be hardcoded in the frontend. Users can tap items to select/deselect them. All selected items default to 'in_stock' status - users can adjust status later in the pantry if needed. After confirming selections, users are taken to their pantry screen with the items added. Users can skip this step to start with an empty pantry. This screen is only shown during onboarding and is not accessible later.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Commands tab screen dictation",
@@ -47,6 +47,46 @@
   {
     "name": "Commands dictation stop feedback",
     "description": "Provide immediate feedback when recording stops (either manually or automatically). Add a subtle animation to the microphone button (a brief scale-down spring animation) and play a short system sound to indicate recording has ended. For the sound, use iOS system sounds via expo-av or react-native-sound - choose a gentle, non-intrusive sound similar to the iOS keyboard click or message send sound. The animation and sound should happen together to create a cohesive 'recording complete' moment. Follow iOS patterns for this type of feedback - brief, subtle, and reassuring rather than loud or jarring.",
+    "completed": false
+  },
+  {
+    "name": "Onboarding feature flag API endpoint",
+    "description": "Create a backend API endpoint that returns which onboarding experience to show (original vs new conversational onboarding). The endpoint reads from a hardcoded text file in the repo (e.g., config/onboarding-flag.txt) that contains either 'original' or 'conversational'. This allows us to toggle between onboarding experiences by manually editing the text file and deploying, without needing to rebuild the mobile app. The mobile app calls this endpoint before showing onboarding to determine which flow to use.",
+    "completed": false
+  },
+  {
+    "name": "Onboarding text parsing backend endpoint",
+    "description": "Create a backend endpoint that parses natural language text into pantry items and/or shopping list items using OpenAI. The endpoint accepts text input and context about what the user is describing (injected into the prompt - e.g., 'the user is listing what they have in their pantry' or 'the user is listing what they need from the store'). The endpoint can parse either type or both from the same message. For pantry items, create them with 'in_stock' status. For shopping items, create them as planned shopping list items. Return a structured response indicating what was created (e.g., { pantryItems: [...], shoppingItems: [...] }). The endpoint creates these items in the database for the user's household. Handle the case where the user explicitly says they have nothing to add (return empty lists, not an error). Return an error only if the text is unclear or completely unrelated to pantry/shopping items.",
+    "completed": false
+  },
+  {
+    "name": "New onboarding pantry input screen",
+    "description": "Create the first screen of the new conversational onboarding that asks users what they have in their pantry. Show empathetic, encouraging copy that prompts them to just start listing items, and reassure them they can add more or change things easily later. Provide a text input (or voice input if preferred) for them to list pantry items. Include a clearly visible 'Skip' button. When they submit, immediately move to the next screen (shopping list input) without waiting for backend parsing - trigger the parsing API call in the background with context indicating this is pantry items. Store the parsing promise/request so we can wait for it later.",
+    "completed": false
+  },
+  {
+    "name": "New onboarding shopping list input screen",
+    "description": "Create the second screen of the new conversational onboarding that asks users if there's anything they want to get from the store. Show empathetic copy encouraging them to list shopping items. Provide a text input (or voice input if preferred). Include a clearly visible 'Skip' button. When they submit, trigger the parsing API call in the background with context indicating this is shopping list items and immediately move to the loading/processing screen. Do not wait for the API response before navigating.",
+    "completed": false
+  },
+  {
+    "name": "New onboarding processing screen",
+    "description": "Create a loading screen that shows while waiting for both pantry and shopping list parsing to complete. Display empathetic copy explaining what's happening (e.g., 'Adding your items...', 'Getting your shopping list ready...'). Show a subtle, nice animation that indicates processing is in progress (not a generic spinner - something that feels warm and engaging). Wait for both parsing requests to complete. If both succeed (or return empty lists for legitimate 'nothing to add' cases), navigate to the household invitation screen. If either fails with a true error (couldn't parse the text), show an empathetic error message explaining what happened and why, with a button to retry that specific step (pantry or shopping).",
+    "completed": false
+  },
+  {
+    "name": "New onboarding household invitation screen",
+    "description": "Create a screen that prompts users to invite their household partner. Show copy explaining the value of inviting someone (shared lists, coordination, etc.). Provide an input for entering an email or phone number to send an invitation. Include a clearly visible 'Skip' button - this step is entirely optional. After submitting an invitation or skipping, navigate to the pantry screen where they can see their populated pantry and shopping list.",
+    "completed": false
+  },
+  {
+    "name": "New onboarding household creation",
+    "description": "At the start of the new conversational onboarding flow (before showing any screens), automatically create a household for the user with a default name like 'My Household'. Store the household ID so subsequent parsing endpoints can associate pantry and shopping items with this household. Users can change the household name later from settings. This creation should happen silently without requiring any user input.",
+    "completed": false
+  },
+  {
+    "name": "New onboarding flow orchestration",
+    "description": "Create the main orchestrator for the new conversational onboarding experience. When the app determines it needs to show onboarding, call the feature flag API endpoint first to determine which onboarding to show. If the flag returns 'conversational', initiate the new flow: (1) create household with default name, (2) show pantry input screen, (3) show shopping input screen, (4) show processing screen, (5) show household invitation screen, (6) navigate to pantry. If the flag returns 'original', show the existing onboarding flow. Ensure the implementation allows clean toggling between the two experiences and that all state is properly managed throughout the flow.",
     "completed": false
   }
 ]
