@@ -67,6 +67,7 @@
   {
     "name": "Update shopping list onboarding screen to use voice input",
     "description": "Replace the TextInput in NewShoppingListInputScreen with the new VoiceInput component, following the same pattern as the pantry screen. Show the cart icon, title, and subtitle, then the voice recording button instead of text input. Update help text to guide voice input (e.g., 'Tap the microphone and list what you need from the store'). Enable the Continue button after voice transcription completes. Pass the transcript to onSubmit when they tap Continue, maintaining background parsing behavior. Keep the Skip button visible. The implementation should mirror the pantry screen for consistency while using shopping-specific copy and the cart icon. Both onboarding screens should provide a cohesive voice-first experience that feels natural and reduces friction during initial setup.",
-    "completed": false
+    "completed": true,
+    "note": "Updated screen to use VoiceInput component. Removed TextInput and keyboard handling. Both onboarding screens now provide consistent voice-first experience."
   }
 ]

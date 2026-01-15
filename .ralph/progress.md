@@ -1,5 +1,83 @@
 # zottie Development Progress
 
+## 2026-01-14: Update shopping list onboarding screen to use voice input
+
+Updated the shopping list onboarding screen to use the VoiceInput component, providing a consistent voice-first experience across both onboarding input screens.
+
+### What was built
+
+- Updated `NewShoppingListInputScreen` to use VoiceInput component instead of TextInput
+- Replaced manual text input with voice recording functionality
+- Updated hint text to guide users toward voice input
+- Removed keyboard-related components (KeyboardAvoidingView, Platform imports)
+- Maintained the same user flow and navigation patterns
+
+### User experience
+
+1. User sees the shopping screen with cart icon and empathetic copy
+2. Instead of a text input field, they see an animated microphone button
+3. Hint text now reads: "Tap the microphone and list what you need from the store, or skip if you're all set for now."
+4. User taps the mic button to start recording
+5. VoiceInput provides visual feedback (color changes, pulsing animation) while recording
+6. User taps again to stop recording
+7. VoiceInput processes the audio and returns transcript
+8. Continue button becomes enabled after transcript is received
+9. User can tap Continue to proceed or Skip to bypass
+
+### Design decisions
+
+**Voice-first experience:**
+- Consistent with pantry screen - both now use voice input
+- Reduces friction by eliminating typing on mobile keyboards
+- More natural for users to speak their shopping list items
+- Maintains empathetic, supportive tone throughout
+
+**Consistent interaction patterns:**
+- Uses the same VoiceInput component as pantry screen and CommandsScreen
+- Familiar button size (140px) and animations across the app
+- Same spring physics and haptic feedback
+- Status text provides clear guidance at each step
+
+**Cohesive onboarding flow:**
+- Both onboarding input screens now have identical interaction patterns
+- Users learn voice input once on the pantry screen, then reuse the skill
+- Reduces cognitive load and creates a unified onboarding experience
+
+### Technical implementation
+
+**NewShoppingListInputScreen.tsx changes:**
+- Removed `TextInput`, `KeyboardAvoidingView`, and `Platform` imports
+- Added `VoiceInput` component import
+- Changed state from `text` to `transcript`
+- Added `handleTranscriptReceived` callback
+- Replaced `KeyboardAvoidingView` wrapper with plain `View`
+- Replaced TextInput with VoiceInput inside centered container
+- Updated button enablement to check `transcript.trim()` instead of `text.trim()`
+- Removed `input` style object, added `voiceInputContainer` style
+
+**VoiceInput configuration:**
+- Button size: 140px (matches pantry screen)
+- Status text: "Tap to speak", "Tap to stop", "Processing..."
+- Uses default colors (blue idle, red recording, orange processing)
+- No external processing state control needed
+
+### Files changed
+
+- `apps/mobile/features/onboarding/NewShoppingListInputScreen.tsx`: Updated to use VoiceInput
+
+### Benefits
+
+1. **Consistent UX**: Both onboarding screens now use identical voice input patterns
+2. **More natural input**: Speaking is faster and easier than typing on mobile
+3. **Reduced friction**: No keyboard, autocorrect, or typing errors
+4. **Simpler code**: Removed keyboard handling complexity
+5. **Empathetic UX**: Voice feels more conversational and supportive
+6. **Cohesive onboarding**: Users have a unified voice-first experience throughout setup
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: Update pantry onboarding screen to use voice input
 
 Replaced the text input in the pantry onboarding screen with the VoiceInput component, creating a more natural and seamless onboarding experience that allows users to speak instead of type.
