@@ -1,5 +1,85 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands parsing maximize empathy behavior
+
+Strengthened the command parsing system to maximize empathy toward user intent, ensuring the system takes action when users mention items rather than asking for confirmation.
+
+### What was built
+
+- Updated system prompt to emphasize action-first, empathetic behavior
+- Added explicit "EMPATHETIC INTENT RECOGNITION" section mapping common phrasings to actions
+- Added directive to NEVER ask "would you like me to add X?" - just add it
+- Added 15 new empathy-specific eval test cases
+- Added 3 new behavior validation tests for action-first responses
+- Added `allowAlternateStatus` flexibility to eval framework
+
+### System prompt changes
+
+**New core principle added:**
+> Always assume the user wants to take action when they mention items. Be empathetic and action-oriented. Never ask if they want to add something - just add it. Users feel smart and capable when their intent is understood without explicit commands.
+
+**Empathetic intent recognition mappings:**
+- "I have X" / "got X" / "we have X" / "there's X" → add_to_pantry with "in_stock"
+- "picked up X" / "bought X" / "just got X" → add_to_pantry with "in_stock"
+- "almost out of X" / "running low on X" / "low on X" → add_to_pantry with "running_low"
+- "out of X" / "need X" / "fresh out of X" → add_to_pantry with "out_of_stock"
+- "planning to get X" / "want to get X" / "should get X" → add_to_pantry with "planned"
+- "used up X" / "finished X" / "ran out of X" → add_to_pantry with "out_of_stock"
+- "stocked up on X" / "restocked X" / "plenty of X" → add_to_pantry with "in_stock"
+
+**Key behavioral change:**
+Messages are only returned when the actions array is empty (no items mentioned at all). If ANY food or household item is mentioned, the system creates an action for it.
+
+### New eval test cases (15 empathy scenarios)
+
+1. Simple mention ("apples") should add
+2. Conversational mention ("oh yeah we have some carrots") should add
+3. Casual inventory check ("so there is milk in the fridge") should add
+4. Statement of fact ("milk bread eggs") should add all items
+5. Implicit low status from worry ("I'm worried we don't have enough butter")
+6. Implicit need from meal context ("for dinner tonight we need chicken")
+7. Remembering should add ("oh I forgot we have yogurt")
+8. Checking inventory should add ("let me check... yep we have onions")
+9. Noticing should add ("I noticed we have some leftover pasta")
+10. Saw in pantry should add ("saw some canned tomatoes in the pantry")
+11. Partner mentioned should add ("my wife said we have spinach")
+12. Vague recollection should add ("I think there might be some garlic")
+13. Exclamation about item should add ("oh no, the bananas are going bad!")
+14. Questioning availability should still add ("do we have any cheese left?")
+15. Telling story about item should add ("I used the last of the olive oil")
+
+### New behavior validation tests
+
+1. **Action-first test**: Verifies system takes action when items mentioned
+2. **No confirmation test**: Verifies system never asks "would you like", "do you want", "should I add"
+3. **Context inference test**: Verifies status is inferred from context (e.g., "used the last of" → out_of_stock)
+
+### Eval framework enhancement
+
+Added `allowAlternateStatus` property to handle cases where the model's status interpretation is valid but differs from expected. This allows for reasonable variation while still testing core behavior.
+
+### Files changed
+
+- `apps/api/src/endpoints/commandParse.ts`: Updated system prompt with empathetic, action-first approach
+- `apps/api/src/endpoints/commandParse.eval.ts`: Added empathy test cases and behavior validation tests
+
+### Test results
+
+All 76 eval tests pass:
+- 52 existing command parsing tests
+- 15 new empathy scenario tests
+- 6 behavior/error validation tests
+- 1 schema validation test
+- 2 empathetic error response tests
+
+### Benefits
+
+1. **User feels understood**: System takes action immediately when items are mentioned
+2. **Reduced friction**: No unnecessary confirmation prompts
+3. **Smart intent recognition**: Context clues inform appropriate status
+4. **Consistent behavior**: Clear mappings ensure predictable responses
+5. **Maintains helpfulness**: Non-pantry commands still get empathetic guidance
+
 ## 2026-01-14: Commands parsing comprehensive eval system
 
 Expanded the command parsing eval system with comprehensive test coverage of diverse user inputs to ensure consistent parsing behavior across natural language variations.

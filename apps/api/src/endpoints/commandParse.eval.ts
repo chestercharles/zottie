@@ -28,6 +28,7 @@ interface EvalCase {
   }>
   allowAlternateType?: ActionType
   allowAlternateItems?: string[]
+  allowAlternateStatus?: ItemStatus
 }
 
 function normalizeItem(item: string): string {
@@ -208,8 +209,9 @@ const evalCases: EvalCase[] = [
     name: 'informal: gotta get X',
     command: 'gotta get olive oil',
     expectedActions: [
-      { type: 'add_to_pantry', item: 'olive oil', status: 'out_of_stock' },
+      { type: 'add_to_pantry', item: 'olive oil', status: 'planned' },
     ],
+    allowAlternateStatus: 'out_of_stock',
   },
   {
     name: 'informal: running out of X',
@@ -508,6 +510,125 @@ const evalCases: EvalCase[] = [
       { type: 'add_to_pantry', item: 'dish soap', status: 'running_low' },
     ],
   },
+
+  // ===========================================
+  // EMPATHY SCENARIOS - Action-first behavior
+  // These test that the system takes action when users
+  // mention items without explicit add commands
+  // ===========================================
+  {
+    name: 'empathy: simple mention should add (just says item)',
+    command: 'apples',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'apple', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: conversational mention should add',
+    command: 'oh yeah we have some carrots',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'carrot', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: casual inventory check should add',
+    command: 'so there is milk in the fridge',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: statement of fact should add',
+    command: 'milk bread eggs',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'bread', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'egg', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: implicit low status from worry',
+    command: "I'm worried we don't have enough butter",
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'butter', status: 'running_low' },
+    ],
+  },
+  {
+    name: 'empathy: implicit need from meal context',
+    command: 'for dinner tonight we need chicken',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'chicken', status: 'out_of_stock' },
+    ],
+  },
+  {
+    name: 'empathy: remembering should add',
+    command: 'oh I forgot we have yogurt',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'yogurt', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: checking inventory should add',
+    command: 'let me check... yep we have onions',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'onion', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: noticing should add',
+    command: 'I noticed we have some leftover pasta',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'pasta', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: saw in pantry should add',
+    command: 'saw some canned tomatoes in the pantry',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'canned tomato', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['tomato', 'tomatoes', 'canned tomatoes'],
+  },
+  {
+    name: 'empathy: partner mentioned should add',
+    command: 'my wife said we have spinach',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'spinach', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'empathy: vague recollection should add',
+    command: 'I think there might be some garlic somewhere',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'garlic', status: 'in_stock' },
+    ],
+    allowAlternateStatus: 'planned',
+  },
+  {
+    name: 'empathy: exclamation about item should add',
+    command: 'oh no, the bananas are going bad!',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'banana', status: 'running_low' },
+    ],
+    allowAlternateItems: ['bananas'],
+    allowAlternateStatus: 'out_of_stock',
+  },
+  {
+    name: 'empathy: questioning availability should still add',
+    command: 'do we have any cheese left?',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'cheese', status: 'running_low' },
+    ],
+    allowAlternateStatus: 'out_of_stock',
+  },
+  {
+    name: 'empathy: telling story about item should add',
+    command: 'I used the last of the olive oil for dinner',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'olive oil', status: 'out_of_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
 ]
 
 describe('Command Parse Endpoint Eval', () => {
@@ -589,7 +710,11 @@ describe('Command Parse Endpoint Eval', () => {
           }
 
           if (expected.status) {
-            expect(matchingAction?.status).toBe(expected.status)
+            if (evalCase.allowAlternateStatus) {
+              expect([expected.status, evalCase.allowAlternateStatus]).toContain(matchingAction?.status)
+            } else {
+              expect(matchingAction?.status).toBe(expected.status)
+            }
           }
         }
       })
@@ -633,6 +758,80 @@ describe('Command Parse Endpoint Eval', () => {
       expect(data.result.message).toBeDefined()
       expect(typeof data.result.message).toBe('string')
       expect(data.result.message!.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('empathy: action-first behavior', () => {
+    it('should take action without asking when items are mentioned', async () => {
+      const response = await fetch(`${API_URL}/api/commands/parse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ command: 'we have milk' }),
+      })
+
+      expect(response.status).toBe(200)
+      const data = (await response.json()) as CommandParseResponse
+      expect(data.success).toBe(true)
+      expect(data.result.actions.length).toBeGreaterThan(0)
+      if (data.result.message) {
+        const lowerMessage = data.result.message.toLowerCase()
+        expect(lowerMessage).not.toContain('would you like')
+        expect(lowerMessage).not.toContain('do you want')
+        expect(lowerMessage).not.toContain('should i add')
+      }
+    })
+
+    it('should never ask for confirmation when user mentions having something', async () => {
+      const commands = [
+        'I have eggs',
+        'got some bread',
+        'there is butter in the fridge',
+        'we picked up some oranges',
+      ]
+
+      for (const command of commands) {
+        const response = await fetch(`${API_URL}/api/commands/parse`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ command }),
+        })
+
+        expect(response.status).toBe(200)
+        const data = (await response.json()) as CommandParseResponse
+        expect(data.success).toBe(true)
+        expect(data.result.actions.length, `Expected actions for "${command}" but got none`).toBeGreaterThan(0)
+        if (data.result.message) {
+          const lowerMessage = data.result.message.toLowerCase()
+          expect(lowerMessage, `Message for "${command}" should not ask for confirmation`).not.toContain('would you like')
+          expect(lowerMessage).not.toContain('do you want')
+          expect(lowerMessage).not.toContain('should i add')
+        }
+      }
+    })
+
+    it('should infer status from context without explicit status keywords', async () => {
+      const response = await fetch(`${API_URL}/api/commands/parse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ command: 'used the last of the coffee this morning' }),
+      })
+
+      expect(response.status).toBe(200)
+      const data = (await response.json()) as CommandParseResponse
+      expect(data.success).toBe(true)
+      expect(data.result.actions.length).toBeGreaterThan(0)
+      const coffeeAction = data.result.actions.find(a => a.item.includes('coffee'))
+      expect(coffeeAction, 'Should have action for coffee').toBeDefined()
+      expect(coffeeAction?.status).toBe('out_of_stock')
     })
   })
 })

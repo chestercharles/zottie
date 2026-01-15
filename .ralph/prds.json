@@ -41,7 +41,8 @@
   {
     "name": "Commands parsing maximize empathy behavior",
     "description": "Strengthen the command parsing system prompt and add specific eval test cases to ensure maximum empathy toward user intent. When a user mentions having an item (e.g., 'I have apples', 'got milk', 'we have bread'), the system should immediately create an add_to_pantry action with appropriate status rather than returning a message asking if they want to add it. The system should always assume the user wants to take action when they mention items in the context of their pantry or shopping. Add eval test cases specifically for empathy scenarios: mentioning items without explicit 'add' commands, implicit status indicators ('almost out of X' should map to running_low), and context-dependent intents. The tone of any messages returned should be supportive and action-oriented, never questioning whether the user actually wants to do something. Update the system prompt in commandParse.ts to emphasize this empathetic, action-first approach.",
-    "completed": false
+    "completed": true,
+    "note": "Updated system prompt with CORE PRINCIPLE for action-first empathy and EMPATHETIC INTENT RECOGNITION mappings. Added 15 empathy scenario tests and 3 behavior validation tests. All 76 eval tests pass. System now takes action immediately when items are mentioned rather than asking for confirmation."
   },
   {
     "name": "Commands processing enhanced animation",
