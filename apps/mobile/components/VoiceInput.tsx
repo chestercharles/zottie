@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import {
@@ -11,7 +11,9 @@ import Animated, {
   withRepeat,
   withSpring,
   withSequence,
+  withTiming,
   cancelAnimation,
+  Easing,
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
 
@@ -48,6 +50,8 @@ export function VoiceInput({
 }: VoiceInputProps) {
   const [recordingState, setRecordingState] = useState<RecordingState>('idle')
   const scale = useSharedValue(1)
+  const processingOpacity = useSharedValue(1)
+  const textOpacity = useSharedValue(1)
 
   useEffect(() => {
     if (isProcessing) {
@@ -67,17 +71,59 @@ export function VoiceInput({
         -1,
         true
       )
+      cancelAnimation(processingOpacity)
+      processingOpacity.value = 1
+    } else if (recordingState === 'processing') {
+      scale.value = withRepeat(
+        withSequence(
+          withSpring(1.06, {
+            damping: 8,
+            stiffness: 80,
+          }),
+          withSpring(1, {
+            damping: 8,
+            stiffness: 80,
+          })
+        ),
+        -1,
+        false
+      )
+      processingOpacity.value = withRepeat(
+        withTiming(0.6, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1,
+        true
+      )
+      textOpacity.value = withRepeat(
+        withTiming(0.5, {
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1,
+        true
+      )
     } else {
       cancelAnimation(scale)
+      cancelAnimation(processingOpacity)
+      cancelAnimation(textOpacity)
       scale.value = withSpring(1, {
         damping: 15,
         stiffness: 200,
       })
+      processingOpacity.value = 1
+      textOpacity.value = 1
     }
-  }, [recordingState, scale])
+  }, [recordingState, scale, processingOpacity, textOpacity])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    opacity: processingOpacity.value,
+  }))
+
+  const animatedTextStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
   }))
 
   const playStopFeedback = () => {
@@ -207,19 +253,21 @@ export function VoiceInput({
           disabled={recordingState === 'processing'}
           activeOpacity={0.7}
         >
-          {recordingState === 'processing' ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : (
-            <Ionicons
-              name={recordingState === 'recording' ? 'mic' : 'mic-outline'}
-              size={buttonSize * 0.5}
-              color="#fff"
-            />
-          )}
+          <Ionicons
+            name={recordingState === 'idle' ? 'mic-outline' : 'mic'}
+            size={buttonSize * 0.5}
+            color="#fff"
+          />
         </TouchableOpacity>
       </Animated.View>
 
-      {showStatusText && <Text style={styles.statusText}>{getStatusText()}</Text>}
+      {showStatusText && (
+        <Animated.Text
+          style={[styles.statusText, recordingState === 'processing' && animatedTextStyle]}
+        >
+          {getStatusText()}
+        </Animated.Text>
+      )}
     </View>
   )
 }

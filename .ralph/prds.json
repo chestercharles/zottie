@@ -45,7 +45,8 @@
   {
     "name": "Commands processing enhanced animation",
     "description": "Replace the basic ActivityIndicator shown during command processing with a more polished, iOS-native animation. The current implementation (line 230-238 in CommandsScreen.tsx) shows a spinner in the mic button when recordingState is 'processing'. Instead, implement a subtle animation that feels warm and engaging: use a gentle pulsing/breathing animation on the mic button with spring physics (withSpring from react-native-reanimated), possibly combined with a subtle color transition. The animation should clearly communicate that processing is happening without being distracting or anxiety-inducing. Consider adding a subtle animation to the 'Processing command...' text as well (gentle fade or scale). Follow iOS design patterns for processing states - think of how iOS handles background processing (gentle, continuous, reassuring). The goal is to make the wait feel shorter and more pleasant while maintaining clarity about what's happening.",
-    "completed": false
+    "completed": true,
+    "note": "Replaced ActivityIndicator with breathing animation using spring physics (scale 1→1.06→1) and synchronized opacity fade (1→0.6→1). Added subtle text opacity animation. Mic icon stays visible during processing. Animation feels warm and iOS-native."
   },
   {
     "name": "Commands feedback empathetic UI presentation",

@@ -1,5 +1,95 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands processing enhanced animation
+
+Replaced the basic ActivityIndicator spinner during command processing with a warm, breathing animation that feels iOS-native and reduces user anxiety.
+
+### What was built
+
+- Replaced the ActivityIndicator with a gentle pulsing/breathing animation on the mic button
+- Added synchronized opacity animation that creates a warm, organic feel
+- Added subtle text opacity animation on the "Processing..." status text
+- Used spring physics throughout for natural iOS-native motion
+
+### User experience
+
+When a command is being processed, users now see:
+1. The mic button gently pulsing (scale 1.0 → 1.06 → 1.0) with spring physics
+2. A synchronized opacity fade (1.0 → 0.6 → 1.0) creating a breathing effect
+3. The mic icon stays visible instead of being replaced by a spinner
+4. The "Processing..." text subtly fades in and out (1.0 → 0.5 → 1.0)
+5. The overall effect feels warm, calm, and reassuring
+
+### Design decisions
+
+**Spring physics for organic motion:**
+- Scale animation: `damping: 8, stiffness: 80` for slow, gentle breathing
+- Uses `withSequence` with two spring animations (expand/contract) in a repeat loop
+- Feels natural and iOS-native, not mechanical
+
+**Opacity breathing:**
+- Button: 1200ms duration fading between 1.0 and 0.6
+- Text: 1400ms duration fading between 1.0 and 0.5 (slightly offset for visual interest)
+- Uses `Easing.inOut(Easing.ease)` for smooth transitions
+- Makes wait times feel shorter and more pleasant
+
+**No spinner:**
+- Removed the ActivityIndicator that felt anxiety-inducing
+- Mic icon stays visible during processing (switches from outline to filled)
+- Processing color (orange) combined with animation clearly indicates state
+
+### Technical implementation
+
+**VoiceInput.tsx changes:**
+- Added `processingOpacity` and `textOpacity` shared values
+- Added `withTiming` and `Easing` imports from reanimated
+- Processing state now triggers three synchronized animations:
+  - Scale: spring-based pulsing (1.0 → 1.06 → 1.0)
+  - Button opacity: timing-based breathing (1.0 → 0.6 → 1.0)
+  - Text opacity: timing-based breathing (1.0 → 0.5 → 1.0)
+- Replaced `ActivityIndicator` with mic icon
+- Status text uses `Animated.Text` with conditional animated style
+- Cleanup: cancel all animations when leaving processing state
+
+**Animation parameters:**
+```typescript
+// Scale breathing
+scale.value = withRepeat(
+  withSequence(
+    withSpring(1.06, { damping: 8, stiffness: 80 }),
+    withSpring(1, { damping: 8, stiffness: 80 })
+  ),
+  -1,
+  false
+)
+
+// Opacity breathing
+processingOpacity.value = withRepeat(
+  withTiming(0.6, {
+    duration: 1200,
+    easing: Easing.inOut(Easing.ease),
+  }),
+  -1,
+  true
+)
+```
+
+### Files changed
+
+- `apps/mobile/components/VoiceInput.tsx`: Enhanced processing animation
+
+### Benefits
+
+1. **Warm, not anxious**: Breathing animation feels calming vs. spinning
+2. **iOS-native feel**: Spring physics match Apple's animation style
+3. **Clear state indication**: Color + animation + icon all signal processing
+4. **Shorter perceived wait**: Engaging animation makes time feel faster
+5. **Consistent UX**: Same animation in CommandsScreen and onboarding screens
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: Commands feedback empathetic UI presentation
 
 Replaced the harsh danger box styling for command feedback with a warm, conversational design that feels like guidance rather than an error.
