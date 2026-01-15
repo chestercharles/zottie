@@ -126,7 +126,6 @@ export function SettingsScreen() {
                 value={editedName}
                 onChangeText={setEditedName}
                 placeholder="Household name"
-                autoFocus
               />
               <View style={styles.editButtons}>
                 <TouchableOpacity

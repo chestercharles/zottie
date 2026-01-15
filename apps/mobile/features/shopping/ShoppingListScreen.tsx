@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   FlatList,
   ActivityIndicator,
   RefreshControl,
@@ -270,9 +271,13 @@ export function ShoppingListScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={openAddSheet} style={{ marginRight: 8 }}>
+        <Pressable
+          onPress={openAddSheet}
+          style={{ marginRight: 8, padding: 4 }}
+          hitSlop={8}
+        >
           <Ionicons name="add" size={28} color="#9B59B6" />
-        </TouchableOpacity>
+        </Pressable>
       ),
     })
   }, [navigation, openAddSheet])
@@ -503,7 +508,6 @@ export function ShoppingListScreen() {
               onChangeText={setNewItemName}
               placeholder="Item name"
               placeholderTextColor="#999"
-              autoFocus
               editable={!createPlannedItemMutation.isPending}
               onSubmitEditing={handleCreatePlannedItem}
               returnKeyType="done"

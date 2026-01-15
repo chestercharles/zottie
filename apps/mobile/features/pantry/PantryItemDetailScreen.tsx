@@ -187,7 +187,6 @@ export function PantryItemDetailScreen() {
                 style={styles.nameInput}
                 value={editedName}
                 onChangeText={setEditedName}
-                autoFocus
                 selectTextOnFocus
                 onSubmitEditing={handleSaveName}
                 returnKeyType="done"

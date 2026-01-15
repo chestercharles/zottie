@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   FlatList,
   ActivityIndicator,
   RefreshControl,
@@ -288,15 +289,20 @@ export function PantryListScreen() {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={openAddSheet} style={{ marginRight: 16 }}>
+          <Pressable
+            onPress={openAddSheet}
+            style={{ marginRight: 16, padding: 4 }}
+            hitSlop={8}
+          >
             <Ionicons name="add" size={28} color="#3498DB" />
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             onPress={() => router.push('/pantry/settings')}
-            style={{ marginRight: 8 }}
+            style={{ marginRight: 8, padding: 4 }}
+            hitSlop={8}
           >
             <Ionicons name="settings-outline" size={24} color="#333" />
-          </TouchableOpacity>
+          </Pressable>
         </View>
       ),
     })
@@ -554,7 +560,6 @@ export function PantryListScreen() {
               onChangeText={setNewItemName}
               placeholder="Item name"
               placeholderTextColor="#999"
-              autoFocus
               editable={!createPantryItem.isPending}
               onSubmitEditing={handleAddItem}
               returnKeyType="done"

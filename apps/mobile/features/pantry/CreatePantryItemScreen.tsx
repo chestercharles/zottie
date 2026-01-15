@@ -55,7 +55,6 @@ export function CreatePantryItemScreen() {
         onChangeText={setName}
         placeholder="e.g. Milk, Eggs, Bread"
         editable={!createMutation.isPending}
-        autoFocus
       />
 
       <Text style={styles.label}>Status</Text>
