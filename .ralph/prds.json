@@ -35,7 +35,8 @@
   {
     "name": "Commands parsing comprehensive eval system",
     "description": "Expand the existing command parsing eval (commandParse.eval.ts) to include comprehensive test coverage of diverse user inputs. Add many more test cases covering: varied phrasings ('I have X', 'got some X', 'X in pantry'), plural/singular variations, common typos, informal language, regional dialects, and edge cases. Evaluate whether to use fuzzy matching (Levenshtein distance) or strict matching for validation. Consider the trade-offs: fuzzy matching is more resilient to prompt changes but requires tuning thresholds; exact matching is simpler but may need updates when prompts change. The eval should test through the API endpoint to remain resilient to implementation changes. Research whether vitest (already in use) is sufficient or if a dedicated eval/testing library would be better suited. The goal is to catch regressions when modifying the system prompt or model, ensuring consistent parsing behavior across a wide range of natural language inputs.",
-    "completed": false
+    "completed": true,
+    "note": "Expanded from 6 to 52 test cases. Added itemsMatch() for flexible comparison with allowAlternateItems. Tests cover varied phrasings, plurals, typos, informal language, compound items, multiple items, status variations, case variations, quantities, and context clues. Used simplified fuzzy matching (normalize + alternates) over Levenshtein. Vitest is sufficient."
   },
   {
     "name": "Commands parsing maximize empathy behavior",

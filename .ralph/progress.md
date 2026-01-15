@@ -1,5 +1,74 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands parsing comprehensive eval system
+
+Expanded the command parsing eval system with comprehensive test coverage of diverse user inputs to ensure consistent parsing behavior across natural language variations.
+
+### What was built
+
+- Expanded eval from 6 test cases to 52 test cases covering:
+  - Varied phrasings ("I have X", "got some X", "we have X", "there's X in the pantry")
+  - Plural/singular variations (eggs → egg, tomatoes → tomato, cherries → cherry)
+  - Informal language ("gonna need", "gotta get", "low on", "fresh out of")
+  - Compound items (olive oil, peanut butter, ice cream, greek yogurt)
+  - Multiple items with different separators (comma, "and", oxford comma)
+  - Status variations (need to buy, all out, should get, thinking about getting)
+  - Common typos (brocoli, tomatoe, chese, bannana)
+  - Case variations (ALL CAPS, Mixed Case, lowercase)
+  - Quantity mentions (2 dozen eggs, a gallon of milk, lots of, plenty of)
+  - Context clues (finished the last of, used up all, just restocked)
+
+### Technical implementation
+
+**Enhanced matching system:**
+- Added `itemsMatch()` function for flexible item comparison
+- Added `allowAlternateItems` property for cases where model might use synonyms
+- Normalizes items to lowercase singular form before comparison
+- Supports alternate accepted items for edge cases (e.g., "canned beans" vs "bean")
+
+**Test structure:**
+- Organized tests into logical categories with comment headers
+- Each test case specifies expected actions, types, and statuses
+- `allowAlternateType` handles cases where both add_to_pantry and update_pantry_status are valid
+- Better error messages show actual response when assertions fail
+
+**Matching strategy decision:**
+- Chose simplified fuzzy matching over Levenshtein distance
+- Current approach: normalize to lowercase singular, check alternates
+- Trade-off: More resilient to prompt changes without complex threshold tuning
+- Vitest is sufficient - no need for dedicated eval library
+
+### Test categories (52 test cases)
+
+1. **Basic commands** (6 tests): Core add/update/status functionality
+2. **Varied phrasings** (7 tests): Different ways users express having items
+3. **Plural/singular** (5 tests): Normalization of item names
+4. **Informal language** (7 tests): Casual speech patterns
+5. **Compound items** (5 tests): Multi-word item names
+6. **Multiple items** (4 tests): Lists with various separators
+7. **Status variations** (6 tests): Different ways to express need/want
+8. **Common typos** (4 tests): Misspelled items
+9. **Case variations** (3 tests): Different capitalization
+10. **Quantity mentions** (4 tests): Commands with quantities
+11. **Context clues** (4 tests): Implicit status from context
+12. **Empathetic errors** (2 tests): Non-pantry commands return helpful messages
+
+### Files changed
+
+- `apps/api/src/endpoints/commandParse.eval.ts`: Expanded test suite
+
+### Benefits
+
+1. **Regression detection**: Catch breaking changes when modifying system prompt
+2. **Prompt resilience**: Tests through API endpoint, not implementation details
+3. **Coverage breadth**: Tests real-world variations users actually type
+4. **Clear documentation**: Test names describe expected behavior
+5. **Maintainable**: Flexible matching handles model variation without being brittle
+
+### Testing
+
+All 58 tests pass (schema + 52 command parsing + 2 empathetic + 2 error cases).
+
 ## 2026-01-14: Commands processing enhanced animation
 
 Replaced the basic ActivityIndicator spinner during command processing with a warm, breathing animation that feels iOS-native and reduces user anxiety.

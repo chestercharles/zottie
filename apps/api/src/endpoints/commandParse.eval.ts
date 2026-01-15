@@ -15,18 +15,39 @@ interface CommandParseResponse {
   }
 }
 
+type ActionType = 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
+type ItemStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+
 interface EvalCase {
   name: string
   command: string
   expectedActions: Array<{
-    type: 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
+    type: ActionType
     item: string
-    status?: 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+    status?: ItemStatus
   }>
-  allowAlternateType?: 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
+  allowAlternateType?: ActionType
+  allowAlternateItems?: string[]
+}
+
+function normalizeItem(item: string): string {
+  return item.toLowerCase().replace(/s$/, '')
+}
+
+function itemsMatch(actual: string, expected: string, alternates?: string[]): boolean {
+  const normalizedActual = normalizeItem(actual)
+  const normalizedExpected = normalizeItem(expected)
+
+  if (normalizedActual === normalizedExpected) return true
+  if (alternates?.some(alt => normalizeItem(alt) === normalizedActual)) return true
+
+  return false
 }
 
 const evalCases: EvalCase[] = [
+  // ===========================================
+  // BASIC COMMANDS - Core functionality
+  // ===========================================
   {
     name: 'add single item to pantry',
     command: 'add milk to the pantry',
@@ -70,6 +91,421 @@ const evalCases: EvalCase[] = [
     command: 'planning to get butter',
     expectedActions: [
       { type: 'add_to_pantry', item: 'butter', status: 'planned' },
+    ],
+  },
+
+  // ===========================================
+  // VARIED PHRASINGS - Different ways to say "I have"
+  // ===========================================
+  {
+    name: 'phrasing: I have X',
+    command: 'I have rice',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'rice', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'phrasing: got some X',
+    command: 'got some pasta',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'pasta', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'phrasing: we have X',
+    command: 'we have tomatoes',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'tomato', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'phrasing: theres X in the pantry',
+    command: 'theres flour in the pantry',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'flour', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'phrasing: X is in stock',
+    command: 'sugar is in stock',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'sugar', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'phrasing: picked up X',
+    command: 'picked up some chicken',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'chicken', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'phrasing: stocked up on X',
+    command: 'stocked up on canned beans',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'canned bean', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+    allowAlternateItems: ['bean', 'beans', 'canned beans'],
+  },
+
+  // ===========================================
+  // PLURAL/SINGULAR VARIATIONS
+  // ===========================================
+  {
+    name: 'plural: adds eggs (should normalize to egg)',
+    command: 'add eggs',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'egg', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'plural: potatoes (should normalize)',
+    command: 'I have potatoes',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'potato', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'plural: tomatoes (should normalize)',
+    command: 'add tomatoes',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'tomato', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'plural: cherries (should normalize)',
+    command: 'got cherries',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'cherry', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+    allowAlternateItems: ['cherries'],
+  },
+  {
+    name: 'singular: already singular',
+    command: 'add milk',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+    ],
+  },
+
+  // ===========================================
+  // INFORMAL LANGUAGE & CASUAL SPEECH
+  // ===========================================
+  {
+    name: 'informal: gonna need X',
+    command: 'gonna need more coffee',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'coffee', status: 'out_of_stock' },
+    ],
+    allowAlternateItems: ['more coffee'],
+  },
+  {
+    name: 'informal: gotta get X',
+    command: 'gotta get olive oil',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'olive oil', status: 'out_of_stock' },
+    ],
+  },
+  {
+    name: 'informal: running out of X',
+    command: 'running out of paper towels',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'paper towel', status: 'running_low' },
+    ],
+    allowAlternateItems: ['paper towels'],
+  },
+  {
+    name: 'informal: almost out of X',
+    command: 'almost out of dish soap',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'dish soap', status: 'running_low' },
+    ],
+  },
+  {
+    name: 'informal: need to grab X',
+    command: 'need to grab some onions',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'onion', status: 'out_of_stock' },
+    ],
+  },
+  {
+    name: 'informal: low on X',
+    command: 'low on cereal',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'cereal', status: 'running_low' },
+    ],
+  },
+  {
+    name: 'informal: fresh out of X',
+    command: 'fresh out of milk',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'out_of_stock' },
+    ],
+  },
+
+  // ===========================================
+  // COMPOUND ITEMS & SPECIFIC PRODUCTS
+  // ===========================================
+  {
+    name: 'compound: olive oil',
+    command: 'add olive oil',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'olive oil', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'compound: peanut butter',
+    command: 'we have peanut butter',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'peanut butter', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'compound: soy sauce',
+    command: 'got soy sauce',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'soy sauce', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'compound: ice cream',
+    command: 'running low on ice cream',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'ice cream', status: 'running_low' },
+    ],
+  },
+  {
+    name: 'compound: greek yogurt',
+    command: 'add greek yogurt',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'greek yogurt', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['yogurt'],
+  },
+
+  // ===========================================
+  // MULTIPLE ITEMS WITH VARIOUS SEPARATORS
+  // ===========================================
+  {
+    name: 'multiple: comma separated',
+    command: 'add milk, eggs, bread',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'egg', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'bread', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'multiple: and separated',
+    command: 'I have apples and pears and grapes',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'apple', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'pear', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'grape', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'multiple: oxford comma',
+    command: 'got carrots, celery, and cucumbers',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'carrot', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'celery', status: 'in_stock' },
+      { type: 'add_to_pantry', item: 'cucumber', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'multiple: mixed status (all running low)',
+    command: "we're running low on salt, pepper, and garlic",
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'salt', status: 'running_low' },
+      { type: 'add_to_pantry', item: 'pepper', status: 'running_low' },
+      { type: 'add_to_pantry', item: 'garlic', status: 'running_low' },
+    ],
+  },
+
+  // ===========================================
+  // STATUS VARIATIONS
+  // ===========================================
+  {
+    name: 'status: need to buy',
+    command: 'need to buy lettuce',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'lettuce', status: 'out_of_stock' },
+    ],
+  },
+  {
+    name: 'status: all out',
+    command: 'all out of ketchup',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'ketchup', status: 'out_of_stock' },
+    ],
+  },
+  {
+    name: 'status: need more',
+    command: 'need more napkins',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'napkin', status: 'out_of_stock' },
+    ],
+    allowAlternateItems: ['napkins'],
+  },
+  {
+    name: 'status: should get',
+    command: 'should get some mustard',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'mustard', status: 'planned' },
+    ],
+  },
+  {
+    name: 'status: want to get',
+    command: 'want to get avocados',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'avocado', status: 'planned' },
+    ],
+  },
+  {
+    name: 'status: thinking about getting',
+    command: 'thinking about getting salmon',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'salmon', status: 'planned' },
+    ],
+  },
+
+  // ===========================================
+  // COMMON TYPOS & MISSPELLINGS
+  // ===========================================
+  {
+    name: 'typo: brocoli (missing c)',
+    command: 'add brocoli',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'broccoli', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['brocoli'],
+  },
+  {
+    name: 'typo: tomatoe (extra e)',
+    command: 'I have tomatoe',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'tomato', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['tomatoe'],
+  },
+  {
+    name: 'typo: chese (missing e)',
+    command: 'got some chese',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'cheese', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+    allowAlternateItems: ['chese'],
+  },
+  {
+    name: 'typo: bannana (extra n)',
+    command: 'add bannana',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'banana', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['bannana'],
+  },
+
+  // ===========================================
+  // CASE VARIATIONS
+  // ===========================================
+  {
+    name: 'case: ALL CAPS',
+    command: 'ADD MILK',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'case: Mixed Case',
+    command: 'Add Chicken Breast',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'chicken breast', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['chicken'],
+  },
+  {
+    name: 'case: all lowercase',
+    command: 'running low on orange juice',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'orange juice', status: 'running_low' },
+    ],
+  },
+
+  // ===========================================
+  // QUANTITY MENTIONS (should ignore quantity, extract item)
+  // ===========================================
+  {
+    name: 'quantity: with number',
+    command: 'add 2 dozen eggs',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'egg', status: 'in_stock' },
+    ],
+    allowAlternateItems: ['dozen eggs', '2 dozen eggs'],
+  },
+  {
+    name: 'quantity: with word',
+    command: 'got a gallon of milk',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'milk', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'quantity: some/few',
+    command: 'have a few lemons',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'lemon', status: 'in_stock' },
+    ],
+  },
+  {
+    name: 'quantity: plenty of',
+    command: 'add rice, we have plenty',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'rice', status: 'in_stock' },
+    ],
+  },
+
+  // ===========================================
+  // CONTEXT CLUES FOR STATUS
+  // ===========================================
+  {
+    name: 'context: finished the X',
+    command: 'finished the last of the coffee',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'coffee', status: 'out_of_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'context: used up X',
+    command: 'used up all the flour',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'flour', status: 'out_of_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'context: just restocked X',
+    command: 'just restocked the pantry with pasta',
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'pasta', status: 'in_stock' },
+    ],
+    allowAlternateType: 'update_pantry_status',
+  },
+  {
+    name: 'context: about to run out',
+    command: "we're about to run out of dish soap",
+    expectedActions: [
+      { type: 'add_to_pantry', item: 'dish soap', status: 'running_low' },
     ],
   },
 ]
@@ -142,9 +578,9 @@ describe('Command Parse Endpoint Eval', () => {
 
         for (const expected of evalCase.expectedActions) {
           const matchingAction = data.result.actions.find(
-            (a) => a.item === expected.item || a.item === expected.item.replace(/s$/, '')
+            (a) => itemsMatch(a.item, expected.item, evalCase.allowAlternateItems)
           )
-          expect(matchingAction).toBeDefined()
+          expect(matchingAction, `Expected to find action with item matching "${expected.item}" but got: ${JSON.stringify(data.result.actions)}`).toBeDefined()
 
           if (evalCase.allowAlternateType) {
             expect([expected.type, evalCase.allowAlternateType]).toContain(matchingAction?.type)
