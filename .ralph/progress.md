@@ -1,5 +1,82 @@
 # zottie Development Progress
 
+## 2026-01-14: Commands feedback empathetic UI presentation
+
+Replaced the harsh danger box styling for command feedback with a warm, conversational design that feels like guidance rather than an error.
+
+### What was built
+
+- Replaced red/danger error container with neutral, warm feedback styling
+- Added conversational chat bubble icon to make feedback feel like a helpful response
+- Updated colors from harsh red (#FADBD8, #C0392B) to soft gray (#F5F6F7, #5D6D7E)
+- Changed layout to horizontal with icon + text for a message-like appearance
+
+### User experience
+
+When the system doesn't understand a command, users now see:
+1. A soft gray card (not red/danger styling)
+2. A chat bubble icon that signals "here's a response" rather than "error"
+3. The message text in a readable, non-alarming gray color
+4. Layout feels like part of a conversation, not a failure state
+
+### Design decisions
+
+**Conversational design:**
+- Used `chatbubble-ellipses-outline` icon to reinforce that this is the system talking back
+- Horizontal layout (icon + text) mimics a chat message pattern
+- Rounded corners (12px) feel modern and friendly
+
+**Warm, neutral colors:**
+- Background: `#F5F6F7` - light gray, feels informational not alarming
+- Text/Icon: `#5D6D7E` - readable gray that's calm and neutral
+- Removed all red/danger coloring that implied user made a mistake
+
+**Readable text:**
+- Increased font size from 14px to 15px for better readability
+- Added line height (22px) for comfortable reading
+- Left-aligned text (with icon) instead of centered for natural reading flow
+
+### Technical implementation
+
+**CommandsScreen.tsx changes:**
+- Renamed `errorContainer` → `feedbackContainer`
+- Renamed `errorText` → `feedbackText`
+- Added `feedbackIcon` style for the chat bubble icon
+- Added Ionicons `chatbubble-ellipses-outline` icon
+- Updated both feedback displays (main screen and confirmation screen)
+
+**Styling:**
+```typescript
+feedbackContainer: {
+  backgroundColor: '#F5F6F7',  // Soft gray, not red
+  padding: 16,
+  borderRadius: 12,
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+}
+feedbackText: {
+  color: '#5D6D7E',  // Calm gray, not danger red
+  fontSize: 15,
+  lineHeight: 22,
+}
+```
+
+### Files changed
+
+- `apps/mobile/features/commands/CommandsScreen.tsx`: Updated feedback UI styling
+
+### Benefits
+
+1. **Supportive, not patronizing**: Feedback feels like helpful guidance
+2. **Reduced anxiety**: No red colors that imply user error
+3. **Conversational flow**: Message bubble design feels like part of a dialogue
+4. **Consistent with UX principles**: Aligns with zottie's empathetic, user-first approach
+5. **Better readability**: Improved typography for longer feedback messages
+
+### Testing
+
+All TypeScript type checks and linting passed successfully.
+
 ## 2026-01-14: Update shopping list onboarding screen to use voice input
 
 Updated the shopping list onboarding screen to use the VoiceInput component, providing a consistent voice-first experience across both onboarding input screens.

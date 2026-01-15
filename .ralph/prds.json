@@ -50,7 +50,8 @@
   {
     "name": "Commands feedback empathetic UI presentation",
     "description": "Replace the danger box styling currently used to display command feedback when the system doesn't understand user input. The feedback should feel like a response from someone trying to help, not an error message. Remove red/danger colors and harsh styling. Instead, use a neutral or warm color scheme with a conversational, supportive design that matches the tone of helpful guidance. The visual treatment should make the feedback feel like part of a conversation rather than a warning or failure state. Consider using a message bubble design or a subtle info card with softer styling. The goal is to make users feel supported and guided toward success, not like they've made a mistake.",
-    "completed": false
+    "completed": true,
+    "note": "Replaced red danger styling with soft gray message bubble design. Uses chatbubble-ellipses-outline icon and warm neutral colors (#F5F6F7, #5D6D7E) for conversational feel."
   },
   {
     "name": "Abstract voice recording into reusable VoiceInput component",

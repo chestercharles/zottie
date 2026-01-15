@@ -102,8 +102,14 @@ export function CommandsScreen() {
           ))}
 
           {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={styles.feedbackContainer}>
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={20}
+                color="#5D6D7E"
+                style={styles.feedbackIcon}
+              />
+              <Text style={styles.feedbackText}>{error}</Text>
             </View>
           )}
         </ScrollView>
@@ -144,8 +150,14 @@ export function CommandsScreen() {
         />
 
         {error && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View style={styles.feedbackContainer}>
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={20}
+              color="#5D6D7E"
+              style={styles.feedbackIcon}
+            />
+            <Text style={styles.feedbackText}>{error}</Text>
           </View>
         )}
 
@@ -171,17 +183,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
   },
-  errorContainer: {
-    backgroundColor: '#FADBD8',
+  feedbackContainer: {
+    backgroundColor: '#F5F6F7',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginTop: 24,
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
-  errorText: {
-    color: '#C0392B',
-    fontSize: 14,
-    textAlign: 'center',
+  feedbackIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  feedbackText: {
+    color: '#5D6D7E',
+    fontSize: 15,
+    lineHeight: 22,
+    flex: 1,
   },
   helpContainer: {
     marginTop: 48,
