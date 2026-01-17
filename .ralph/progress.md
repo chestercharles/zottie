@@ -1,5 +1,39 @@
 # zottie Development Progress
 
+## 2026-01-17: Move Mark as Purchased action to header
+
+**Feature:** Relocated the "Mark as Purchased" button from the bottom of the shopping list to the navigation header
+
+**Changes:**
+
+- Updated `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
+  - Added cart icon with badge to the header right section that appears when items are checked
+  - Badge shows the count of checked items
+  - Removed the large bottom "Mark as Purchased" button container
+  - Kept the "Reset checkmarks" option in a simpler bottom container
+  - Added new styles for header elements (`headerRight`, `headerPurchaseButton`, `headerBadge`, `headerBadgeText`)
+  - Wrapped `handleMarkAsPurchased` in `useCallback` for proper dependency handling
+  - Moved `useLayoutEffect` for header options to after `checkedCount` is defined
+
+**Technical Details:**
+
+The previous implementation showed a large green "Mark as Purchased" button at the bottom of the screen whenever items were checked. This was too prominent and obstructed scrolling while actively shopping.
+
+The new implementation:
+1. Shows a cart icon with a green badge (showing checked count) in the header next to the add button
+2. Cart icon only appears when at least one item is checked
+3. Tapping the cart icon triggers the mark as purchased flow
+4. Shows loading indicator in place of the cart icon during the mutation
+5. Keeps the "Reset checkmarks" link at the bottom for users who want to uncheck all items
+
+This follows iOS design patterns where primary actions are placed in the navigation header rather than floating at the bottom.
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Remove redundant status display on edit item page
 
 **Feature:** Removed the redundant status badge from the edit item page

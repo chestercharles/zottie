@@ -67,7 +67,7 @@
   {
     "name": "Move Mark as Purchased action to header",
     "description": "The 'Mark as Purchased' button currently appears at the bottom of the shopping list as soon as any item is checked, and it's too prominent and in-the-way while actively shopping. Move this action to the header/navigation area so it's accessible but doesn't obstruct scrolling through the list.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add choice when removing item from shopping list",

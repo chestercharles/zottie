@@ -236,22 +236,6 @@ export function ShoppingListScreen() {
     }
   }, [])
 
-  useLayoutEffect(() => {
-    const parent = navigation.getParent()
-    parent?.setOptions({
-      headerRight: ({ tintColor }: { tintColor?: string }) => (
-        <TouchableOpacity
-          onPress={openAddSheet}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Add item"
-        >
-          <Ionicons name="add" size={28} color={tintColor} />
-        </TouchableOpacity>
-      ),
-    })
-  }, [navigation, openAddSheet])
-
   const renderBackdrop = useCallback(
     (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
       <BottomSheetBackdrop
@@ -280,7 +264,7 @@ export function ShoppingListScreen() {
     setCheckedIds(newCheckedIds)
   }
 
-  const handleMarkAsPurchased = () => {
+  const handleMarkAsPurchased = useCallback(() => {
     if (checkedIds.size === 0) return
 
     const itemIds = Array.from(checkedIds)
@@ -298,7 +282,7 @@ export function ShoppingListScreen() {
         )
       },
     })
-  }
+  }, [checkedIds, markAsPurchasedMutation])
 
   const handleResetCheckmarks = () => {
     Alert.alert(
@@ -348,6 +332,47 @@ export function ShoppingListScreen() {
     const checked = items.filter(item => checkedIds.has(item.id))
     return [...unchecked, ...checked]
   }, [items, checkedIds])
+
+  useLayoutEffect(() => {
+    const parent = navigation.getParent()
+    parent?.setOptions({
+      headerRight: ({ tintColor }: { tintColor?: string }) => (
+        <View style={styles.headerRight}>
+          {checkedCount > 0 && (
+            <TouchableOpacity
+              onPress={handleMarkAsPurchased}
+              hitSlop={8}
+              disabled={markAsPurchasedMutation.isPending}
+              accessibilityRole="button"
+              accessibilityLabel={`Mark ${checkedCount} ${checkedCount === 1 ? 'item' : 'items'} as purchased`}
+              style={{ marginRight: spacing.md }}
+            >
+              {markAsPurchasedMutation.isPending ? (
+                <ActivityIndicator size="small" color={tintColor} />
+              ) : (
+                <View style={styles.headerPurchaseButton}>
+                  <Ionicons name="cart" size={22} color={colors.feedback.success} />
+                  <View style={[styles.headerBadge, { backgroundColor: colors.feedback.success }]}>
+                    <Text variant="caption" color="inverse" style={styles.headerBadgeText}>
+                      {checkedCount}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={openAddSheet}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Add item"
+          >
+            <Ionicons name="add" size={28} color={tintColor} />
+          </TouchableOpacity>
+        </View>
+      ),
+    })
+  }, [navigation, openAddSheet, checkedCount, handleMarkAsPurchased, markAsPurchasedMutation.isPending, colors, spacing])
 
   if (isLoading) {
     return (
@@ -413,7 +438,7 @@ export function ShoppingListScreen() {
       {checkedCount > 0 && (
         <View
           style={[
-            styles.purchaseButtonContainer,
+            styles.resetButtonContainer,
             {
               padding: spacing.md,
               paddingBottom: spacing.xl,
@@ -423,41 +448,7 @@ export function ShoppingListScreen() {
           ]}
         >
           <TouchableOpacity
-            style={[
-              styles.purchaseButton,
-              {
-                backgroundColor: markAsPurchasedMutation.isPending
-                  ? colors.action.disabled
-                  : colors.feedback.success,
-                paddingVertical: spacing.md,
-                paddingHorizontal: spacing.lg,
-                borderRadius: radius.lg,
-              },
-            ]}
-            onPress={handleMarkAsPurchased}
-            disabled={markAsPurchasedMutation.isPending}
-            accessibilityRole="button"
-            accessibilityLabel={`Mark ${checkedIds.size} ${checkedIds.size === 1 ? 'item' : 'items'} as purchased`}
-          >
-            {markAsPurchasedMutation.isPending ? (
-              <ActivityIndicator size="small" color={colors.text.inverse} />
-            ) : (
-              <>
-                <Ionicons
-                  name="cart"
-                  size={20}
-                  color={colors.text.inverse}
-                  style={{ marginRight: spacing.sm }}
-                />
-                <Text variant="body.primary" color="inverse" style={styles.purchaseButtonText}>
-                  Mark {checkedCount} {checkedCount === 1 ? 'item' : 'items'} as
-                  purchased
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.resetButton, { paddingVertical: spacing.sm, marginTop: spacing.sm }]}
+            style={styles.resetButton}
             onPress={handleResetCheckmarks}
             disabled={markAsPurchasedMutation.isPending}
             accessibilityRole="button"
@@ -587,16 +578,30 @@ const styles = StyleSheet.create({
   itemName: {
     fontWeight: '600',
   },
-  purchaseButtonContainer: {
-    borderTopWidth: 1,
-  },
-  purchaseButton: {
+  headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  purchaseButtonText: {
+  headerPurchaseButton: {
+    position: 'relative',
+  },
+  headerBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  headerBadgeText: {
+    fontSize: 11,
     fontWeight: '600',
+  },
+  resetButtonContainer: {
+    borderTopWidth: 1,
   },
   resetButton: {
     flexDirection: 'row',
