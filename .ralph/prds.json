@@ -43,5 +43,15 @@
     "name": "Direct swipe-to-delete on shopping list items",
     "description": "Simplify the delete interaction for shopping list items. Currently, swiping left on a shopping list item reveals a delete button that must be tapped to complete the deletion. Change this to a direct swipe-to-delete gesture: when the user swipes left past a threshold, the item should animate sliding off the screen and be deleted immediately. This reduces the deletion from a two-step action (swipe then tap) to a single gesture, making list management faster and more fluid. The slide-off animation should feel smooth and natural, providing clear feedback that the item is being removed. The implementation should follow iOS Human Interface Guidelines for destructive swipe actions (including appropriate gesture thresholds, spring animations, and visual feedback) and use zottie's design system tokens for any colors or styling to ensure consistency across the app.",
     "completed": true
+  },
+  {
+    "name": "Shopping list tap toggles checked state",
+    "description": "Tapping a shopping list item currently opens an item detail page, which interrupts the user's flow when they simply want to mark an item as bought. Change the tap behavior so that tapping an item toggles its checked/unchecked state directly without navigating anywhere. This matches the mental model users have when shopping - they want to quickly check off items as they put them in their cart. Opening a detail page for every tap creates friction and frustration, especially when users are in the store trying to move quickly through their list. The item detail page can still be accessible through a different gesture (like long-press or an edit button) if needed, but the primary tap interaction should be the quick toggle.",
+    "completed": true
+  },
+  {
+    "name": "Consistent header action icon button colors",
+    "description": "The plus button in the pantry and shopping list screen headers currently uses a purple color, which is inconsistent with the other action icon buttons in the header. All header action icon buttons should use the same color for visual consistency. Update the plus button to match the color used by the other header action icons (such as search or settings icons). This affects both the pantry screen header and the shopping list screen header where the add/plus button appears.",
+    "completed": false
   }
 ]

@@ -14,7 +14,7 @@ import {
   useRef,
   useLayoutEffect,
 } from 'react'
-import { useRouter, useNavigation } from 'expo-router'
+import { useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Reanimated, {
@@ -59,7 +59,6 @@ const DELETE_THRESHOLD = 100
 function ShoppingItemRow({
   item,
   isChecked,
-  onPress,
   onToggleCheck,
   onDelete,
   colors,
@@ -68,7 +67,6 @@ function ShoppingItemRow({
 }: {
   item: ShoppingItem
   isChecked: boolean
-  onPress: () => void
   onToggleCheck: () => void
   onDelete: () => void
   colors: ReturnType<typeof useTheme>['colors']
@@ -173,51 +171,50 @@ function ShoppingItemRow({
       </Reanimated.View>
 
       <GestureDetector gesture={panGesture}>
-        <Reanimated.View
-          style={[
-            styles.itemRow,
-            {
-              backgroundColor: colors.surface.grouped,
-              borderRadius: radius.lg,
-              padding: spacing.md,
-            },
-            rowAnimatedStyle,
-          ]}
-        >
+        <Reanimated.View style={rowAnimatedStyle}>
           <TouchableOpacity
-            style={[styles.checkbox, { marginRight: spacing.sm }]}
+            style={[
+              styles.itemRow,
+              {
+                backgroundColor: colors.surface.grouped,
+                borderRadius: radius.lg,
+                padding: spacing.md,
+              },
+            ]}
             onPress={onToggleCheck}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isChecked }}
-            accessibilityLabel={`${item.name}`}
+            accessibilityLabel={`${item.name}, ${isChecked ? 'checked' : 'unchecked'}`}
           >
-            <Ionicons
-              name={isChecked ? 'checkbox' : 'square-outline'}
-              size={24}
-              color={isChecked ? colors.feedback.success : colors.text.tertiary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.itemContent} onPress={onPress}>
-            <View style={styles.itemDetails}>
-              <Text
-                variant="body.primary"
-                style={[
-                  styles.itemName,
-                  isChecked && {
-                    textDecorationLine: 'line-through',
-                    color: colors.text.tertiary,
-                  },
-                ]}
-              >
-                {item.name}
-              </Text>
-              <Text variant="caption" color="secondary" style={{ marginTop: 2 }}>
-                {itemTypeLabels[item.itemType]}
-              </Text>
+            <View style={{ marginRight: spacing.sm }}>
+              <Ionicons
+                name={isChecked ? 'checkbox' : 'square-outline'}
+                size={24}
+                color={isChecked ? colors.feedback.success : colors.text.tertiary}
+              />
             </View>
-            <View style={{ marginLeft: spacing.sm }}>
-              <StatusBadge status={item.status} />
+            <View style={styles.itemContent}>
+              <View style={styles.itemDetails}>
+                <Text
+                  variant="body.primary"
+                  style={[
+                    styles.itemName,
+                    isChecked && {
+                      textDecorationLine: 'line-through',
+                      color: colors.text.tertiary,
+                    },
+                  ]}
+                >
+                  {item.name}
+                </Text>
+                <Text variant="caption" color="secondary" style={{ marginTop: 2 }}>
+                  {itemTypeLabels[item.itemType]}
+                </Text>
+              </View>
+              <View style={{ marginLeft: spacing.sm }}>
+                <StatusBadge status={item.status} />
+              </View>
             </View>
           </TouchableOpacity>
         </Reanimated.View>
@@ -227,7 +224,6 @@ function ShoppingItemRow({
 }
 
 export function ShoppingListScreen() {
-  const router = useRouter()
   const navigation = useNavigation()
   const { colors, spacing, radius, typography } = useTheme()
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
@@ -399,20 +395,6 @@ export function ShoppingListScreen() {
             <ShoppingItemRow
               item={item}
               isChecked={checkedIds.has(item.id)}
-              onPress={() =>
-                router.push({
-                  pathname: '/pantry/[id]',
-                  params: {
-                    id: item.id,
-                    name: item.name,
-                    status: item.status,
-                    itemType: item.itemType,
-                    createdAt: item.createdAt.toString(),
-                    updatedAt: item.updatedAt.toString(),
-                    purchasedAt: item.purchasedAt?.toString() ?? '',
-                  },
-                })
-              }
               onToggleCheck={() => handleToggleCheck(item.id)}
               onDelete={() => deletePantryItem.mutate(item.id)}
               colors={colors}
@@ -591,7 +573,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  checkbox: {},
   itemContent: {
     flex: 1,
     flexDirection: 'row',

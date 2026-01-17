@@ -1,5 +1,18 @@
 # zottie Development Progress
 
+## Shopping list tap toggles checked state
+
+Changed the tap behavior on shopping list items so that tapping anywhere on an item toggles its checked/unchecked state directly, rather than navigating to a detail page. This matches the mental model users have when shopping - they want to quickly check off items as they put them in their cart.
+
+Changes:
+- Made the entire shopping list row tappable to toggle the checked state
+- Removed navigation to the pantry item detail page on tap
+- The checkbox icon visually indicates the checked state
+- Swipe-to-delete gesture still works for removing items
+- The bulk "Mark as purchased" button still works for checked items
+
+The change reduces friction when users are in the store trying to move quickly through their list. Previously, tapping an item would open a detail page which interrupted the shopping flow.
+
 ## Automatic OTA updates
 
 Enabled automatic over-the-air updates using Expo's expo-updates package. Users will receive the latest app version without needing to go through the App Store. The app checks for updates on launch and silently downloads any available updates in the background, applying them on the next restart.
