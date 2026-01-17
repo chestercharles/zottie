@@ -23,5 +23,55 @@
     "name": "Move checked shopping list items to bottom",
     "description": "When users are actively shopping and check items off their shopping list, those checked items should automatically move to the bottom of the list. This mirrors the behavior of iOS Notes app checklists. The use case is that while shopping in-store, users check items as they put them in their cart, but don't immediately mark them as purchased. Moving checked items to the bottom keeps the unchecked (still-needed) items at the top where they're most visible and actionable. Checked items remain visible at the bottom of the list in their checked state until the user explicitly marks them as purchased (which is a separate action).",
     "completed": true
+  },
+  {
+    "name": "Intelligent pluralization for voice commands",
+    "description": "When users add items via voice commands, the backend command parser should be resilient to imperfect voice-to-text input by intelligently pluralizing common grocery items. Voice-to-text happens on-device and may not perfectly capture what the user said (e.g., missing the 's' at the end of words). The parser should recognize that people typically buy 'eggs' not 'egg', 'tomatoes' not 'tomato', 'grapes' not 'grape', etc. When processing voice commands (not typed commands), if the parsed item name is a common grocery item that's typically purchased in plural form, the parser should automatically adjust it to the plural form before adding it to the user's list. This makes the voice command experience more natural and robust against environmental factors beyond our control.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Add Assistant tab with voice button and canned prompts",
+    "description": "Add a new 'Assistant' tab to the app alongside existing tabs (does NOT replace the Commands tab). When opened, the tab shows a prominent voice input button at the top, followed by 3-4 canned prompt buttons for common actions like 'Update pantry items', 'Help me plan meals', and 'Add to shopping list'. Nothing needs to be functional yet - the voice button and prompt buttons are just UI placeholders. This PRD is only about getting the tab in place with the visual elements.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Enable voice input on Assistant tab",
+    "description": "Make the voice button on the Assistant tab functional. User can tap the voice button, speak, and see their transcribed text appear on screen. This PRD is just about capturing and displaying voice input - no LLM response yet.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Connect Assistant to streaming LLM backend",
+    "description": "Send the user's voice input (or canned prompt) to an LLM backend and display the streaming response. Responses should appear word-by-word as they're generated. The LLM should have context of the user's pantry and shopping list data so it can answer questions about their groceries. This is read-only - the assistant can answer questions but cannot take actions yet.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Enable canned prompt buttons on Assistant tab",
+    "description": "Make the canned prompt buttons functional. When user taps a button like 'Update pantry items' or 'Help me plan meals', it sends that prompt to the LLM and starts a guided conversation focused on that task.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Add human-in-the-loop tool calling to Assistant",
+    "description": "Allow the Assistant to propose actions like adding items, marking things out of stock, or updating the shopping list. When the assistant wants to take an action, it shows the user what it plans to do and asks for confirmation before executing. User can approve or reject the proposed actions.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Add text input option to Assistant tab",
+    "description": "Add a secondary text input field to the Assistant tab for when voice isn't convenient. Voice remains the primary interaction method, but users can also type their requests.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Add conversation persistence to Assistant tab",
+    "description": "Save conversation history so users can return to previous conversations. Conversations should automatically clear after being inactive for a day.",
+    "completed": false
+  },
+  {
+    "name": "Move Mark as Purchased action to header",
+    "description": "The 'Mark as Purchased' button currently appears at the bottom of the shopping list as soon as any item is checked, and it's too prominent and in-the-way while actively shopping. Move this action to the header/navigation area so it's accessible but doesn't obstruct scrolling through the list.",
+    "completed": false
+  },
+  {
+    "name": "Add choice when removing item from shopping list",
+    "description": "When a user swipes to remove an item from the shopping list, show two options: 'Already have it' and 'Don't want to buy it'. If they choose 'Already have it', the item is marked as in-stock in the pantry. If they choose 'Don't want to buy it', the item is removed from the shopping list without changing its pantry status - it goes into a dormant state so it won't keep reappearing on the shopping list. This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.",
+    "completed": false
   }
 ]
