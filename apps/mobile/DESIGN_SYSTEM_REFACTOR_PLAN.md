@@ -20,7 +20,7 @@ Create the infrastructure that all components will use.
 - [x] Choose specific hex value for "muted indigo" accent
 
 ### 1.2 Spacing Tokens
-- [ ] Create `lib/theme/spacing.ts` with spacing scale
+- [x] Create `lib/theme/spacing.ts` with spacing scale
   - `space.xs`: 4
   - `space.sm`: 8
   - `space.md`: 16
@@ -295,7 +295,7 @@ Update each screen to use design tokens and new components.
 
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
-| 1. Foundation | 14 | 4 | In Progress |
+| 1. Foundation | 14 | 5 | In Progress |
 | 2. Core Components | 9 | 0 | Not Started |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
@@ -303,7 +303,7 @@ Update each screen to use design tokens and new components.
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **58** | **4** | **7%** |
+| **Total** | **58** | **5** | **9%** |
 
 ---
 
