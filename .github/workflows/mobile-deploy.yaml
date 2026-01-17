@@ -7,10 +7,10 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Build or OTA based on version bump
+  build:
+    name: Build and submit to TestFlight
     runs-on: ubuntu-latest
-    concurrency: mobile-deploy
+    concurrency: mobile-build
     defaults:
       run:
         working-directory: apps/mobile
@@ -19,6 +19,90 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
+      - name: 🔍 Check if version was bumped
+        id: check
+        run: |
+          OLD=$(git show HEAD^:apps/mobile/package.json | jq -r '.version' || echo "null")
+          NEW=$(jq -r '.version' apps/mobile/package.json || echo "null")
+          echo "Previous version: $OLD"
+          echo "Current version: $NEW"
+
+          if [ "$OLD" != "$NEW" ] && [ "$OLD" != "null" ] && [ "$NEW" != "null" ]; then
+            echo "Version bumped: $OLD → $NEW"
+            echo "bumped=true" >> $GITHUB_OUTPUT
+            echo "### Build - Version Bumped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- Version: \`$OLD\` → \`$NEW\`" >> $GITHUB_STEP_SUMMARY
+            echo "- Building and submitting to TestFlight..." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Version unchanged: $NEW - skipping build"
+            echo "bumped=false" >> $GITHUB_OUTPUT
+            echo "### Build - Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- Version unchanged: \`$NEW\`" >> $GITHUB_STEP_SUMMARY
+            echo "- No build needed" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+      - uses: pnpm/action-setup@v4
+        if: steps.check.outputs.bumped == 'true'
+
+      - name: 🏗 Setup Node
+        if: steps.check.outputs.bumped == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: 🏗 Setup EAS
+        if: steps.check.outputs.bumped == 'true'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        if: steps.check.outputs.bumped == 'true'
+        run: pnpm install
+
+      - name: 🚀 Build and submit to TestFlight
+        if: steps.check.outputs.bumped == 'true'
+        run: eas build -p ios --profile production --non-interactive --auto-submit
+
+  ota:
+    name: Create OTA update
+    runs-on: ubuntu-latest
+    concurrency: mobile-ota
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🔍 Check if version was bumped
+        id: version-check
+        run: |
+          OLD=$(git show HEAD^:apps/mobile/package.json | jq -r '.version' || echo "null")
+          NEW=$(jq -r '.version' apps/mobile/package.json || echo "null")
+          echo "Previous version: $OLD"
+          echo "Current version: $NEW"
+
+          if [ "$OLD" != "$NEW" ] && [ "$OLD" != "null" ] && [ "$NEW" != "null" ]; then
+            echo "Version bumped: $OLD → $NEW - skipping OTA"
+            echo "bumped=true" >> $GITHUB_OUTPUT
+            echo "### OTA - Skipped (Version Bumped)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- Version: \`$OLD\` → \`$NEW\`" >> $GITHUB_STEP_SUMMARY
+            echo "- Build job will handle this deployment" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          else
+            echo "Version unchanged: $NEW - checking for native changes"
+            echo "bumped=false" >> $GITHUB_OUTPUT
+          fi
 
       - uses: pnpm/action-setup@v4
 
@@ -37,38 +121,10 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🔍 Detect version bump
-        id: detect
-        run: |
-          OLD=$(git show HEAD^:apps/mobile/package.json | jq -r '.version' || echo "null")
-          NEW=$(jq -r '.version' package.json || echo "null")
-          echo "Previous version: $OLD"
-          echo "Current version: $NEW"
-
-          if [ "$OLD" != "$NEW" ] && [ "$OLD" != "null" ] && [ "$NEW" != "null" ]; then
-            echo "bumped=true" >> $GITHUB_OUTPUT
-            echo "### Mobile Deploy - Build" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- Version changed: \`$OLD\` → \`$NEW\`" >> $GITHUB_STEP_SUMMARY
-            echo "- Action: Creating build and submitting to TestFlight" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "bumped=false" >> $GITHUB_OUTPUT
-            echo "### Mobile Deploy - OTA Update" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- Version unchanged: \`$NEW\`" >> $GITHUB_STEP_SUMMARY
-            echo "- Action: Creating OTA update" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: 🔍 Check for native changes (OTA path only)
-        if: steps.detect.outputs.bumped == 'false'
+      - name: 🔍 Check for native changes
         run: node native-changes-check.js --range "HEAD^...HEAD"
 
-      - name: 🚀 Create iOS Build and submit to TestFlight
-        if: steps.detect.outputs.bumped == 'true'
-        run: eas build -p ios --profile production --non-interactive --auto-submit
-
-      - name: 🚀 Create iOS OTA Update
-        if: steps.detect.outputs.bumped == 'false'
+      - name: 🚀 Create OTA update
         run: |
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
           eas update -p ios --channel production --non-interactive --message "Main - $COMMIT_MSG (commit: ${{ github.sha }})"
