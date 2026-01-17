@@ -1,12 +1,1 @@
-[
-  {
-    "name": "Contextual swipe behavior for shopping list items",
-    "description": "The shopping list contains two types of items: staples (recurring pantry items that auto-appear when running low) and planned items (one-time additions). Currently, swiping to delete treats both the same - permanently removing them from the pantry. This is problematic for staples because users lose their recurring item tracking. Change the swipe behavior to be contextual based on item type: when swiping a staple, mark it as 'in stock' which removes it from the shopping list but preserves it in the pantry for future use; when swiping a planned item, delete it entirely since it was a one-time purchase. No confirmation dialog or toast feedback is needed - the visual removal is sufficient feedback. This preserves the value of staples (they'll reappear when marked running low again) while keeping the quick swipe gesture intuitive for both item types.",
-    "completed": true
-  },
-  {
-    "name": "Use iOS-standard delete icon for swipe action",
-    "description": "The swipe-left action on shopping list items currently displays a checkmark icon, which is confusing because tapping an item already toggles its checked state. Users expect swipe actions to be distinct from tap actions. Replace the checkmark icon with a trash/delete icon to follow iOS conventions and make the swipe action's purpose immediately clear. The underlying behavior (contextual action based on item type - marking staples as in-stock or deleting planned items) remains the same; only the visual icon changes from a checkmark to a delete/trash icon.",
-    "completed": true
-  }
-]
+[]
