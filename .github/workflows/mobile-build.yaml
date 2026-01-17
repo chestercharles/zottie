@@ -1,0 +1,33 @@
+name: Mobile Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Create an iOS build and submit to TestFlight
+    runs-on: ubuntu-latest
+    concurrency: mobile-build
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: 🏗 Setup Node
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install
+
+      - name: 🚀 Create iOS Build in TestFlight
+        run: eas build -p ios --profile production --non-interactive --auto-submit
