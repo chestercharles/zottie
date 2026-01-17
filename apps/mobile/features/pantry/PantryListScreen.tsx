@@ -486,14 +486,22 @@ export function PantryListScreen() {
     []
   )
 
-  const toggleSearchMode = useCallback(() => {
-    setIsSearchMode((prev) => {
-      if (prev) {
-        setSearchTerm('')
-      }
-      return !prev
-    })
+  const openSearchMode = useCallback(() => {
+    setIsSearchMode(true)
   }, [])
+
+  const closeSearchMode = useCallback(() => {
+    setIsSearchMode(false)
+    setSearchTerm('')
+  }, [])
+
+  const toggleSearchMode = useCallback(() => {
+    if (isSearchMode) {
+      closeSearchMode()
+    } else {
+      openSearchMode()
+    }
+  }, [isSearchMode, closeSearchMode, openSearchMode])
 
   useLayoutEffect(() => {
     const parent = navigation.getParent()
@@ -519,7 +527,7 @@ export function PantryListScreen() {
         </View>
       ),
     })
-  }, [navigation, openAddSheet, toggleSearchMode, colors])
+  }, [navigation, openAddSheet, toggleSearchMode])
 
   const handleAddItem = () => {
     if (!newItemName.trim()) return
@@ -759,7 +767,7 @@ export function PantryListScreen() {
         isVisible={isSearchMode}
         searchTerm={searchTerm}
         onSearchTermChange={setSearchTerm}
-        onClose={toggleSearchMode}
+        onClose={closeSearchMode}
         colors={colors}
         spacing={spacing}
         radius={radius}

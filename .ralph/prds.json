@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "name": "Clear search filter when dismissing search box",
+    "description": "When users tap the dismiss button (the large X outside the search input) on the pantry search interface, the search box should both hide AND clear the active search filter. Currently there are two X buttons: a small X inside the text input that clears the search text, and a large X outside that dismisses the search box. The issue is that dismissing the search box leaves the filter active, so users see filtered results without the search box visible, which is confusing. The fix: when the dismiss button is tapped, clear the search term and remove the filter so all items are shown again.",
+    "completed": true
+  },
+  {
+    "name": "Swipe gesture to dismiss pantry search",
+    "description": "Add an upward swipe gesture to dismiss the pantry search interface. Users are accustomed to dismissing modal interfaces with swipe gestures in iOS apps. When the user swipes up on the search box, it should dismiss (and follow the same behavior as tapping the dismiss X button - both hiding the search and clearing the filter).",
+    "completed": false
+  },
+  {
+    "name": "Fix edit item sheet handle position",
+    "description": "On the edit item bottom sheet, the handle (drag indicator) is currently positioned below the 'Edit Item' title. This is inconsistent with the settings page, where the handle is correctly positioned above the page title. The edit item sheet should match this pattern with the handle above the title. This likely requires using a custom header similar to how the settings page is structured.",
+    "completed": false
+  },
+  {
+    "name": "Remove redundant status display on edit item page",
+    "description": "The edit item page currently shows the item's status twice: once as a read-only display right below the item name, and again in the status picker below that (where the current status is highlighted). This is redundant. Remove the first status display so that only the status picker is shown, with the current status already highlighted within it.",
+    "completed": false
+  },
+  {
+    "name": "Move checked shopping list items to bottom",
+    "description": "When users are actively shopping and check items off their shopping list, those checked items should automatically move to the bottom of the list. This mirrors the behavior of iOS Notes app checklists. The use case is that while shopping in-store, users check items as they put them in their cart, but don't immediately mark them as purchased. Moving checked items to the bottom keeps the unchecked (still-needed) items at the top where they're most visible and actionable. Checked items remain visible at the bottom of the list in their checked state until the user explicitly marks them as purchased (which is a separate action).",
+    "completed": false
+  }
+]
