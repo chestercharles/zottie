@@ -1,14 +1,21 @@
 import 'dotenv/config'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 const IS_DEV = process.env.APP_VARIANT === 'development'
+
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, 'package.json'), 'utf8')
+)
+const appVersion = packageJson.version
 
 export default {
   expo: {
     name: IS_DEV ? 'zottie (Dev)' : 'zottie',
     slug: 'zottie',
-    version: '1.1.0',
+    version: appVersion,
     runtimeVersion: {
-      policy: 'fingerprint',
+      policy: 'appVersion',
     },
     orientation: 'portrait',
     icon: './assets/images/icon.png',
