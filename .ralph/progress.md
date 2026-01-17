@@ -1,5 +1,16 @@
 # zottie Development Progress
 
+## Add drag handle to Settings modal
+
+Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Settings modal to indicate it can be dismissed by swiping down.
+
+Changes:
+- Created reusable `DragHandle` component in `components/ui/DragHandle.tsx`
+- Component renders a 36x5px pill-shaped bar centered at the top
+- Uses `colors.border.strong` for proper visibility in both light and dark modes
+- Added DragHandle to the SettingsScreen at the top of the modal
+- Exported DragHandle from the components/ui index
+
 ## Design system audit for add item bottom sheets
 
 Updated both the "Add Pantry Item" and "Add Shopping Item" bottom sheets to fully conform with the design system, fixing dark mode background issues.

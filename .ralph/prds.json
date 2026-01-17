@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "name": "Automatic OTA updates",
+    "description": "Enable automatic over-the-air updates so users receive the latest app version without needing to go through the App Store. The app should check for updates on launch and silently download any available updates in the background. Updates are applied automatically on the next app restart with no user interaction required. This uses Expo's default update behavior - no custom UI or prompts needed. Implementation involves configuring expo-updates in app.config.js with appropriate runtime versioning and ensuring EAS Update is properly set up.",
+    "completed": false
+  },
+  {
+    "name": "Add drag handle to Settings modal",
+    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Settings modal screen to indicate it can be dismissed by swiping down. Currently, the Settings screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears in the pantry settings screen (pantry/settings route).",
+    "completed": true
+  },
+  {
+    "name": "Add drag handle to Pantry Add Item modal",
+    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Add Item modal screen to indicate it can be dismissed by swiping down. Currently, the Add Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when adding a new pantry item (pantry/create route).",
+    "completed": false
+  },
+  {
+    "name": "Add drag handle to Pantry Edit Item modal",
+    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal screen to indicate it can be dismissed by swiping down. Currently, the Edit Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when editing an existing pantry item (pantry/[id] route).",
+    "completed": false
+  }
+]

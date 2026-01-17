@@ -20,7 +20,7 @@ import {
 } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
 import { useTheme, useThemePreference, type ThemePreference } from '../../lib/theme'
-import { Text, Button } from '../../components/ui'
+import { Text, Button, DragHandle } from '../../components/ui'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'light', label: 'Light' },
@@ -118,6 +118,7 @@ export function SettingsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+      <DragHandle />
       <View style={[styles.content, { padding: spacing.lg }]}>
         <View style={[styles.accountSection, { marginBottom: spacing.xl }]}>
           <Text variant="caption" color="secondary" style={styles.sectionTitle}>
