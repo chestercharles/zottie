@@ -38,7 +38,7 @@ Create the infrastructure that all components will use.
   - `caption`: size 12, weight regular
 
 ### 1.4 Shape Tokens
-- [ ] Create `lib/theme/shape.ts` with radius values
+- [x] Create `lib/theme/shape.ts` with radius values
   - `radius.sm`: 6 (inputs)
   - `radius.md`: 10 (buttons)
   - `radius.lg`: 14 (cards, sheets)
@@ -295,7 +295,7 @@ Update each screen to use design tokens and new components.
 
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
-| 1. Foundation | 14 | 6 | In Progress |
+| 1. Foundation | 14 | 7 | In Progress |
 | 2. Core Components | 9 | 0 | Not Started |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
@@ -303,7 +303,7 @@ Update each screen to use design tokens and new components.
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **58** | **6** | **10%** |
+| **Total** | **58** | **7** | **12%** |
 
 ---
 
