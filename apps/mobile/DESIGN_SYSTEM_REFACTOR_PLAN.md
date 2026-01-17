@@ -261,14 +261,14 @@ Update each screen to use design tokens and new components.
 ## Phase 7: Dark Mode Support
 
 ### 7.1 Implementation
-- [ ] Ensure useTheme hook responds to system preference
-- [ ] Test all screens in dark mode
-- [ ] Fix any contrast or visibility issues
+- [x] Ensure useTheme hook responds to system preference
+- [x] Test all screens in dark mode
+- [x] Fix any contrast or visibility issues
 
 ### 7.2 Testing
-- [ ] Manual test: light mode
-- [ ] Manual test: dark mode
-- [ ] Manual test: system preference switching
+- [x] Manual test: light mode
+- [x] Manual test: dark mode
+- [x] Manual test: system preference switching
 
 ---
 
@@ -301,9 +301,9 @@ Update each screen to use design tokens and new components.
 | 4. Feature Screens | 15 | 15 | Complete |
 | 5. Navigation | 3 | 3 | Complete |
 | 6. Accessibility | 3 | 3 | Complete |
-| 7. Dark Mode | 4 | 0 | Not Started |
+| 7. Dark Mode | 4 | 4 | Complete |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **45** | **83%** |
+| **Total** | **54** | **49** | **91%** |
 
 ---
 

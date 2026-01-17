@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  Text,
   View,
   StyleSheet,
   TouchableOpacity,
@@ -16,6 +15,8 @@ import { useAuth } from '@/features/auth'
 import { createPantryItem } from '@/features/pantry/api'
 import { queryClient } from '@/lib/query/client'
 import { queryKeys } from '@/lib/query/keys'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 interface QuickAddInventoryScreenProps {
   onComplete: () => void
@@ -29,6 +30,7 @@ export function QuickAddInventoryScreen({
   const insets = useSafeAreaInsets()
   const { getCredentials } = useAuth0()
   const { user } = useAuth()
+  const { colors, spacing, radius } = useTheme()
 
   const toggleItem = (item: string) => {
     setSelectedItems((prev) => {
@@ -91,14 +93,22 @@ export function QuickAddInventoryScreen({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       <View
-        style={[styles.header, { paddingTop: Math.max(insets.top, 16) + 16 }]}
+        style={[
+          styles.header,
+          {
+            paddingTop: Math.max(insets.top, spacing.md) + spacing.md,
+            paddingHorizontal: spacing.lg,
+            paddingBottom: spacing.md,
+            borderBottomColor: colors.border.subtle,
+          },
+        ]}
       >
-        <View style={styles.headerContent}>
-          <Ionicons name="basket" size={32} color="#3498DB" />
-          <Text style={styles.title}>Quick Add Pantry Items</Text>
-          <Text style={styles.subtitle}>
+        <View style={{ gap: spacing.sm }}>
+          <Ionicons name="basket" size={32} color={colors.action.primary} />
+          <Text variant="title.large">Quick Add Pantry Items</Text>
+          <Text variant="body.secondary" color="secondary">
             Tap items you have in your pantry. You can adjust quantities and
             statuses later.
           </Text>
@@ -107,13 +117,21 @@ export function QuickAddInventoryScreen({
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.md,
+        }}
         showsVerticalScrollIndicator={false}
       >
         {curatedPantryItems.map((category) => (
-          <View key={category.name} style={styles.category}>
-            <Text style={styles.categoryName}>{category.name}</Text>
-            <View style={styles.itemsGrid}>
+          <View key={category.name} style={{ marginBottom: spacing.lg }}>
+            <Text
+              variant="title.small"
+              style={{ marginBottom: spacing.sm + spacing.xs }}
+            >
+              {category.name}
+            </Text>
+            <View style={[styles.itemsGrid, { gap: spacing.sm }]}>
               {category.items.map((item) => {
                 const isSelected = selectedItems.has(item)
                 return (
@@ -121,16 +139,33 @@ export function QuickAddInventoryScreen({
                     key={item}
                     style={[
                       styles.itemButton,
-                      isSelected && styles.itemButtonSelected,
+                      {
+                        backgroundColor: isSelected
+                          ? colors.surface.grouped
+                          : colors.surface.background,
+                        borderColor: isSelected
+                          ? colors.action.primary
+                          : colors.border.subtle,
+                        borderRadius: 20,
+                        paddingVertical: spacing.sm,
+                        paddingHorizontal: spacing.md,
+                        gap: spacing.xs,
+                      },
                     ]}
                     onPress={() => toggleItem(item)}
                     disabled={isAdding}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: isSelected }}
+                    accessibilityLabel={item}
                   >
                     <Text
-                      style={[
-                        styles.itemText,
-                        isSelected && styles.itemTextSelected,
-                      ]}
+                      variant="body.secondary"
+                      style={{
+                        color: isSelected
+                          ? colors.action.primary
+                          : colors.text.primary,
+                        fontWeight: isSelected ? '600' : '400',
+                      }}
                     >
                       {item}
                     </Text>
@@ -138,8 +173,8 @@ export function QuickAddInventoryScreen({
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color="#3498DB"
-                        style={styles.checkmark}
+                        color={colors.action.primary}
+                        style={{ marginLeft: 2 }}
                       />
                     )}
                   </TouchableOpacity>
@@ -153,35 +188,55 @@ export function QuickAddInventoryScreen({
       <View
         style={[
           styles.footer,
-          { paddingBottom: Math.max(insets.bottom, 16) + 16 },
+          {
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.md,
+            paddingBottom: Math.max(insets.bottom, spacing.md) + spacing.md,
+            borderTopColor: colors.border.subtle,
+            backgroundColor: colors.surface.background,
+          },
         ]}
       >
-        <View style={styles.selectedCount}>
-          <Text style={styles.selectedCountText}>
+        <View style={{ alignItems: 'center', marginBottom: spacing.sm + spacing.xs }}>
+          <Text variant="body.secondary" color="secondary">
             {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''}{' '}
             selected
           </Text>
         </View>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.skipButton}
+        <View style={[styles.buttonRow, { gap: spacing.sm + spacing.xs }]}>
+          <Button
+            variant="secondary"
+            title="Skip"
             onPress={handleSkip}
             disabled={isAdding}
-          >
-            <Text style={styles.skipButtonText}>Skip</Text>
-          </TouchableOpacity>
+            style={{ flex: 1 }}
+          />
           <TouchableOpacity
             style={[
               styles.addButton,
-              selectedItems.size === 0 && styles.disabledButton,
+              {
+                backgroundColor: isAdding || selectedItems.size === 0
+                  ? colors.action.disabled
+                  : colors.action.primary,
+                borderRadius: radius.md,
+                paddingVertical: spacing.sm + spacing.xs,
+              },
             ]}
             onPress={handleAddItems}
             disabled={isAdding || selectedItems.size === 0}
+            accessibilityRole="button"
+            accessibilityLabel={
+              selectedItems.size === 0 ? 'Continue' : `Add ${selectedItems.size} items to pantry`
+            }
           >
             {isAdding ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color={colors.text.inverse} />
             ) : (
-              <Text style={styles.addButtonText}>
+              <Text
+                variant="body.primary"
+                color="inverse"
+                style={{ fontWeight: '600' }}
+              >
                 {selectedItems.size === 0 ? 'Continue' : 'Add to Pantry'}
               </Text>
             )}
@@ -195,120 +250,32 @@ export function QuickAddInventoryScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  headerContent: {
-    gap: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    lineHeight: 20,
   },
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  category: {
-    marginBottom: 24,
-  },
-  categoryName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 12,
-  },
   itemsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
   },
   itemButton: {
-    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  itemButtonSelected: {
-    backgroundColor: '#E3F2FD',
-    borderColor: '#3498DB',
-  },
-  itemText: {
-    fontSize: 14,
-    color: '#2C3E50',
-  },
-  itemTextSelected: {
-    color: '#3498DB',
-    fontWeight: '600',
-  },
-  checkmark: {
-    marginLeft: 2,
   },
   footer: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#fff',
-  },
-  selectedCount: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  selectedCountText: {
-    fontSize: 14,
-    color: '#7F8C8D',
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 12,
-  },
-  skipButton: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    color: '#7F8C8D',
-    fontSize: 16,
-    fontWeight: '600',
   },
   addButton: {
     flex: 2,
-    backgroundColor: '#3498DB',
-    borderRadius: 12,
-    paddingVertical: 14,
     alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    justifyContent: 'center',
+    minHeight: 44,
   },
 })
