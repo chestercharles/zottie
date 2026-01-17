@@ -8,19 +8,18 @@
 - Added pan gesture detection to the SearchOverlay component in `apps/mobile/features/pantry/PantryListScreen.tsx`
 - Imported `Gesture` and `GestureDetector` from `react-native-gesture-handler`
 - Created `gestureTranslateY` shared value to track vertical pan gestures
-- Added a dedicated drag handle (pill-shaped indicator) at the top of the search overlay
-- Applied GestureDetector only to the drag handle to avoid conflicts with the TextInput
+- Wrapped the entire SearchOverlay in GestureDetector to allow swiping from anywhere on the search box
 - Implemented pan gesture handler with:
-  - `activeOffsetY([-10, 10])`: Requires 10pt vertical movement before activating
-  - `failOffsetX([-10, 10])`: Fails if horizontal movement exceeds 10pt
+  - `activeOffsetY([-8, 8])`: Requires 8pt vertical movement before activating
+  - `failOffsetX([-15, 15])`: Fails if horizontal movement exceeds 15pt (prevents conflicts with text selection)
   - `onUpdate`: Tracks upward swipe movements (negative Y translations)
-  - `onEnd`: Dismisses search if user swipes up more than 50px OR with velocity over 800
+  - `onEnd`: Dismisses search if user swipes up more than 60px AND with velocity over 1000 (both conditions required)
   - Spring animation to snap back if gesture doesn't meet dismiss threshold
 - Added light haptic feedback when gesture triggers dismissal
 - Combined gesture translation with base animation for smooth transitions
 
 **Technical Details:**
-The swipe gesture follows iOS bottom sheet patterns with a visible drag handle indicator. The gesture only applies to the handle area, not the entire overlay, preventing interference with the TextInput interaction. The gesture requires either a minimum distance (50px) or sufficient velocity (800) to trigger dismissal, with activation offsets to ensure deliberate swipes. When dismissed via gesture, it calls the same `onClose` handler as the X button, ensuring consistent behavior (hiding search and clearing the filter). Light haptic feedback provides subtle user confirmation of the dismissal action.
+The swipe gesture requires BOTH significant distance (60px) AND high velocity (1000) to trigger dismissal, ensuring only deliberate, fast upward swipes will dismiss the search. This prevents accidental dismissals while typing or making small movements. The `failOffsetX` threshold prevents the gesture from activating when users are selecting text horizontally in the input field. When dismissed via gesture, it calls the same `onClose` handler as the X button, ensuring consistent behavior (hiding search and clearing the filter). Light haptic feedback provides subtle user confirmation of the dismissal action.
 
 **Verification:**
 - ✅ Linting passed
