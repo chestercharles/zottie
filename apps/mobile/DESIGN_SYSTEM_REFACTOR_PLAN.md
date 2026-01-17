@@ -1,0 +1,315 @@
+# Design System Refactor Plan
+
+This plan migrates the Zottie mobile app to conform to DESIGN_SYSTEM.md. Work through each phase in order, checking off items as completed.
+
+---
+
+## Phase 1: Foundation - Design Tokens
+
+Create the infrastructure that all components will use.
+
+### 1.1 Color Tokens
+- [x] Create `lib/theme/colors.ts` with semantic color tokens
+  - Text tokens: `text.primary`, `text.secondary`, `text.tertiary`, `text.inverse`
+  - Surface tokens: `surface.background`, `surface.grouped`, `surface.elevated`, `surface.overlay`
+  - Border tokens: `border.subtle`, `border.strong`
+  - Feedback tokens: `feedback.success`, `feedback.warning`, `feedback.error`, `feedback.info`
+  - Action tokens: `action.primary`, `action.primaryPressed`, `action.secondary`, `action.disabled`
+- [x] Define light mode values
+- [x] Define dark mode values
+- [x] Choose specific hex value for "muted indigo" accent
+
+### 1.2 Spacing Tokens
+- [ ] Create `lib/theme/spacing.ts` with spacing scale
+  - `space.xs`: 4
+  - `space.sm`: 8
+  - `space.md`: 16
+  - `space.lg`: 24
+  - `space.xl`: 32
+  - `space.2xl`: 48
+
+### 1.3 Typography Tokens
+- [ ] Create `lib/theme/typography.ts` with text styles
+  - `title.large`: size 28, weight semibold
+  - `title.medium`: size 22, weight semibold
+  - `title.small`: size 18, weight semibold
+  - `body.primary`: size 16, weight regular
+  - `body.secondary`: size 14, weight regular
+  - `caption`: size 12, weight regular
+
+### 1.4 Shape Tokens
+- [ ] Create `lib/theme/shape.ts` with radius values
+  - `radius.sm`: 6 (inputs)
+  - `radius.md`: 10 (buttons)
+  - `radius.lg`: 14 (cards, sheets)
+
+### 1.5 Theme Infrastructure
+- [ ] Create `lib/theme/index.ts` barrel export
+- [ ] Create `lib/theme/useTheme.ts` hook for consuming tokens (handles light/dark mode)
+- [ ] Integrate theme hook with system color scheme preference
+
+---
+
+## Phase 2: Core Components
+
+Build reusable components using the design tokens. Each component should use tokens exclusively (no hardcoded values).
+
+### 2.1 Text Components
+- [ ] Create `components/ui/Text.tsx` with variants matching typography tokens
+  - Props: `variant` (title.large, title.medium, etc.), `color` (semantic token)
+  - Respects system Dynamic Type settings
+
+### 2.2 Button Components
+- [ ] Create `components/ui/Button.tsx`
+  - Primary variant: `action.primary` background, `text.inverse` text, `radius.md`
+  - Secondary variant: transparent background, `action.primary` text
+  - Disabled state using `action.disabled`
+  - Minimum 44pt touch target
+
+### 2.3 Card Component
+- [ ] Create `components/ui/Card.tsx`
+  - Background: `surface.elevated`
+  - Radius: `radius.lg`
+  - Padding: `space.md`
+
+### 2.4 Input Components
+- [ ] Create `components/ui/TextInput.tsx`
+  - Always visible label (no placeholder-only inputs)
+  - Radius: `radius.sm`
+  - Error states use border color changes, not red fills
+  - Calm, instructional error messages
+
+### 2.5 Status Badge Component
+- [ ] Create `components/ui/StatusBadge.tsx` for pantry item statuses
+  - Uses semantic feedback colors
+  - Consistent styling across the app
+
+### 2.6 List Item Component
+- [ ] Create `components/ui/ListItem.tsx`
+  - Clear tap affordance
+  - Consistent padding using spacing tokens
+  - Optional swipe actions support
+
+### 2.7 Empty State Component
+- [ ] Create `components/ui/EmptyState.tsx`
+  - Consistent empty state pattern across screens
+  - Uses typography and spacing tokens
+
+### 2.8 Update Component Barrel Export
+- [ ] Update `components/index.ts` to export all new UI components
+
+---
+
+## Phase 3: Refactor VoiceInput Component
+
+The existing complex component needs token adoption.
+
+- [ ] Replace hardcoded colors in `components/VoiceInput.tsx`
+  - Blue `#3498DB` → `action.primary`
+  - Red `#E74C3C` → `feedback.error`
+  - Orange `#F39C12` → `feedback.warning`
+  - Gray values → semantic surface/text tokens
+- [ ] Update spacing to use spacing tokens
+- [ ] Update border radius to use shape tokens
+- [ ] Ensure animations use spring physics (already does)
+
+---
+
+## Phase 4: Refactor Feature Screens
+
+Update each screen to use design tokens and new components.
+
+### 4.1 Landing Screen
+- [ ] `features/landing/LandingScreen.tsx`
+  - Replace hardcoded colors with tokens
+  - Use Button component for CTAs
+  - Use Text component for typography
+  - Update spacing to use tokens
+
+### 4.2 Home Screen
+- [ ] `features/home/HomeScreen.tsx`
+  - Replace green `#2ECC71` and red `#E74C3C` with semantic tokens
+  - Use Button component
+  - Use Card component for sections
+  - Update spacing and typography
+
+### 4.3 Pantry Screens
+- [ ] `features/pantry/PantryListScreen.tsx`
+  - Replace status color mapping with StatusBadge component
+  - Replace blue `#3498DB` accent with `action.primary`
+  - Use ListItem component for pantry items
+  - Use EmptyState component
+  - Update all spacing and typography
+
+- [ ] `features/pantry/PantryItemDetailScreen.tsx`
+  - Use Card component for detail sections
+  - Use Button component for actions
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/pantry/CreatePantryItemScreen.tsx`
+  - Use TextInput component with labels
+  - Use Button component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+### 4.4 Shopping Screen
+- [ ] `features/shopping/ShoppingListScreen.tsx`
+  - Use ListItem component
+  - Use EmptyState component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+### 4.5 Commands Screen
+- [ ] `features/commands/CommandsScreen.tsx`
+  - Integrate with refactored VoiceInput
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+### 4.6 Settings Screen
+- [ ] `features/settings/SettingsScreen.tsx`
+  - Replace blue `#3498DB` with `action.primary`
+  - Replace red `#E74C3C` with `feedback.error` (for destructive actions)
+  - Use ListItem component for settings rows
+  - Use Card component for sections
+  - Update spacing and typography
+
+### 4.7 Onboarding Screens
+- [ ] `features/onboarding/NewPantryInputScreen.tsx`
+  - Use TextInput component
+  - Use Button component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/onboarding/NewShoppingListInputScreen.tsx`
+  - Use TextInput component
+  - Use Button component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/onboarding/NewHouseholdInvitationScreen.tsx`
+  - Use Button component
+  - Use Card component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/onboarding/CreateHouseholdScreen.tsx`
+  - Use TextInput component
+  - Use Button component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/onboarding/NewProcessingScreen.tsx`
+  - Replace hardcoded colors with tokens
+  - Ensure loading animations are subtle (no harsh spinners)
+  - Update spacing and typography
+
+- [ ] `features/onboarding/ConversationalOnboarding.tsx`
+  - Use Text component for chat messages
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+- [ ] `features/onboarding/OriginalOnboarding.tsx`
+  - Use new components throughout
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+### 4.8 Household Screens
+- [ ] `features/household/JoinScreen.tsx`
+  - Use TextInput component
+  - Use Button component
+  - Replace hardcoded colors with tokens
+  - Update spacing and typography
+
+---
+
+## Phase 5: Navigation & Layout Updates
+
+### 5.1 Tab Bar Styling
+- [ ] Update `app/(authenticated)/_layout.tsx`
+  - Tab bar colors use semantic tokens
+  - Active/inactive states use proper action tokens
+
+### 5.2 Header Styling
+- [ ] Review all screen headers for consistent styling
+  - Header backgrounds use `surface.background`
+  - Header text uses `text.primary`
+
+### 5.3 Root Layout
+- [ ] Update `app/_layout.tsx`
+  - Ensure theme provider is integrated
+  - Status bar styling matches theme
+
+---
+
+## Phase 6: Accessibility Audit
+
+### 6.1 Contrast Check
+- [ ] Verify all text/background combinations meet WCAG AA
+- [ ] Test with iOS accessibility inspector
+
+### 6.2 Touch Targets
+- [ ] Audit all interactive elements for 44pt minimum
+- [ ] Fix any undersized touch targets
+
+### 6.3 Screen Reader Support
+- [ ] Verify all icons have accessibility labels
+- [ ] Test with VoiceOver
+
+---
+
+## Phase 7: Dark Mode Support
+
+### 7.1 Implementation
+- [ ] Ensure useTheme hook responds to system preference
+- [ ] Test all screens in dark mode
+- [ ] Fix any contrast or visibility issues
+
+### 7.2 Testing
+- [ ] Manual test: light mode
+- [ ] Manual test: dark mode
+- [ ] Manual test: system preference switching
+
+---
+
+## Phase 8: Final Cleanup
+
+### 8.1 Remove Dead Code
+- [ ] Remove any unused color constants
+- [ ] Remove any unused style definitions
+- [ ] Remove any orphaned components
+
+### 8.2 Documentation
+- [ ] Update AGENTS.md to reference design system usage
+- [ ] Add usage examples to component files
+
+### 8.3 Verification
+- [ ] Run `pnpm run lint`
+- [ ] Run `pnpm run tsc`
+- [ ] Run `pnpm run test`
+- [ ] Manual testing of all screens
+
+---
+
+## Progress Tracking
+
+| Phase | Items | Completed | Status |
+|-------|-------|-----------|--------|
+| 1. Foundation | 14 | 4 | In Progress |
+| 2. Core Components | 9 | 0 | Not Started |
+| 3. VoiceInput | 4 | 0 | Not Started |
+| 4. Feature Screens | 15 | 0 | Not Started |
+| 5. Navigation | 3 | 0 | Not Started |
+| 6. Accessibility | 3 | 0 | Not Started |
+| 7. Dark Mode | 4 | 0 | Not Started |
+| 8. Final Cleanup | 6 | 0 | Not Started |
+| **Total** | **58** | **4** | **7%** |
+
+---
+
+## Notes
+
+- Each checkbox item should be a single commit or small group of related commits
+- Test after each phase before moving to the next
+- If a screen has minimal styling, it may only need token updates (no new components)
+- Prioritize high-traffic screens (Pantry, Shopping) over rarely-used screens
