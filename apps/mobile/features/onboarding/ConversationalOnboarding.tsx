@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import {
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useHouseholdMembership, useCreateHousehold } from '@/features/household'
 import { NewPantryInputScreen } from './NewPantryInputScreen'
@@ -13,6 +7,8 @@ import { NewShoppingListInputScreen } from './NewShoppingListInputScreen'
 import { NewProcessingScreen } from './NewProcessingScreen'
 import { NewHouseholdInvitationScreen } from './NewHouseholdInvitationScreen'
 import { useOnboardingItemParsing } from './hooks'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 type OnboardingStep = 'pantry' | 'shopping' | 'processing' | 'invitation'
 
@@ -25,6 +21,7 @@ interface ProcessingState {
 
 export function ConversationalOnboarding() {
   const router = useRouter()
+  const { colors, spacing, radius } = useTheme()
   const { hasHousehold, isLoading: isLoadingHousehold } = useHouseholdMembership()
   const createHousehold = useCreateHousehold()
   const parseItems = useOnboardingItemParsing()
@@ -139,8 +136,10 @@ export function ConversationalOnboarding() {
 
   if (isLoadingHousehold || createHousehold.isPending || !hasHousehold) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498DB" />
+      <View
+        style={[styles.loadingContainer, { backgroundColor: colors.surface.background }]}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
     )
   }
@@ -166,40 +165,41 @@ export function ConversationalOnboarding() {
   if (currentStep === 'processing') {
     if (processingState.pantryError || processingState.shoppingError) {
       return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: colors.surface.background,
+              paddingHorizontal: spacing.lg,
+              gap: spacing.lg,
+            },
+          ]}
+        >
+          <Text variant="title.medium" style={styles.errorTitle}>
             We had trouble processing your items
           </Text>
-          <Text style={styles.errorMessage}>
+          <Text variant="body.primary" color="secondary" style={styles.errorMessage}>
             {processingState.pantryError ||
               processingState.shoppingError ||
               'Something went wrong. Please try again.'}
           </Text>
-          <View style={styles.errorButtons}>
+          <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
             {processingState.pantryError && (
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={handleRetryPantry}
-              >
-                <Text style={styles.retryButtonText}>Retry pantry items</Text>
-              </TouchableOpacity>
+              <Button title="Retry pantry items" onPress={handleRetryPantry} />
             )}
             {processingState.shoppingError && (
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={handleRetryShopping}
-              >
-                <Text style={styles.retryButtonText}>
-                  Retry shopping items
-                </Text>
-              </TouchableOpacity>
+              <Button title="Retry shopping items" onPress={handleRetryShopping} />
             )}
-            <TouchableOpacity
-              style={styles.skipErrorButton}
+            <Button
+              variant="secondary"
+              title="Continue anyway"
               onPress={() => setCurrentStep('invitation')}
-            >
-              <Text style={styles.skipErrorButtonText}>Continue anyway</Text>
-            </TouchableOpacity>
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border.subtle,
+                borderRadius: radius.md,
+              }}
+            />
           </View>
         </View>
       )
@@ -232,53 +232,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   errorContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
     paddingTop: 80,
-    gap: 20,
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2C3E50',
     textAlign: 'center',
   },
   errorMessage: {
-    fontSize: 16,
-    color: '#7F8C8D',
     textAlign: 'center',
-    lineHeight: 24,
-  },
-  errorButtons: {
-    marginTop: 20,
-    gap: 12,
-  },
-  retryButton: {
-    backgroundColor: '#3498DB',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  skipErrorButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  skipErrorButtonText: {
-    color: '#7F8C8D',
-    fontSize: 16,
-    fontWeight: '600',
   },
 })

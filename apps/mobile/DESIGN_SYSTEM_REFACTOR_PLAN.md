@@ -204,7 +204,7 @@ Update each screen to use design tokens and new components.
   - Ensure loading animations are subtle (no harsh spinners)
   - Update spacing and typography
 
-- [ ] `features/onboarding/ConversationalOnboarding.tsx`
+- [x] `features/onboarding/ConversationalOnboarding.tsx`
   - Use Text component for chat messages
   - Replace hardcoded colors with tokens
   - Update spacing and typography
@@ -298,12 +298,12 @@ Update each screen to use design tokens and new components.
 | 1. Foundation | 10 | 10 | Complete |
 | 2. Core Components | 9 | 9 | Complete |
 | 3. VoiceInput | 4 | 4 | Complete |
-| 4. Feature Screens | 15 | 13 | In Progress |
+| 4. Feature Screens | 15 | 14 | In Progress |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **36** | **67%** |
+| **Total** | **54** | **37** | **69%** |
 
 ---
 
