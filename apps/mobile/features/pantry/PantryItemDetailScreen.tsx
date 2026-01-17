@@ -173,13 +173,12 @@ export function PantryItemDetailScreen() {
   ]
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.surface.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       <DragHandle />
-      <View style={[styles.content, { padding: spacing.md }]}>
-        <View style={[styles.header, { marginBottom: spacing.lg }]}>
-          {isEditingName ? (
+      <ScrollView>
+        <View style={[styles.content, { padding: spacing.md }]}>
+          <View style={[styles.header, { marginBottom: spacing.lg }]}>
+            {isEditingName ? (
             <View style={[styles.editNameContainer, { marginBottom: spacing.sm }]}>
               <RNTextInput
                 style={[
@@ -384,8 +383,9 @@ export function PantryItemDetailScreen() {
             </Text>
           )}
         </TouchableOpacity>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   )
 }
 
