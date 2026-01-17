@@ -24,7 +24,7 @@ jobs:
         id: check
         run: |
           OLD=$(git show HEAD^:apps/mobile/package.json | jq -r '.version' || echo "null")
-          NEW=$(jq -r '.version' apps/mobile/package.json || echo "null")
+          NEW=$(jq -r '.version' package.json || echo "null")
           echo "Previous version: $OLD"
           echo "Current version: $NEW"
 
@@ -87,7 +87,7 @@ jobs:
         id: version-check
         run: |
           OLD=$(git show HEAD^:apps/mobile/package.json | jq -r '.version' || echo "null")
-          NEW=$(jq -r '.version' apps/mobile/package.json || echo "null")
+          NEW=$(jq -r '.version' package.json || echo "null")
           echo "Previous version: $OLD"
           echo "Current version: $NEW"
 
