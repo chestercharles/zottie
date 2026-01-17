@@ -67,7 +67,7 @@ Build reusable components using the design tokens. Each component should use tok
   - Minimum 44pt touch target
 
 ### 2.3 Card Component
-- [ ] Create `components/ui/Card.tsx`
+- [x] Create `components/ui/Card.tsx`
   - Background: `surface.elevated`
   - Radius: `radius.lg`
   - Padding: `space.md`
@@ -296,14 +296,14 @@ Update each screen to use design tokens and new components.
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
 | 1. Foundation | 10 | 10 | Complete |
-| 2. Core Components | 9 | 2 | In Progress |
+| 2. Core Components | 9 | 3 | In Progress |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **12** | **22%** |
+| **Total** | **54** | **13** | **24%** |
 
 ---
 
