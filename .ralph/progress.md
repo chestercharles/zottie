@@ -1,5 +1,25 @@
 # zottie Development Progress
 
+## 2026-01-17: Fix item name alignment on edit item screen
+
+**Feature:** Aligned the item name on the edit item screen with the content inside the Card sections below it
+
+**Changes:**
+
+- Added `paddingHorizontal: spacing.md` to the header section in `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`
+
+**Technical Details:**
+
+The item name was misaligned because it sat directly inside the content wrapper (with `padding: spacing.md`), while the sections below used `Card` components that add their own internal `padding: spacing.md`. This meant the item name was `spacing.md` from the screen edge, while Card content was `spacing.md + spacing.md` from the edge.
+
+The fix adds matching horizontal padding to the header section so the item name aligns with the text inside the Cards below it.
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Add confirmation before marking items as purchased
 
 **Feature:** Added a confirmation alert before marking checked items as purchased in the shopping list
@@ -15,6 +35,7 @@
 **Technical Details:**
 
 Following iOS Human Interface Guidelines for confirmation patterns:
+
 1. Two-button alerts provide an easy choice between two alternatives
 2. Cancel button is listed first, making it the default (bold) option per iOS convention
 3. Action button uses a clear verb phrase ("Mark Purchased") that describes the result
@@ -48,6 +69,7 @@ This prevents accidental taps on the cart icon in the header from immediately ma
 The previous implementation showed a large green "Mark as Purchased" button at the bottom of the screen whenever items were checked. This was too prominent and obstructed scrolling while actively shopping.
 
 The new implementation:
+
 1. Shows a cart icon with a green badge (showing checked count) in the header next to the add button
 2. Cart icon only appears when at least one item is checked
 3. Tapping the cart icon triggers the mark as purchased flow
@@ -133,30 +155,6 @@ The fix follows the Settings page pattern:
 - ✅ Linting passed
 - ✅ TypeScript type checking passed
 - ✅ Tests passed
-
-## 2026-01-17: Swipe-up gesture to dismiss pantry search (temporarily disabled)
-
-**Status:** Ready to build, new dev build created
-
-**Issue:** The swipe gesture implementation was causing the app to crash or close unexpectedly. The issue persisted even after removing haptic feedback, suggesting a potential incompatibility with the current development build or native gesture handler setup.
-
-**Next Steps:**
-
-- Create a new development build to ensure all native modules (expo-haptics, gesture-handler) are properly included
-- Re-enable and test the swipe gesture implementation after the new build is ready
-
-**Implementation Details (commented out):**
-
-- Added pan gesture detection to the SearchOverlay component in `apps/mobile/features/pantry/PantryListScreen.tsx`
-- Imported `Gesture` and `GestureDetector` from `react-native-gesture-handler`
-- Created `gestureTranslateY` shared value to track vertical pan gestures
-- Implemented pan gesture handler with:
-  - `activeOffsetY([-8, 8])`: Requires 8pt vertical movement before activating
-  - `failOffsetX([-15, 15])`: Fails if horizontal movement exceeds 15pt (prevents conflicts with text selection)
-  - `onUpdate`: Tracks upward swipe movements (negative Y translations)
-  - `onEnd`: Dismisses search if user swipes up more than 60px AND with velocity over 1000 (both conditions required)
-  - Spring animation to snap back if gesture doesn't meet dismiss threshold
-- Combined gesture translation with base animation for smooth transitions
 
 ## 2026-01-17: Clear search filter when dismissing search box
 

@@ -82,7 +82,7 @@
   {
     "name": "Fix item name alignment on edit item screen",
     "description": "On the edit item screen, the item name at the top is misaligned - it sits too far to the left compared to the other sections below it (details, change status). The item name should align horizontally with the content in the sections below it for visual consistency.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Simplify details section on edit item screen",

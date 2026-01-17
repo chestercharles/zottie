@@ -180,7 +180,7 @@ export function PantryItemDetailScreen() {
       </View>
       <ScrollView>
         <View style={[styles.content, { padding: spacing.md }]}>
-          <View style={[styles.header, { marginBottom: spacing.lg }]}>
+          <View style={[styles.header, { marginBottom: spacing.lg, paddingHorizontal: spacing.md }]}>
             {isEditingName ? (
             <View style={[styles.editNameContainer, { marginBottom: spacing.sm }]}>
               <RNTextInput
