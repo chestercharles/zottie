@@ -231,12 +231,12 @@ Update each screen to use design tokens and new components.
   - Active/inactive states use proper action tokens
 
 ### 5.2 Header Styling
-- [ ] Review all screen headers for consistent styling
+- [x] Review all screen headers for consistent styling
   - Header backgrounds use `surface.background`
   - Header text uses `text.primary`
 
 ### 5.3 Root Layout
-- [ ] Update `app/_layout.tsx`
+- [x] Update `app/_layout.tsx`
   - Ensure theme provider is integrated
   - Status bar styling matches theme
 
@@ -299,11 +299,11 @@ Update each screen to use design tokens and new components.
 | 2. Core Components | 9 | 9 | Complete |
 | 3. VoiceInput | 4 | 4 | Complete |
 | 4. Feature Screens | 15 | 15 | Complete |
-| 5. Navigation | 3 | 1 | In Progress |
+| 5. Navigation | 3 | 3 | Complete |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **40** | **74%** |
+| **Total** | **54** | **42** | **78%** |
 
 ---
 
