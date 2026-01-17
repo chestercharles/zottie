@@ -496,6 +496,21 @@ export function PantryListScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerLeft: () => (
+        <Pressable
+          onPress={() => router.push('/pantry/settings')}
+          style={{ marginLeft: spacing.sm, padding: spacing.xs }}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
+          <Ionicons
+            name="settings-outline"
+            size={24}
+            color={colors.text.primary}
+          />
+        </Pressable>
+      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Pressable
@@ -513,25 +528,12 @@ export function PantryListScreen() {
           </Pressable>
           <Pressable
             onPress={openAddSheet}
-            style={{ marginRight: spacing.md, padding: spacing.xs }}
+            style={{ marginRight: spacing.sm, padding: spacing.xs }}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Add item"
           >
             <Ionicons name="add" size={28} color={colors.action.primary} />
-          </Pressable>
-          <Pressable
-            onPress={() => router.push('/pantry/settings')}
-            style={{ marginRight: spacing.sm, padding: spacing.xs }}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-          >
-            <Ionicons
-              name="settings-outline"
-              size={24}
-              color={colors.text.primary}
-            />
           </Pressable>
         </View>
       ),

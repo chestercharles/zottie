@@ -1,5 +1,15 @@
 # zottie Development Progress
 
+## Move pantry settings gear to left side of navigation
+
+Moved the settings gear icon from the right side of the Pantry screen navigation header to the left side to reduce accidental taps.
+
+Changes:
+- Added `headerLeft` navigation option with the settings gear icon
+- Removed the settings gear from `headerRight`
+- Right side now only has search and add (+) icons, which are more frequently used
+- Reduces accidental taps when reaching for primary actions
+
 ## Pantry search overlay keyboard behavior
 
 Improved the keyboard behavior of the pantry search overlay to follow standard iOS search patterns.
