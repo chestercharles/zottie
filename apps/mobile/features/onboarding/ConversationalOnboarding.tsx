@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   View,
   ActivityIndicator,
@@ -28,7 +28,7 @@ export function ConversationalOnboarding() {
   const { hasHousehold, isLoading: isLoadingHousehold } = useHouseholdMembership()
   const createHousehold = useCreateHousehold()
   const parseItems = useOnboardingItemParsing()
-  const [isCreatingHousehold, setIsCreatingHousehold] = useState(false)
+  const hasInitiatedCreation = useRef(false)
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('pantry')
   const [processingState, setProcessingState] = useState<ProcessingState>({
     pantryText: '',
@@ -36,19 +36,19 @@ export function ConversationalOnboarding() {
   })
 
   useEffect(() => {
-    if (!hasHousehold && !isCreatingHousehold) {
-      setIsCreatingHousehold(true)
-      createHousehold
-        .mutateAsync({ name: 'My Household' })
-        .then(() => {
-          setIsCreatingHousehold(false)
-        })
-        .catch((error) => {
-          console.error('Failed to auto-create household:', error)
-          setIsCreatingHousehold(false)
-        })
+    if (!hasHousehold && !createHousehold.isPending && !hasInitiatedCreation.current) {
+      hasInitiatedCreation.current = true
+      createHousehold.mutate(
+        { name: 'My Household' },
+        {
+          onError: (error) => {
+            console.error('Failed to auto-create household:', error)
+            hasInitiatedCreation.current = false
+          },
+        }
+      )
     }
-  }, [hasHousehold, isCreatingHousehold, createHousehold])
+  }, [hasHousehold, createHousehold.isPending])
 
   const handlePantrySubmit = (text: string) => {
     setProcessingState((prev) => ({ ...prev, pantryText: text }))
@@ -137,7 +137,7 @@ export function ConversationalOnboarding() {
     setCurrentStep('shopping')
   }
 
-  if (isLoadingHousehold || isCreatingHousehold || !hasHousehold) {
+  if (isLoadingHousehold || createHousehold.isPending || !hasHousehold) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3498DB" />

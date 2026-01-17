@@ -19,6 +19,8 @@ export default {
         : 'com.chestercarmer.zottie',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSPhotoLibraryUsageDescription:
+          'zottie may use your photo library to add images to your grocery items or recipes.',
       },
     },
     android: {
