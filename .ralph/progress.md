@@ -1,5 +1,14 @@
 # zottie Development Progress
 
+## Fix add planned item sheet dismissal navigation
+
+Fixed a bug where dismissing the "add planned item" bottom sheet on the shopping list screen would incorrectly navigate to the pantry screen instead of staying on the shopping list.
+
+Changes:
+- Added `pressBehavior="close"` to explicitly control backdrop tap behavior
+- Added `enableTouchThrough={false}` to prevent touch events from passing through the backdrop to the underlying FlatList
+- This prevents accidental item taps when the sheet is being dismissed, which was triggering navigation to the pantry item detail screen
+
 ## Smoother search overlay animation on Pantry screen
 
 Adjusted the search overlay animation to feel more native and polished by using critically-damped spring physics that don't overshoot.

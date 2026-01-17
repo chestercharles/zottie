@@ -298,6 +298,8 @@ export function ShoppingListScreen() {
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
+        pressBehavior="close"
+        enableTouchThrough={false}
       />
     ),
     []
