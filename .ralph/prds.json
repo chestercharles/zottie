@@ -73,5 +73,30 @@
     "name": "Add choice when removing item from shopping list",
     "description": "When a user swipes to remove an item from the shopping list, show two options: 'Already have it' and 'Don't want to buy it'. If they choose 'Already have it', the item is marked as in-stock in the pantry. If they choose 'Don't want to buy it', the item is removed from the shopping list without changing its pantry status - it goes into a dormant state so it won't keep reappearing on the shopping list. This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.",
     "completed": false
+  },
+  {
+    "name": "Pulsing loading state for status change buttons",
+    "description": "When the user changes an item's status on the edit item screen, the current behavior replaces all status buttons with a loader, causing a jarring flash. Instead, keep all buttons visible and show a subtle pulsing/breathing animation on the selected button until the API confirms the change. This provides feedback that the action is in progress without hiding the interface or causing visual disruption.",
+    "completed": false
+  },
+  {
+    "name": "Fix item name alignment on edit item screen",
+    "description": "On the edit item screen, the item name at the top is misaligned - it sits too far to the left compared to the other sections below it (details, change status). The item name should align horizontally with the content in the sections below it for visual consistency.",
+    "completed": false
+  },
+  {
+    "name": "Simplify details section on edit item screen",
+    "description": "The details section on the edit item screen currently shows redundant information: the item name (already displayed prominently at the top) and the status (already shown in the status picker above). Remove the item name and status from the details section, keeping only the useful information like last purchased date.",
+    "completed": false
+  },
+  {
+    "name": "Remove Edit Item header title and fix Settings header spacing",
+    "description": "Two header adjustments for bottom sheet modals: (1) On the edit item screen, remove the 'Edit Item' title entirely - it's redundant since the item name is already visible and serves as the contextual header. (2) On the settings screen, keep the 'Settings' title but add more vertical space between the drag handle at the top of the modal and the 'Settings' text below it.",
+    "completed": false
+  },
+  {
+    "name": "Add confirmation before marking items as purchased",
+    "description": "When the user taps the checkout button in the shopping list header, the app currently marks all checked items as purchased immediately. This is risky - an accidental tap can mark items as purchased before the user is ready. Add a confirmation step that asks the user to confirm before completing the action. The implementer should research iOS Human Interface Guidelines to determine the appropriate confirmation pattern (alert vs action sheet vs other) for this type of important action.",
+    "completed": true
   }
 ]

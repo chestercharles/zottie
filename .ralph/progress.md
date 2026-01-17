@@ -1,5 +1,33 @@
 # zottie Development Progress
 
+## 2026-01-17: Add confirmation before marking items as purchased
+
+**Feature:** Added a confirmation alert before marking checked items as purchased in the shopping list
+
+**Changes:**
+
+- Updated `handleMarkAsPurchased` in `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
+  - Added an `Alert.alert` confirmation dialog before executing the mark as purchased action
+  - Alert shows the number of items being marked (e.g., "Mark 3 items as purchased?")
+  - Provides context: "They'll be moved to your pantry as in-stock."
+  - Two-button design following iOS HIG: "Cancel" (default) and "Mark Purchased"
+
+**Technical Details:**
+
+Following iOS Human Interface Guidelines for confirmation patterns:
+1. Two-button alerts provide an easy choice between two alternatives
+2. Cancel button is listed first, making it the default (bold) option per iOS convention
+3. Action button uses a clear verb phrase ("Mark Purchased") that describes the result
+4. Message explains what will happen to help users make an informed decision
+
+This prevents accidental taps on the cart icon in the header from immediately marking items as purchased, giving users a chance to confirm their intent.
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Move Mark as Purchased action to header
 
 **Feature:** Relocated the "Mark as Purchased" button from the bottom of the shopping list to the navigation header

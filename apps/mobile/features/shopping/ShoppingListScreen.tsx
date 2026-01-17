@@ -267,21 +267,36 @@ export function ShoppingListScreen() {
   const handleMarkAsPurchased = useCallback(() => {
     if (checkedIds.size === 0) return
 
-    const itemIds = Array.from(checkedIds)
-    markAsPurchasedMutation.mutate(itemIds, {
-      onSuccess: async () => {
-        await clearCheckedItems()
-        setCheckedIds(new Set())
-      },
-      onError: (err) => {
-        Alert.alert(
-          'Error',
-          err instanceof Error
-            ? err.message
-            : 'Failed to mark items as purchased'
-        )
-      },
-    })
+    const itemCount = checkedIds.size
+    const itemWord = itemCount === 1 ? 'item' : 'items'
+
+    Alert.alert(
+      'Mark as Purchased',
+      `Mark ${itemCount} ${itemWord} as purchased? They'll be moved to your pantry as in-stock.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Mark Purchased',
+          onPress: () => {
+            const itemIds = Array.from(checkedIds)
+            markAsPurchasedMutation.mutate(itemIds, {
+              onSuccess: async () => {
+                await clearCheckedItems()
+                setCheckedIds(new Set())
+              },
+              onError: (err) => {
+                Alert.alert(
+                  'Error',
+                  err instanceof Error
+                    ? err.message
+                    : 'Failed to mark items as purchased'
+                )
+              },
+            })
+          },
+        },
+      ]
+    )
   }, [checkedIds, markAsPurchasedMutation])
 
   const handleResetCheckmarks = () => {
