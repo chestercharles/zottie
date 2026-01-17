@@ -42,6 +42,6 @@
   {
     "name": "Direct swipe-to-delete on shopping list items",
     "description": "Simplify the delete interaction for shopping list items. Currently, swiping left on a shopping list item reveals a delete button that must be tapped to complete the deletion. Change this to a direct swipe-to-delete gesture: when the user swipes left past a threshold, the item should animate sliding off the screen and be deleted immediately. This reduces the deletion from a two-step action (swipe then tap) to a single gesture, making list management faster and more fluid. The slide-off animation should feel smooth and natural, providing clear feedback that the item is being removed. The implementation should follow iOS Human Interface Guidelines for destructive swipe actions (including appropriate gesture thresholds, spring animations, and visual feedback) and use zottie's design system tokens for any colors or styling to ensure consistency across the app.",
-    "completed": false
+    "completed": true
   }
 ]

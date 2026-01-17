@@ -1,5 +1,20 @@
 # zottie Development Progress
 
+## Direct swipe-to-delete on shopping list items
+
+Simplified the delete interaction for shopping list items from a two-step action (swipe to reveal button, then tap) to a single direct swipe gesture.
+
+Changes:
+- Replaced `ReanimatedSwipeable` with a custom `Gesture.Pan()` implementation for direct swipe control
+- When user swipes left past 100px threshold, the item animates sliding off screen and is deleted immediately
+- Red delete background progressively reveals with trash icon as user swipes
+- Added haptic feedback (medium impact) when crossing the delete threshold
+- Item slides off with a smooth 200ms ease-out animation before triggering deletion
+- Removed the two-button swipe action (Purchased/Delete) in favor of the streamlined single gesture
+- Users can still mark items as purchased using the checkbox or the bulk "Mark as purchased" button
+
+The interaction now follows iOS HIG for destructive swipe actions with appropriate gesture thresholds, spring animations for snap-back, and visual feedback during the swipe.
+
 ## Fix add planned item sheet dismissal navigation
 
 Fixed a bug where dismissing the "add planned item" bottom sheet on the shopping list screen would incorrectly navigate to the pantry screen instead of staying on the shopping list.
