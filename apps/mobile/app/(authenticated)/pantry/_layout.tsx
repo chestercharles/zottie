@@ -40,7 +40,7 @@ export default function PantryLayout() {
       <Stack.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          headerShown: false,
           presentation: 'modal',
         }}
       />

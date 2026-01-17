@@ -119,7 +119,10 @@ export function SettingsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       <DragHandle />
-      <View style={[styles.content, { padding: spacing.lg }]}>
+      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingBottom: spacing.md }]}>
+        <Text variant="title.medium">Settings</Text>
+      </View>
+      <View style={[styles.content, { padding: spacing.lg, paddingTop: 0 }]}>
         <View style={[styles.accountSection, { marginBottom: spacing.xl }]}>
           <Text variant="caption" color="secondary" style={styles.sectionTitle}>
             ACCOUNT
@@ -352,6 +355,9 @@ export function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    alignItems: 'center',
   },
   content: {
     flex: 1,

@@ -1,5 +1,14 @@
 # zottie Development Progress
 
+## Move drag handle above Settings modal header
+
+Moved the drag handle to appear at the very top of the Settings modal, above the title, to match iOS modal presentation conventions.
+
+Changes:
+- Set `headerShown: false` for the settings route in the pantry layout to hide the navigation-provided header
+- Added a custom header section in SettingsScreen with the drag handle at the top followed by a centered "Settings" title
+- The drag handle is now the first visual element at the top edge of the modal sheet
+
 ## Add drag handle to Pantry Edit Item modal
 
 Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal to indicate it can be dismissed by swiping down.
