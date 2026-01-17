@@ -1,5 +1,37 @@
 # zottie Development Progress
 
+## 2026-01-17: Add swipe gesture to dismiss pantry search
+
+**Feature:** Added upward swipe gesture to dismiss the pantry search interface
+
+**Changes:**
+
+- Enabled the pan gesture handler in `SearchOverlay` component in `apps/mobile/features/pantry/PantryListScreen.tsx`
+- Wrapped the search overlay content with `GestureDetector` to capture swipe gestures
+- Gesture detects upward swipes and dismisses search when sufficient distance or velocity is reached
+
+**Technical Details:**
+
+The gesture handler was previously implemented but commented out. The implementation:
+
+1. Uses `Gesture.Pan()` from `react-native-gesture-handler` with:
+   - `activeOffsetY([-8, 8])` - activates after 8px vertical movement
+   - `failOffsetX([-15, 15])` - fails if horizontal movement exceeds 15px (to allow text selection)
+2. Only tracks upward movement (negative translationY)
+3. Dismisses if either:
+   - Distance exceeds 60px upward, OR
+   - Velocity exceeds 800px/s upward
+4. If not dismissed, springs back to original position with smooth animation
+5. Clears search term and closes search mode on dismiss (same behavior as X button)
+
+The gesture threshold was adjusted from requiring BOTH distance AND velocity to requiring EITHER, making the gesture more forgiving and natural.
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Fix item name alignment on edit item screen
 
 **Feature:** Aligned the item name on the edit item screen with the content inside the Card sections below it

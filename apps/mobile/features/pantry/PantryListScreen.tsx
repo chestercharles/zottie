@@ -325,31 +325,30 @@ function SearchOverlay({
     }
   }, [isVisible])
 
-  // Temporarily disabled until new dev build is created
-  // const panGesture = Gesture.Pan()
-  //   .activeOffsetY([-8, 8])
-  //   .failOffsetX([-15, 15])
-  //   .onUpdate((event) => {
-  //     if (event.translationY < 0) {
-  //       gestureTranslateY.value = event.translationY
-  //     }
-  //   })
-  //   .onEnd((event) => {
-  //     const hasSignificantDistance = event.translationY < -60
-  //     const hasSignificantVelocity = event.velocityY < -1000
-  //     const shouldDismiss = hasSignificantDistance && hasSignificantVelocity
+  const panGesture = Gesture.Pan()
+    .activeOffsetY([-8, 8])
+    .failOffsetX([-15, 15])
+    .onUpdate((event) => {
+      if (event.translationY < 0) {
+        gestureTranslateY.value = event.translationY
+      }
+    })
+    .onEnd((event) => {
+      const hasSignificantDistance = event.translationY < -60
+      const hasSignificantVelocity = event.velocityY < -800
+      const shouldDismiss = hasSignificantDistance || hasSignificantVelocity
 
-  //     if (shouldDismiss) {
-  //       runOnJS(Keyboard.dismiss)()
-  //       runOnJS(onClose)()
-  //       gestureTranslateY.value = 0
-  //     } else {
-  //       gestureTranslateY.value = withSpring(0, {
-  //         damping: 20,
-  //         stiffness: 300,
-  //       })
-  //     }
-  //   })
+      if (shouldDismiss) {
+        runOnJS(Keyboard.dismiss)()
+        runOnJS(onClose)()
+        gestureTranslateY.value = 0
+      } else {
+        gestureTranslateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 300,
+        })
+      }
+    })
 
   const animatedStyle = useAnimatedStyle(() => {
     const baseTranslateY = interpolate(
@@ -388,6 +387,7 @@ function SearchOverlay({
         animatedStyle,
       ]}
     >
+      <GestureDetector gesture={panGesture}>
         <View
           style={{
             flexDirection: 'row',
@@ -462,6 +462,7 @@ function SearchOverlay({
             <Ionicons name="close" size={28} color={colors.text.primary} />
           </Pressable>
         </View>
+      </GestureDetector>
     </Reanimated.View>
   )
 }

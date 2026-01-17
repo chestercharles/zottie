@@ -7,7 +7,7 @@
   {
     "name": "Swipe gesture to dismiss pantry search",
     "description": "Add an upward swipe gesture to dismiss the pantry search interface. Users are accustomed to dismissing modal interfaces with swipe gestures in iOS apps. When the user swipes up on the search box, it should dismiss (and follow the same behavior as tapping the dismiss X button - both hiding the search and clearing the filter).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Fix edit item sheet handle position",
