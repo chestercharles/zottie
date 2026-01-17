@@ -13,6 +13,7 @@ import {
   useCallback,
   useRef,
   useLayoutEffect,
+  useMemo,
 } from 'react'
 import { useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
@@ -342,6 +343,12 @@ export function ShoppingListScreen() {
 
   const checkedCount = checkedIds.size
 
+  const sortedItems = useMemo(() => {
+    const unchecked = items.filter(item => !checkedIds.has(item.id))
+    const checked = items.filter(item => checkedIds.has(item.id))
+    return [...unchecked, ...checked]
+  }, [items, checkedIds])
+
   if (isLoading) {
     return (
       <View
@@ -384,7 +391,7 @@ export function ShoppingListScreen() {
         />
       ) : (
         <FlatList
-          data={items}
+          data={sortedItems}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ShoppingItemRow

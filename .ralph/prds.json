@@ -22,6 +22,6 @@
   {
     "name": "Move checked shopping list items to bottom",
     "description": "When users are actively shopping and check items off their shopping list, those checked items should automatically move to the bottom of the list. This mirrors the behavior of iOS Notes app checklists. The use case is that while shopping in-store, users check items as they put them in their cart, but don't immediately mark them as purchased. Moving checked items to the bottom keeps the unchecked (still-needed) items at the top where they're most visible and actionable. Checked items remain visible at the bottom of the list in their checked state until the user explicitly marks them as purchased (which is a separate action).",
-    "completed": false
+    "completed": true
   }
 ]

@@ -1,5 +1,26 @@
 # zottie Development Progress
 
+## 2026-01-17: Auto-sort checked shopping list items to bottom
+
+**Feature:** Checked shopping list items now automatically move to the bottom of the list
+
+**Changes:**
+- Added `sortedItems` memoized value in `apps/mobile/features/shopping/ShoppingListScreen.tsx`
+- Sorting logic separates items into two groups: unchecked items (shown first) and checked items (shown last)
+- Both groups maintain their original alphabetical order from the API
+- Updated `FlatList` to render `sortedItems` instead of `items`
+
+**Technical Details:**
+- Uses `useMemo` to efficiently recompute the sorted list only when `items` or `checkedIds` change
+- Maintains alphabetical order within each group (unchecked and checked)
+- Mirrors iOS Notes app behavior for shopping list organization
+- When users check items while shopping, they automatically move to the bottom keeping unchecked items prominently visible at the top
+
+**Verification:**
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Swipe-up gesture to dismiss pantry search (temporarily disabled)
 
 **Status:** Temporarily disabled pending new development build
