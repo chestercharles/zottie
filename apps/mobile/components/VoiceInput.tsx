@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
 import { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import {
@@ -16,15 +16,13 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
+import { useTheme } from '../lib/theme'
 
 type RecordingState = 'idle' | 'recording' | 'processing'
 
 interface VoiceInputProps {
   onTranscriptReceived: (transcript: string) => void
   buttonSize?: number
-  idleColor?: string
-  recordingColor?: string
-  processingColor?: string
   isProcessing?: boolean
   showStatusText?: boolean
   statusTextIdle?: string
@@ -37,9 +35,6 @@ interface VoiceInputProps {
 export function VoiceInput({
   onTranscriptReceived,
   buttonSize = 160,
-  idleColor = '#3498DB',
-  recordingColor = '#E74C3C',
-  processingColor = '#F39C12',
   isProcessing = false,
   showStatusText = true,
   statusTextIdle = 'Tap to speak',
@@ -48,6 +43,7 @@ export function VoiceInput({
   contextualStrings = ['pantry', 'shopping', 'in stock', 'running low', 'out of stock'],
   onError,
 }: VoiceInputProps) {
+  const { colors, spacing, typography } = useTheme()
   const [recordingState, setRecordingState] = useState<RecordingState>('idle')
   const scale = useSharedValue(1)
   const processingOpacity = useSharedValue(1)
@@ -215,11 +211,11 @@ export function VoiceInput({
   const getButtonColor = () => {
     switch (recordingState) {
       case 'recording':
-        return recordingColor
+        return colors.feedback.error
       case 'processing':
-        return processingColor
+        return colors.feedback.warning
       default:
-        return idleColor
+        return colors.action.primary
     }
   }
 
@@ -234,21 +230,23 @@ export function VoiceInput({
     }
   }
 
-  const radius = buttonSize / 2
-
   return (
-    <View style={styles.container}>
+    <View style={{ alignItems: 'center' }}>
       <Animated.View style={animatedStyle}>
         <TouchableOpacity
-          style={[
-            styles.micButton,
-            {
-              backgroundColor: getButtonColor(),
-              width: buttonSize,
-              height: buttonSize,
-              borderRadius: radius,
-            },
-          ]}
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: getButtonColor(),
+            width: buttonSize,
+            height: buttonSize,
+            borderRadius: buttonSize / 2,
+            shadowColor: colors.surface.overlay,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
           onPress={handleMicPress}
           disabled={recordingState === 'processing'}
           activeOpacity={0.7}
@@ -256,14 +254,22 @@ export function VoiceInput({
           <Ionicons
             name={recordingState === 'idle' ? 'mic-outline' : 'mic'}
             size={buttonSize * 0.5}
-            color="#fff"
+            color={colors.text.inverse}
           />
         </TouchableOpacity>
       </Animated.View>
 
       {showStatusText && (
         <Animated.Text
-          style={[styles.statusText, recordingState === 'processing' && animatedTextStyle]}
+          style={[
+            {
+              fontSize: typography.title.small.fontSize,
+              fontWeight: typography.title.small.fontWeight,
+              color: colors.text.primary,
+              marginTop: spacing.xl,
+            },
+            recordingState === 'processing' && animatedTextStyle,
+          ]}
         >
           {getStatusText()}
         </Animated.Text>
@@ -271,27 +277,3 @@ export function VoiceInput({
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  micButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  statusText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 32,
-  },
-})

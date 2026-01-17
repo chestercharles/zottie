@@ -109,3 +109,7 @@ useMutation({
 1. Run `pnpm run lint` to lint the codebase
 2. Run `pnpm run tsc` to check typescript types
 3. Run `pnpm run test` to run the tests
+
+## Design System
+
+@DESIGN_SYSTEM.md
