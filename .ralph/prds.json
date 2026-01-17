@@ -1,6 +1,1 @@
-[
-  {
-    "name": "Design system audit for add item bottom sheets",
-    "description": "Review and update both the 'Add Pantry Item' and 'Add Shopping Item' bottom sheets to fully conform with the design system. Currently, these bottom sheets have design inconsistencies - notably the background remains light when the app is in dark mode. Audit all aspects of these bottom sheets including: background colors, text colors, input field styling, button styling, spacing/padding, typography, and any other visual elements. Ensure all colors and styles are pulled from the design system tokens rather than hardcoded values, so they properly respond to light/dark mode changes and maintain consistency with the rest of the app."
-  }
-]
+[]

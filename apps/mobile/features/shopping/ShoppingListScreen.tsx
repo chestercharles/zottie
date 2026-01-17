@@ -253,7 +253,7 @@ function ShoppingItemRow({
 export function ShoppingListScreen() {
   const router = useRouter()
   const navigation = useNavigation()
-  const { colors, spacing, radius } = useTheme()
+  const { colors, spacing, radius, typography } = useTheme()
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
@@ -523,6 +523,7 @@ export function ShoppingListScreen() {
         onChange={handleSheetChange}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        backgroundStyle={{ backgroundColor: colors.surface.elevated }}
         handleIndicatorStyle={{ backgroundColor: colors.border.strong }}
       >
         <BottomSheetView style={styles.sheetContent}>
@@ -581,6 +582,8 @@ export function ShoppingListScreen() {
                   paddingVertical: spacing.sm,
                   paddingHorizontal: spacing.md,
                   color: colors.text.primary,
+                  backgroundColor: colors.surface.background,
+                  fontSize: typography.body.primary.fontSize,
                 },
               ]}
               value={newItemName}
@@ -661,7 +664,6 @@ const styles = StyleSheet.create({
   sheetBody: {},
   sheetInput: {
     borderWidth: 1,
-    fontSize: 16,
     minHeight: 44,
   },
   swipeActionsContainer: {

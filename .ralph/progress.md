@@ -1,5 +1,15 @@
 # zottie Development Progress
 
+## Design system audit for add item bottom sheets
+
+Updated both the "Add Pantry Item" and "Add Shopping Item" bottom sheets to fully conform with the design system, fixing dark mode background issues.
+
+Changes:
+- Added `backgroundStyle` with `colors.surface.elevated` to both BottomSheet components so they properly adapt to dark mode
+- Added `backgroundColor: colors.surface.background` to text inputs in both bottom sheets for proper contrast in dark mode
+- Updated ShoppingListScreen to use `typography.body.primary.fontSize` instead of hardcoded `fontSize: 16`
+- Added `typography` to the useTheme destructuring in ShoppingListScreen
+
 ## In-app theme toggle
 
 Added a theme toggle to the Settings screen that allows users to choose between Light, Dark, or System (default) appearance.

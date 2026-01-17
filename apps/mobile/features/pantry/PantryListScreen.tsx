@@ -794,6 +794,7 @@ export function PantryListScreen() {
         onChange={handleSheetChange}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        backgroundStyle={{ backgroundColor: colors.surface.elevated }}
         handleIndicatorStyle={{ backgroundColor: colors.border.strong }}
       >
         <BottomSheetView style={{ flex: 1 }}>
@@ -864,6 +865,7 @@ export function PantryListScreen() {
                 fontSize: typography.body.primary.fontSize,
                 marginBottom: spacing.lg,
                 color: colors.text.primary,
+                backgroundColor: colors.surface.background,
               }}
               value={newItemName}
               onChangeText={setNewItemName}
