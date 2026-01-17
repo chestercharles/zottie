@@ -339,7 +339,6 @@ function SearchOverlay({
       const shouldDismiss = hasSignificantDistance && hasSignificantVelocity
 
       if (shouldDismiss) {
-        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light)
         runOnJS(Keyboard.dismiss)()
         runOnJS(onClose)()
         gestureTranslateY.value = 0
