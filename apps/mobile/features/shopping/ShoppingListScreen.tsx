@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Pressable,
@@ -44,20 +43,8 @@ import {
 } from './hooks'
 import { useDeletePantryItem } from '@/features/pantry/hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
-
-const statusLabels: Record<PantryItemStatus, string> = {
-  in_stock: 'In Stock',
-  running_low: 'Running Low',
-  out_of_stock: 'Out of Stock',
-  planned: 'Planned',
-}
-
-const statusColors: Record<PantryItemStatus, string> = {
-  in_stock: '#27AE60',
-  running_low: '#F39C12',
-  out_of_stock: '#E74C3C',
-  planned: '#9B59B6',
-}
+import { useTheme } from '../../lib/theme'
+import { Text, Button, StatusBadge, EmptyState } from '../../components/ui'
 
 const itemTypeLabels: Record<ItemType, string> = {
   staple: 'Staple',
@@ -72,6 +59,7 @@ function SwipeActionButton({
   label,
   icon,
   color,
+  textColor,
   onPress,
   drag,
   position,
@@ -80,6 +68,7 @@ function SwipeActionButton({
   label: string
   icon: keyof typeof Ionicons.glyphMap
   color: string
+  textColor: string
   onPress: () => void
   drag: SharedValue<number>
   position: number
@@ -106,8 +95,10 @@ function SwipeActionButton({
         style={[styles.swipeActionContent, { backgroundColor: color }]}
         onPress={onPress}
       >
-        <Ionicons name={icon} size={22} color="#fff" />
-        <Text style={styles.swipeActionLabel}>{label}</Text>
+        <Ionicons name={icon} size={22} color={textColor} />
+        <Text variant="caption" color="inverse" style={styles.swipeActionLabel}>
+          {label}
+        </Text>
       </TouchableOpacity>
     </Reanimated.View>
   )
@@ -120,6 +111,9 @@ function ShoppingItemRow({
   onToggleCheck,
   onMarkPurchased,
   onDelete,
+  colors,
+  spacing,
+  radius,
 }: {
   item: ShoppingItem
   isChecked: boolean
@@ -127,6 +121,9 @@ function ShoppingItemRow({
   onToggleCheck: () => void
   onMarkPurchased: () => void
   onDelete: () => void
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
 }) {
   const swipeableRef = useRef<SwipeableMethods>(null)
   const hasTriggeredHaptic = useRef(false)
@@ -160,7 +157,8 @@ function ShoppingItemRow({
         <SwipeActionButton
           label="Purchased"
           icon="checkmark-circle"
-          color="#27AE60"
+          color={colors.feedback.success}
+          textColor={colors.text.inverse}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
             onMarkPurchased()
@@ -173,7 +171,8 @@ function ShoppingItemRow({
         <SwipeActionButton
           label="Delete"
           icon="trash"
-          color="#E74C3C"
+          color={colors.feedback.error}
+          textColor={colors.text.inverse}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
             onDelete()
@@ -197,34 +196,48 @@ function ShoppingItemRow({
         hasTriggeredHaptic.current = false
       }}
     >
-      <View style={styles.itemRow}>
+      <View
+        style={[
+          styles.itemRow,
+          {
+            backgroundColor: colors.surface.grouped,
+            borderRadius: radius.lg,
+            padding: spacing.md,
+            marginBottom: spacing.sm,
+          },
+        ]}
+      >
         <TouchableOpacity
-          style={styles.checkbox}
+          style={[styles.checkbox, { marginRight: spacing.sm }]}
           onPress={onToggleCheck}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons
             name={isChecked ? 'checkbox' : 'square-outline'}
             size={24}
-            color={isChecked ? '#27AE60' : '#999'}
+            color={isChecked ? colors.feedback.success : colors.text.tertiary}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.itemContent} onPress={onPress}>
           <View style={styles.itemDetails}>
             <Text
-              style={[styles.itemName, isChecked && styles.itemNameChecked]}
+              variant="body.primary"
+              style={[
+                styles.itemName,
+                isChecked && {
+                  textDecorationLine: 'line-through',
+                  color: colors.text.tertiary,
+                },
+              ]}
             >
               {item.name}
             </Text>
-            <Text style={styles.itemType}>{itemTypeLabels[item.itemType]}</Text>
+            <Text variant="caption" color="secondary" style={{ marginTop: 2 }}>
+              {itemTypeLabels[item.itemType]}
+            </Text>
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: statusColors[item.status] },
-            ]}
-          >
-            <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
+          <View style={{ marginLeft: spacing.sm }}>
+            <StatusBadge status={item.status} />
           </View>
         </TouchableOpacity>
       </View>
@@ -235,6 +248,7 @@ function ShoppingItemRow({
 export function ShoppingListScreen() {
   const router = useRouter()
   const navigation = useNavigation()
+  const { colors, spacing, radius } = useTheme()
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
@@ -273,14 +287,14 @@ export function ShoppingListScreen() {
       headerRight: () => (
         <Pressable
           onPress={openAddSheet}
-          style={{ marginRight: 8, padding: 4 }}
+          style={{ marginRight: spacing.sm, padding: spacing.xs }}
           hitSlop={8}
         >
-          <Ionicons name="add" size={28} color="#9B59B6" />
+          <Ionicons name="add" size={28} color={colors.action.primary} />
         </Pressable>
       ),
     })
-  }, [navigation, openAddSheet])
+  }, [navigation, openAddSheet, colors, spacing])
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()
@@ -353,35 +367,44 @@ export function ShoppingListScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3498DB" />
+      <View
+        style={[
+          styles.centered,
+          { backgroundColor: colors.surface.background, padding: spacing.lg },
+        ]}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
     )
   }
 
   if (error) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
+      <View
+        style={[
+          styles.centered,
+          { backgroundColor: colors.surface.background, padding: spacing.lg },
+        ]}
+      >
+        <Text
+          variant="body.primary"
+          style={{ color: colors.feedback.error, textAlign: 'center', marginBottom: spacing.md }}
+        >
+          {error}
+        </Text>
+        <Button title="Retry" onPress={() => refetch()} />
       </View>
     )
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       {items.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>You're all set!</Text>
-          <Text style={styles.emptySubtext}>
-            Items that are running low or out of stock will appear here.
-          </Text>
-          <TouchableOpacity style={styles.addButton} onPress={openAddSheet}>
-            <Text style={styles.addButtonText}>Add Planned Item</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          title="You're all set!"
+          message="Items that are running low or out of stock will appear here."
+          action={<Button title="Add Planned Item" onPress={openAddSheet} />}
+        />
       ) : (
         <FlatList
           data={items}
@@ -407,36 +430,55 @@ export function ShoppingListScreen() {
               onToggleCheck={() => handleToggleCheck(item.id)}
               onMarkPurchased={() => markAsPurchasedMutation.mutate([item.id])}
               onDelete={() => deletePantryItem.mutate(item.id)}
+              colors={colors}
+              spacing={spacing}
+              radius={radius}
             />
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ padding: spacing.md }}
           refreshControl={
             <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
           }
         />
       )}
       {checkedCount > 0 && (
-        <View style={styles.purchaseButtonContainer}>
+        <View
+          style={[
+            styles.purchaseButtonContainer,
+            {
+              padding: spacing.md,
+              paddingBottom: spacing.xl,
+              backgroundColor: colors.surface.background,
+              borderTopColor: colors.border.subtle,
+            },
+          ]}
+        >
           <TouchableOpacity
             style={[
               styles.purchaseButton,
-              markAsPurchasedMutation.isPending &&
-                styles.purchaseButtonDisabled,
+              {
+                backgroundColor: markAsPurchasedMutation.isPending
+                  ? colors.action.disabled
+                  : colors.feedback.success,
+                paddingVertical: spacing.md,
+                paddingHorizontal: spacing.lg,
+                borderRadius: radius.lg,
+              },
             ]}
             onPress={handleMarkAsPurchased}
             disabled={markAsPurchasedMutation.isPending}
           >
             {markAsPurchasedMutation.isPending ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color={colors.text.inverse} />
             ) : (
               <>
                 <Ionicons
                   name="cart"
                   size={20}
-                  color="#fff"
-                  style={styles.purchaseButtonIcon}
+                  color={colors.text.inverse}
+                  style={{ marginRight: spacing.sm }}
                 />
-                <Text style={styles.purchaseButtonText}>
+                <Text variant="body.primary" color="inverse" style={styles.purchaseButtonText}>
                   Mark {checkedCount} {checkedCount === 1 ? 'item' : 'items'} as
                   purchased
                 </Text>
@@ -444,17 +486,19 @@ export function ShoppingListScreen() {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.resetButton}
+            style={[styles.resetButton, { paddingVertical: spacing.sm, marginTop: spacing.sm }]}
             onPress={handleResetCheckmarks}
             disabled={markAsPurchasedMutation.isPending}
           >
             <Ionicons
               name="refresh"
               size={16}
-              color="#666"
-              style={styles.resetButtonIcon}
+              color={colors.text.secondary}
+              style={{ marginRight: spacing.xs }}
             />
-            <Text style={styles.resetButtonText}>Reset checkmarks</Text>
+            <Text variant="body.secondary" color="secondary">
+              Reset checkmarks
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -467,18 +511,28 @@ export function ShoppingListScreen() {
         onChange={handleSheetChange}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
-        handleIndicatorStyle={styles.sheetHandle}
+        handleIndicatorStyle={{ backgroundColor: colors.border.strong }}
       >
         <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.sheetHeader}>
+          <View
+            style={[
+              styles.sheetHeader,
+              {
+                paddingHorizontal: spacing.md,
+                paddingTop: spacing.sm,
+                paddingBottom: spacing.sm,
+                borderBottomColor: colors.border.subtle,
+              },
+            ]}
+          >
             <TouchableOpacity
               style={styles.sheetHeaderButton}
               onPress={closeAddSheet}
               disabled={createPlannedItemMutation.isPending}
             >
-              <Ionicons name="close" size={28} color="#333" />
+              <Ionicons name="close" size={28} color={colors.text.primary} />
             </TouchableOpacity>
-            <Text style={styles.sheetTitle}>Add Planned Item</Text>
+            <Text variant="title.small">Add Planned Item</Text>
             <TouchableOpacity
               style={[
                 styles.sheetHeaderButton,
@@ -491,23 +545,32 @@ export function ShoppingListScreen() {
               }
             >
               {createPlannedItemMutation.isPending ? (
-                <ActivityIndicator color="#9B59B6" />
+                <ActivityIndicator color={colors.action.primary} />
               ) : (
                 <Ionicons
                   name="checkmark"
                   size={28}
-                  color={newItemName.trim() ? '#9B59B6' : '#ccc'}
+                  color={newItemName.trim() ? colors.action.primary : colors.action.disabled}
                 />
               )}
             </TouchableOpacity>
           </View>
-          <View style={styles.sheetBody}>
+          <View style={[styles.sheetBody, { padding: spacing.lg }]}>
             <BottomSheetTextInput
-              style={styles.sheetInput}
+              style={[
+                styles.sheetInput,
+                {
+                  borderColor: colors.border.subtle,
+                  borderRadius: radius.sm,
+                  paddingVertical: spacing.sm,
+                  paddingHorizontal: spacing.md,
+                  color: colors.text.primary,
+                },
+              ]}
               value={newItemName}
               onChangeText={setNewItemName}
               placeholder="Item name"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.text.tertiary}
               editable={!createPlannedItemMutation.isPending}
               onSubmitEditing={handleCreatePlannedItem}
               returnKeyType="done"
@@ -522,29 +585,17 @@ export function ShoppingListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 24,
-  },
-  listContent: {
-    padding: 16,
   },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
   },
-  checkbox: {
-    marginRight: 12,
-  },
+  checkbox: {},
   itemContent: {
     flex: 1,
     flexDirection: 'row',
@@ -555,132 +606,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  itemNameChecked: {
-    textDecorationLine: 'line-through',
-    color: '#999',
-  },
-  itemType: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    marginLeft: 12,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  addButton: {
-    backgroundColor: '#9B59B6',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#E74C3C',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
   purchaseButtonContainer: {
-    padding: 16,
-    paddingBottom: 32,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   purchaseButton: {
-    backgroundColor: '#27AE60',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-  },
-  purchaseButtonDisabled: {
-    backgroundColor: '#95D5B2',
-  },
-  purchaseButtonIcon: {
-    marginRight: 8,
   },
   purchaseButtonText: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
   resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  resetButtonIcon: {
-    marginRight: 6,
-  },
-  resetButtonText: {
-    color: '#666',
-    fontSize: 14,
   },
   sheetContent: {
     flex: 1,
-  },
-  sheetHandle: {
-    backgroundColor: '#c0c0c0',
   },
   sheetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ddd',
   },
   sheetHeaderButton: {
     width: 44,
@@ -691,21 +642,11 @@ const styles = StyleSheet.create({
   sheetHeaderButtonDisabled: {
     opacity: 0.5,
   },
-  sheetTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#333',
-  },
-  sheetBody: {
-    padding: 24,
-  },
+  sheetBody: {},
   sheetInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     fontSize: 16,
+    minHeight: 44,
   },
   swipeActionsContainer: {
     flexDirection: 'row',
@@ -727,8 +668,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   swipeActionLabel: {
-    color: '#fff',
-    fontSize: 11,
     fontWeight: '600',
   },
 })
