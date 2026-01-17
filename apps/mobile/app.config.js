@@ -7,6 +7,9 @@ export default {
     name: IS_DEV ? 'zottie (Dev)' : 'zottie',
     slug: 'zottie',
     version: '1.0.0',
+    runtimeVersion: {
+      policy: 'fingerprint',
+    },
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: IS_DEV ? 'zottie-dev' : 'zottie',
@@ -40,8 +43,12 @@ export default {
       output: 'static',
       favicon: './assets/images/favicon.png',
     },
+    updates: {
+      url: 'https://u.expo.dev/fe1d5cf1-6626-44f5-989a-7ae33c7a5a3c',
+    },
     plugins: [
       'expo-router',
+      'expo-updates',
       [
         'expo-splash-screen',
         {

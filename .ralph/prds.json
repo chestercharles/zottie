@@ -2,7 +2,7 @@
   {
     "name": "Automatic OTA updates",
     "description": "Enable automatic over-the-air updates so users receive the latest app version without needing to go through the App Store. The app should check for updates on launch and silently download any available updates in the background. Updates are applied automatically on the next app restart with no user interaction required. This uses Expo's default update behavior - no custom UI or prompts needed. Implementation involves configuring expo-updates in app.config.js with appropriate runtime versioning and ensuring EAS Update is properly set up.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add drag handle to Settings modal",

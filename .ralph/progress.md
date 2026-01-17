@@ -1,5 +1,22 @@
 # zottie Development Progress
 
+## Automatic OTA updates
+
+Enabled automatic over-the-air updates using Expo's expo-updates package. Users will receive the latest app version without needing to go through the App Store. The app checks for updates on launch and silently downloads any available updates in the background, applying them on the next restart.
+
+Changes:
+- Installed `expo-updates` package
+- Added `expo-updates` plugin to app.config.js
+- Configured `runtimeVersion` with `fingerprint` policy for automatic native code compatibility detection
+- Added `updates.url` pointing to EAS Update service
+- Added update channels to eas.json for each build profile (development, preview, production)
+
+How it works:
+- On app launch, expo-updates checks for new updates from the configured channel
+- Compatible updates are downloaded in the background
+- Updates are applied automatically on the next app restart
+- The fingerprint runtime version policy ensures updates only apply to compatible native builds
+
 ## Update success color to teal
 
 Replaced the bright green success color with a teal/cyan color that better aligns with zottie's warm, empathetic personality. The previous green (#32D74B in dark mode, #34C759 in light mode) felt too technical and "hackery" - more appropriate for developer tools than a household app about cooking and meal prep.
