@@ -3,10 +3,6 @@ import { useAuth } from '@/features/auth'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '@/lib/theme'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
-import { Header, getHeaderTitle } from '@react-navigation/elements'
-import type { BottomTabHeaderProps } from '@react-navigation/bottom-tabs'
-
-const HEADER_HEIGHT = 56
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -46,23 +42,6 @@ export default function AuthenticatedLayout() {
         },
         headerLeftContainerStyle: styles.headerContainer,
         headerRightContainerStyle: styles.headerContainer,
-        header: (props: BottomTabHeaderProps) => (
-          <Header
-            {...props}
-            title={getHeaderTitle(props.options, props.route.name)}
-            headerStyle={{
-              backgroundColor: colors.surface.background,
-              height: HEADER_HEIGHT,
-            }}
-            headerTintColor={colors.text.primary}
-            headerTitleStyle={{
-              fontWeight: '600',
-              color: colors.text.primary,
-            }}
-            headerLeftContainerStyle={styles.headerContainer}
-            headerRightContainerStyle={styles.headerContainer}
-          />
-        ),
       }}
     >
       <Tabs.Screen

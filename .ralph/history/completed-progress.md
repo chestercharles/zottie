@@ -1,5 +1,253 @@
 # zottie Completed Development Progress
 
+## Increase header height for better touch confidence
+
+Increased the navigation header height across the app to provide more negative space around action icons. The previous headers felt cramped, making it harder for users to confidently tap the small icon buttons.
+
+Changes:
+
+- Created custom header components using `@react-navigation/elements` Header with increased height (56pt vs iOS default 44pt)
+- Updated authenticated tab layout (`(authenticated)/_layout.tsx`) with custom header function
+- Updated pantry nested stack layout (`pantry/_layout.tsx`) with custom header for modal screens
+- Updated shopping nested stack layout (`shopping/_layout.tsx`) with custom header for future screens
+- Updated root layout (`_layout.tsx`) with custom header for screens like "Join Household"
+- All headers use consistent 56pt height and 12px horizontal padding on header containers
+
+This additional 12pt of breathing room helps users feel more confident they're hitting the right target, aligning with the design principle that the interface should feel "reassuring" and avoid "dense layouts". The change applies to all screens with header action buttons.
+
+## Swipe-to-reveal delete on shopping list items
+
+Changed the direct swipe-to-delete gesture on shopping list items to a safer swipe-to-reveal pattern. The previous direct swipe made it too easy to accidentally delete items when swiping quickly through the list.
+
+Changes:
+
+- Replaced direct swipe-to-delete with swipe-to-reveal pattern
+- Swiping left on a shopping list item now reveals a red delete button with trash icon
+- The delete button is 80px wide and stays visible until the user either:
+  - Taps the delete button to confirm deletion
+  - Taps the row to close it (and toggle checked state)
+  - Swipes the row back to the right
+- Tapping the revealed delete button triggers haptic feedback and animates the item off-screen
+- The row snaps open when swiped past 40px threshold, or snaps back if not
+- Uses spring animations for smooth, native-feeling behavior
+
+This adds a deliberate confirmation step that prevents accidental deletions while still keeping the interaction quick and intuitive.
+
+## Consistent header action icon button colors
+
+Updated the plus button in the pantry and shopping list screen headers to use the same color as other header action icons (like search and settings). Previously, the plus button used `colors.action.primary` (purple accent color) while other icons used `tintColor` (the standard navigation header text color). This inconsistency made the plus button stand out unnecessarily.
+
+Changes:
+
+- Updated PantryListScreen: Changed plus icon from `colors.action.primary` to `tintColor`
+- Updated ShoppingListScreen: Added `tintColor` prop to headerRight and changed plus icon color
+- Removed unused `colors` dependency from ShoppingListScreen's useLayoutEffect
+
+The plus button now matches the visual style of the search icon and other header actions, creating a more cohesive and consistent header appearance.
+
+## Shopping list tap toggles checked state
+
+Changed the tap behavior on shopping list items so that tapping anywhere on an item toggles its checked/unchecked state directly, rather than navigating to a detail page. This matches the mental model users have when shopping - they want to quickly check off items as they put them in their cart.
+
+Changes:
+
+- Made the entire shopping list row tappable to toggle the checked state
+- Removed navigation to the pantry item detail page on tap
+- The checkbox icon visually indicates the checked state
+- Swipe-to-delete gesture still works for removing items
+- The bulk "Mark as purchased" button still works for checked items
+
+The change reduces friction when users are in the store trying to move quickly through their list. Previously, tapping an item would open a detail page which interrupted the shopping flow.
+
+## Automatic OTA updates
+
+Enabled automatic over-the-air updates using Expo's expo-updates package. Users will receive the latest app version without needing to go through the App Store. The app checks for updates on launch and silently downloads any available updates in the background, applying them on the next restart.
+
+Changes:
+
+- Installed `expo-updates` package
+- Added `expo-updates` plugin to app.config.js
+- Configured `runtimeVersion` with `fingerprint` policy for automatic native code compatibility detection
+- Added `updates.url` pointing to EAS Update service
+- Added update channels to eas.json for each build profile (development, preview, production)
+
+How it works:
+
+- On app launch, expo-updates checks for new updates from the configured channel
+- Compatible updates are downloaded in the background
+- Updates are applied automatically on the next app restart
+- The fingerprint runtime version policy ensures updates only apply to compatible native builds
+
+## Update success color to teal
+
+Replaced the bright green success color with a teal/cyan color that better aligns with zottie's warm, empathetic personality. The previous green (#32D74B in dark mode, #34C759 in light mode) felt too technical and "hackery" - more appropriate for developer tools than a household app about cooking and meal prep.
+
+Changes:
+
+- Updated dark mode success color from `#32D74B` (bright green) to `#2DD4BF` (teal)
+- Updated light mode success color from `#34C759` (iOS green) to `#14B8A6` (darker teal for light backgrounds)
+- The new teal maintains the positive/success semantic meaning while feeling calmer and more modern
+- Both colors are from the same teal family for visual consistency between modes
+
+Affected UI components that use `feedback.success`:
+
+- StatusBadge: "In Stock" status badges in pantry
+- ShoppingListScreen: Checkmarks on completed shopping items, purchase action button
+- CommandsScreen: Checkmark for completed commands
+- JoinScreen: Success icons in household join flow
+
+## Direct swipe-to-delete on shopping list items
+
+Simplified the delete interaction for shopping list items from a two-step action (swipe to reveal button, then tap) to a single direct swipe gesture.
+
+Changes:
+
+- Replaced `ReanimatedSwipeable` with a custom `Gesture.Pan()` implementation for direct swipe control
+- When user swipes left past 100px threshold, the item animates sliding off screen and is deleted immediately
+- Red delete background progressively reveals with trash icon as user swipes
+- Added haptic feedback (medium impact) when crossing the delete threshold
+- Item slides off with a smooth 200ms ease-out animation before triggering deletion
+- Removed the two-button swipe action (Purchased/Delete) in favor of the streamlined single gesture
+- Users can still mark items as purchased using the checkbox or the bulk "Mark as purchased" button
+
+The interaction now follows iOS HIG for destructive swipe actions with appropriate gesture thresholds, spring animations for snap-back, and visual feedback during the swipe.
+
+## Fix add planned item sheet dismissal navigation
+
+Fixed a bug where dismissing the "add planned item" bottom sheet on the shopping list screen would incorrectly navigate to the pantry screen instead of staying on the shopping list.
+
+Changes:
+
+- Added `pressBehavior="close"` to explicitly control backdrop tap behavior
+- Added `enableTouchThrough={false}` to prevent touch events from passing through the backdrop to the underlying FlatList
+- This prevents accidental item taps when the sheet is being dismissed, which was triggering navigation to the pantry item detail screen
+
+## Smoother search overlay animation on Pantry screen
+
+Adjusted the search overlay animation to feel more native and polished by using critically-damped spring physics that don't overshoot.
+
+Changes:
+
+- Updated spring animation parameters in SearchOverlay component from `damping: 20, stiffness: 300` to `damping: 28, stiffness: 400, mass: 0.8`
+- The new parameters create a smooth slide-in without the bouncy overshoot that felt inconsistent with iOS native search bar behavior
+- Animation now feels like iOS Settings/Mail app search animations - quick and smooth with no bounce
+
+## Move drag handle above Settings modal header
+
+Moved the drag handle to appear at the very top of the Settings modal, above the title, to match iOS modal presentation conventions.
+
+Changes:
+
+- Set `headerShown: false` for the settings route in the pantry layout to hide the navigation-provided header
+- Added a custom header section in SettingsScreen with the drag handle at the top followed by a centered "Settings" title
+- The drag handle is now the first visual element at the top edge of the modal sheet
+
+## Add drag handle to Pantry Edit Item modal
+
+Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal to indicate it can be dismissed by swiping down.
+
+Changes:
+
+- Added DragHandle import from components/ui in PantryItemDetailScreen
+- Added DragHandle component at the top of the ScrollView, before the content
+- Reuses the existing DragHandle component from components/ui
+
+## Add drag handle to Pantry Add Item modal
+
+Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Add Item modal to indicate it can be dismissed by swiping down.
+
+Changes:
+
+- Added DragHandle component to CreatePantryItemScreen at the top of the modal
+- Wrapped the form content in a View with padding to maintain proper layout
+- Reuses the existing DragHandle component from components/ui
+
+## Add drag handle to Settings modal
+
+Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Settings modal to indicate it can be dismissed by swiping down.
+
+Changes:
+
+- Created reusable `DragHandle` component in `components/ui/DragHandle.tsx`
+- Component renders a 36x5px pill-shaped bar centered at the top
+- Uses `colors.border.strong` for proper visibility in both light and dark modes
+- Added DragHandle to the SettingsScreen at the top of the modal
+- Exported DragHandle from the components/ui index
+
+## Design system audit for add item bottom sheets
+
+Updated both the "Add Pantry Item" and "Add Shopping Item" bottom sheets to fully conform with the design system, fixing dark mode background issues.
+
+Changes:
+
+- Added `backgroundStyle` with `colors.surface.elevated` to both BottomSheet components so they properly adapt to dark mode
+- Added `backgroundColor: colors.surface.background` to text inputs in both bottom sheets for proper contrast in dark mode
+- Updated ShoppingListScreen to use `typography.body.primary.fontSize` instead of hardcoded `fontSize: 16`
+- Added `typography` to the useTheme destructuring in ShoppingListScreen
+
+## In-app theme toggle
+
+Added a theme toggle to the Settings screen that allows users to choose between Light, Dark, or System (default) appearance.
+
+Changes:
+
+- Created `ThemeContext.tsx` with ThemeProvider that persists user preference to AsyncStorage
+- ThemeProvider resolves the color scheme based on user preference (or falls back to system when set to "System")
+- Updated `useTheme` hook to use the resolved color scheme from ThemeContext
+- Added ThemeProvider wrapper to root layout in `_layout.tsx`
+- Added an Appearance section to Settings screen with a segmented control for Light/Dark/System options
+- The segmented control follows iOS design patterns with a grouped background and elevated selected state
+- Exported `ThemeProvider`, `useThemePreference`, and `ThemePreference` type from theme module
+
+## Move pantry settings gear to left side of navigation
+
+Moved the settings gear icon from the right side of the Pantry screen navigation header to the left side to reduce accidental taps.
+
+Changes:
+
+- Added `headerLeft` navigation option with the settings gear icon
+- Removed the settings gear from `headerRight`
+- Right side now only has search and add (+) icons, which are more frequently used
+- Reduces accidental taps when reaching for primary actions
+
+## Pantry search overlay keyboard behavior
+
+Improved the keyboard behavior of the pantry search overlay to follow standard iOS search patterns.
+
+Changes:
+
+- Pressing the keyboard's return/search key now dismisses the keyboard but keeps the overlay visible with filtered results
+- Tapping the large X button to exit search mode now properly dismisses both the keyboard and the overlay simultaneously
+- The small X clear button inside the input continues to clear text without dismissing overlay or keyboard (already working)
+- Auto-focus on the search input when the overlay appears (already working)
+
+## iOS Calendar-style search overlay for pantry
+
+Implemented an animated search overlay that slides down from the top of the pantry screen when the search icon is tapped, following iOS Calendar-style patterns. The overlay covers the navigation area and contains a search input with clear functionality.
+
+Changes:
+
+- Created `SearchOverlay` component with spring animations using react-native-reanimated
+- Overlay slides down with `withSpring` animation (damping: 20, stiffness: 300) for native iOS feel
+- Search input with placeholder "Search pantry items..."
+- Small X button inside the input to clear the current search term
+- Large X button to exit search mode entirely and dismiss the overlay
+- Auto-focuses input when overlay appears
+- Pantry list padding adjusts when search mode is active to accommodate the overlay
+- Uses existing filtering logic from `usePantryItems` hook
+
+## Pantry search icon in navigation header
+
+Added a magnifying glass search icon to the pantry screen's navigation header, positioned to the left of the existing add (+) and settings icons. Tapping the icon triggers entry into search mode (state is tracked via `isSearchMode`). Removed the always-visible inline search bar from the main content area, so the pantry list now shows all items without the search input taking up space when not in search mode.
+
+Changes:
+
+- Added `isSearchMode` state to track search mode
+- Added search icon to `headerRight` in navigation options
+- Removed inline search bar from pantry list content
+- Search icon color changes to primary action color when search mode is active
+- Added accessibility labels to all header icons
+
 ## 2026-01-14: Commands parsing maximize empathy behavior
 
 Strengthened the command parsing system to maximize empathy toward user intent, ensuring the system takes action when users mention items rather than asking for confirmation.

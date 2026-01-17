@@ -3,23 +3,12 @@ import { Auth0Provider } from 'react-native-auth0'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Constants from 'expo-constants'
-import { StyleSheet } from 'react-native'
-import { Header, getHeaderTitle } from '@react-navigation/elements'
-import type { NativeStackHeaderProps } from '@react-navigation/native-stack'
 import { queryClient } from '../lib/query'
 import { useTheme, ThemeProvider } from '@/lib/theme'
 
 const auth0Domain = Constants.expoConfig?.extra?.auth0Domain
 const auth0ClientId = Constants.expoConfig?.extra?.auth0ClientId
 const auth0Audience = Constants.expoConfig?.extra?.auth0Audience
-
-const HEADER_HEIGHT = 56
-
-const styles = StyleSheet.create({
-  headerContainer: {
-    paddingHorizontal: 12,
-  },
-})
 
 function RootNavigator() {
   const { colors } = useTheme()
@@ -35,23 +24,6 @@ function RootNavigator() {
           fontWeight: '600',
           color: colors.text.primary,
         },
-        header: (props: NativeStackHeaderProps) => (
-          <Header
-            {...props}
-            title={getHeaderTitle(props.options, props.route.name)}
-            headerStyle={{
-              backgroundColor: colors.surface.background,
-              height: HEADER_HEIGHT,
-            }}
-            headerTintColor={colors.text.primary}
-            headerTitleStyle={{
-              fontWeight: '600',
-              color: colors.text.primary,
-            }}
-            headerLeftContainerStyle={styles.headerContainer}
-            headerRightContainerStyle={styles.headerContainer}
-          />
-        ),
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
