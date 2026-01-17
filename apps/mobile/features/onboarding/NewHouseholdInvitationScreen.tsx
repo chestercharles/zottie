@@ -1,16 +1,10 @@
 import { useState, useEffect } from 'react'
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Share,
-  Alert,
-} from 'react-native'
+import { View, StyleSheet, ActivityIndicator, Share, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useCreateHouseholdInvite } from '@/features/household'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 interface NewHouseholdInvitationScreenProps {
   onContinue: () => void
@@ -22,6 +16,7 @@ export function NewHouseholdInvitationScreen({
   onSkip,
 }: NewHouseholdInvitationScreenProps) {
   const insets = useSafeAreaInsets()
+  const { colors, spacing, radius, typography } = useTheme()
   const createInvite = useCreateHouseholdInvite()
   const [inviteCode, setInviteCode] = useState<string | null>(null)
 
@@ -61,27 +56,74 @@ export function NewHouseholdInvitationScreen({
   const isLoading = createInvite.isPending || !inviteCode
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Ionicons name="people" size={64} color="#3498DB" />
-        <Text style={styles.title}>Invite your household</Text>
-        <Text style={styles.subtitle}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.lg,
+        },
+      ]}
+    >
+      <View style={[styles.content, { gap: spacing.md }]}>
+        <Ionicons name="people" size={64} color={colors.action.primary} />
+        <Text variant="title.large" style={{ marginTop: spacing.md }}>
+          Invite your household
+        </Text>
+        <Text variant="body.primary" color="secondary">
           Share your grocery lists and coordinate shopping together. You can
           invite your partner, roommate, or anyone you share a kitchen with.
         </Text>
 
         {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#3498DB" />
-            <Text style={styles.loadingText}>Creating your invite link...</Text>
+          <View
+            style={[
+              styles.loadingContainer,
+              { marginTop: spacing.xl, gap: spacing.md },
+            ]}
+          >
+            <ActivityIndicator size="large" color={colors.action.primary} />
+            <Text variant="body.primary" color="secondary">
+              Creating your invite link...
+            </Text>
           </View>
         ) : (
-          <View style={styles.inviteContainer}>
-            <Text style={styles.inviteLabel}>Your invite code:</Text>
-            <View style={styles.codeContainer}>
-              <Text style={styles.codeText}>{inviteCode}</Text>
+          <View style={{ marginTop: spacing.lg }}>
+            <Text
+              variant="body.primary"
+              style={{ fontWeight: '600', marginBottom: spacing.sm }}
+            >
+              Your invite code:
+            </Text>
+            <View
+              style={[
+                styles.codeContainer,
+                {
+                  backgroundColor: colors.surface.grouped,
+                  borderColor: colors.border.subtle,
+                  borderRadius: radius.lg,
+                  paddingHorizontal: spacing.lg,
+                  paddingVertical: spacing.md,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.codeText,
+                  {
+                    color: colors.action.primary,
+                    fontSize: typography.title.medium.fontSize,
+                  },
+                ]}
+              >
+                {inviteCode}
+              </Text>
             </View>
-            <Text style={styles.hint}>
+            <Text
+              variant="body.secondary"
+              color="tertiary"
+              style={{ marginTop: spacing.sm }}
+            >
               Tap "Share invite" to send this link to someone you'd like to add
               to your household.
             </Text>
@@ -90,21 +132,32 @@ export function NewHouseholdInvitationScreen({
       </View>
 
       <View
-        style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}
+        style={[
+          styles.footer,
+          {
+            gap: spacing.sm,
+            paddingTop: spacing.lg,
+            paddingBottom: Math.max(insets.bottom, spacing.md),
+          },
+        ]}
       >
-        <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-          <Text style={styles.skipButtonText}>Skip</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.continueButton,
-            isLoading && styles.disabledButton,
-          ]}
+        <Button
+          variant="secondary"
+          title="Skip"
+          onPress={onSkip}
+          style={{
+            flex: 1,
+            borderWidth: 1,
+            borderColor: colors.border.subtle,
+            borderRadius: radius.md,
+          }}
+        />
+        <Button
+          title="Share invite"
           onPress={handleShare}
           disabled={isLoading}
-        >
-          <Text style={styles.continueButtonText}>Share invite</Text>
-        </TouchableOpacity>
+          style={{ flex: 2 }}
+        />
       </View>
     </View>
   )
@@ -113,97 +166,23 @@ export function NewHouseholdInvitationScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
   },
   content: {
     flex: 1,
     paddingTop: 60,
-    gap: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    marginTop: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    lineHeight: 24,
   },
   loadingContainer: {
-    marginTop: 32,
     alignItems: 'center',
-    gap: 16,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#7F8C8D',
-  },
-  inviteContainer: {
-    marginTop: 24,
-    gap: 12,
-  },
-  inviteLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2C3E50',
   },
   codeContainer: {
-    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
     alignItems: 'center',
   },
   codeText: {
-    fontSize: 24,
     fontWeight: '700',
-    color: '#3498DB',
     letterSpacing: 2,
-  },
-  hint: {
-    fontSize: 14,
-    color: '#95A5A6',
-    fontStyle: 'italic',
-    lineHeight: 20,
-    marginTop: 4,
   },
   footer: {
     flexDirection: 'row',
-    gap: 12,
-    paddingTop: 24,
-  },
-  skipButton: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    color: '#7F8C8D',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  continueButton: {
-    flex: 2,
-    backgroundColor: '#3498DB',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  continueButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 })
