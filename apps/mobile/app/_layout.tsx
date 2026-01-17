@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Constants from 'expo-constants'
 import { queryClient } from '../lib/query'
-import { useTheme } from '@/lib/theme'
+import { useTheme, ThemeProvider } from '@/lib/theme'
 
 const auth0Domain = Constants.expoConfig?.extra?.auth0Domain
 const auth0ClientId = Constants.expoConfig?.extra?.auth0ClientId
@@ -64,11 +64,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
-          <RootNavigator />
-        </Auth0Provider>
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <Auth0Provider domain={auth0Domain} clientId={auth0ClientId}>
+            <RootNavigator />
+          </Auth0Provider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   )
 }

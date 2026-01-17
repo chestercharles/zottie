@@ -1,5 +1,18 @@
 # zottie Development Progress
 
+## In-app theme toggle
+
+Added a theme toggle to the Settings screen that allows users to choose between Light, Dark, or System (default) appearance.
+
+Changes:
+- Created `ThemeContext.tsx` with ThemeProvider that persists user preference to AsyncStorage
+- ThemeProvider resolves the color scheme based on user preference (or falls back to system when set to "System")
+- Updated `useTheme` hook to use the resolved color scheme from ThemeContext
+- Added ThemeProvider wrapper to root layout in `_layout.tsx`
+- Added an Appearance section to Settings screen with a segmented control for Light/Dark/System options
+- The segmented control follows iOS design patterns with a grouped background and elevated selected state
+- Exported `ThemeProvider`, `useThemePreference`, and `ThemePreference` type from theme module
+
 ## Move pantry settings gear to left side of navigation
 
 Moved the settings gear icon from the right side of the Pantry screen navigation header to the left side to reduce accidental taps.

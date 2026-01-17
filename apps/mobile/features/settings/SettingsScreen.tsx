@@ -19,12 +19,19 @@ import {
   useLeaveHousehold,
 } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
-import { useTheme } from '../../lib/theme'
+import { useTheme, useThemePreference, type ThemePreference } from '../../lib/theme'
 import { Text, Button } from '../../components/ui'
+
+const themeOptions: { value: ThemePreference; label: string }[] = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+]
 
 export function SettingsScreen() {
   const router = useRouter()
   const { colors, spacing, radius } = useTheme()
+  const { preference, setPreference } = useThemePreference()
   const { user, signOut } = useAuth()
   const { household, members, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
@@ -119,6 +126,54 @@ export function SettingsScreen() {
           {user?.email && (
             <Text variant="body.primary">{user.email}</Text>
           )}
+        </View>
+
+        <View style={[styles.appearanceSection, { marginBottom: spacing.xl }]}>
+          <Text variant="caption" color="secondary" style={styles.sectionTitle}>
+            APPEARANCE
+          </Text>
+          <View
+            style={[
+              styles.segmentedControl,
+              {
+                backgroundColor: colors.surface.grouped,
+                borderRadius: radius.sm,
+                padding: spacing.xs,
+              },
+            ]}
+          >
+            {themeOptions.map((option) => {
+              const isSelected = preference === option.value
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.segmentOption,
+                    {
+                      backgroundColor: isSelected ? colors.surface.elevated : 'transparent',
+                      borderRadius: radius.sm - 2,
+                      paddingVertical: spacing.sm,
+                      paddingHorizontal: spacing.md,
+                    },
+                  ]}
+                  onPress={() => setPreference(option.value)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={`${option.label} theme`}
+                >
+                  <Text
+                    variant="body.secondary"
+                    style={{
+                      color: isSelected ? colors.text.primary : colors.text.secondary,
+                      fontWeight: isSelected ? '600' : '400',
+                    }}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
         </View>
 
         <View style={[styles.householdSection, { marginBottom: spacing.xl }]}>
@@ -301,6 +356,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   accountSection: {},
+  appearanceSection: {},
+  segmentedControl: {
+    flexDirection: 'row',
+  },
+  segmentOption: {
+    flex: 1,
+    alignItems: 'center',
+  },
   householdSection: {},
   sectionTitle: {
     fontWeight: '600',
