@@ -4,9 +4,11 @@ import { useRouter, Redirect } from 'expo-router'
 import { useHouseholdMembership } from '@/features/household'
 import { CreateHouseholdScreen } from './CreateHouseholdScreen'
 import { QuickAddInventoryScreen } from './QuickAddInventoryScreen'
+import { useTheme } from '@/lib/theme'
 
 export function OriginalOnboarding() {
   const router = useRouter()
+  const { colors } = useTheme()
   const { hasHousehold, isLoading } = useHouseholdMembership()
   const [onCreateHouseholdStep, setOnCreateHouseholdStep] = useState(true)
 
@@ -20,8 +22,10 @@ export function OriginalOnboarding() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498DB" />
+      <View
+        style={[styles.loadingContainer, { backgroundColor: colors.surface.background }]}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
     )
   }
@@ -42,6 +46,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
 })
