@@ -250,6 +250,17 @@ export function VoiceInput({
           onPress={handleMicPress}
           disabled={recordingState === 'processing'}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={
+            recordingState === 'recording'
+              ? 'Stop recording'
+              : recordingState === 'processing'
+                ? 'Processing speech'
+                : 'Start voice input'
+          }
+          accessibilityHint={
+            recordingState === 'idle' ? 'Tap to start speaking' : undefined
+          }
         >
           <Ionicons
             name={recordingState === 'idle' ? 'mic-outline' : 'mic'}

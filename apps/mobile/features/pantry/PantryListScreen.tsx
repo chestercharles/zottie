@@ -94,6 +94,8 @@ function SwipeActionButton({
           backgroundColor: color,
         }}
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
       >
         <Ionicons name={icon} size={22} color={textColor} />
         <Text
@@ -475,6 +477,8 @@ export function PantryListScreen() {
             padding: spacing.md,
           }}
           onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
+          accessibilityRole="button"
+          accessibilityLabel={`Planned Items. ${plannedItems.length} items. ${isPlannedExpanded ? 'Collapse' : 'Expand'}`}
         >
           <View
             style={{
@@ -626,6 +630,8 @@ export function PantryListScreen() {
               <TouchableOpacity
                 style={{ padding: spacing.sm }}
                 onPress={() => setSearchTerm('')}
+                accessibilityRole="button"
+                accessibilityLabel="Clear search"
               >
                 <Text variant="body.primary" color="tertiary">
                   ✕
@@ -681,6 +687,8 @@ export function PantryListScreen() {
               }}
               onPress={closeAddSheet}
               disabled={createPantryItem.isPending}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
             >
               <Ionicons name="close" size={28} color={colors.text.primary} />
             </TouchableOpacity>
@@ -696,6 +704,8 @@ export function PantryListScreen() {
               }}
               onPress={handleAddItem}
               disabled={!newItemName.trim() || createPantryItem.isPending}
+              accessibilityRole="button"
+              accessibilityLabel="Save item"
             >
               {createPantryItem.isPending ? (
                 <ActivityIndicator color={colors.action.primary} />

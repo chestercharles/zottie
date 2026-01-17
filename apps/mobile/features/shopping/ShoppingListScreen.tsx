@@ -94,6 +94,8 @@ function SwipeActionButton({
       <TouchableOpacity
         style={[styles.swipeActionContent, { backgroundColor: color }]}
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
       >
         <Ionicons name={icon} size={22} color={textColor} />
         <Text variant="caption" color="inverse" style={styles.swipeActionLabel}>
@@ -211,6 +213,9 @@ function ShoppingItemRow({
           style={[styles.checkbox, { marginRight: spacing.sm }]}
           onPress={onToggleCheck}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: isChecked }}
+          accessibilityLabel={`${item.name}`}
         >
           <Ionicons
             name={isChecked ? 'checkbox' : 'square-outline'}
@@ -467,6 +472,8 @@ export function ShoppingListScreen() {
             ]}
             onPress={handleMarkAsPurchased}
             disabled={markAsPurchasedMutation.isPending}
+            accessibilityRole="button"
+            accessibilityLabel={`Mark ${checkedIds.size} ${checkedIds.size === 1 ? 'item' : 'items'} as purchased`}
           >
             {markAsPurchasedMutation.isPending ? (
               <ActivityIndicator size="small" color={colors.text.inverse} />
@@ -489,6 +496,8 @@ export function ShoppingListScreen() {
             style={[styles.resetButton, { paddingVertical: spacing.sm, marginTop: spacing.sm }]}
             onPress={handleResetCheckmarks}
             disabled={markAsPurchasedMutation.isPending}
+            accessibilityRole="button"
+            accessibilityLabel="Reset checkmarks"
           >
             <Ionicons
               name="refresh"
@@ -529,6 +538,8 @@ export function ShoppingListScreen() {
               style={styles.sheetHeaderButton}
               onPress={closeAddSheet}
               disabled={createPlannedItemMutation.isPending}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
             >
               <Ionicons name="close" size={28} color={colors.text.primary} />
             </TouchableOpacity>
@@ -543,6 +554,8 @@ export function ShoppingListScreen() {
               disabled={
                 !newItemName.trim() || createPlannedItemMutation.isPending
               }
+              accessibilityRole="button"
+              accessibilityLabel="Save item"
             >
               {createPlannedItemMutation.isPending ? (
                 <ActivityIndicator color={colors.action.primary} />
