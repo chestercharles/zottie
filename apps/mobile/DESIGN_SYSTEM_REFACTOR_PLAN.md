@@ -85,7 +85,7 @@ Build reusable components using the design tokens. Each component should use tok
   - Consistent styling across the app
 
 ### 2.6 List Item Component
-- [ ] Create `components/ui/ListItem.tsx`
+- [x] Create `components/ui/ListItem.tsx`
   - Clear tap affordance
   - Consistent padding using spacing tokens
   - Optional swipe actions support
@@ -296,14 +296,14 @@ Update each screen to use design tokens and new components.
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
 | 1. Foundation | 10 | 10 | Complete |
-| 2. Core Components | 9 | 5 | In Progress |
+| 2. Core Components | 9 | 6 | In Progress |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **15** | **28%** |
+| **Total** | **54** | **16** | **30%** |
 
 ---
 
