@@ -17,7 +17,7 @@
   {
     "name": "Add drag handle to Pantry Edit Item modal",
     "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal screen to indicate it can be dismissed by swiping down. Currently, the Edit Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when editing an existing pantry item (pantry/[id] route).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Smoother search overlay animation on Pantry screen",

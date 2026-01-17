@@ -13,7 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import type { PantryItemStatus, ItemType } from './types'
 import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
 import { useTheme } from '../../lib/theme'
-import { Text, Button, Card, StatusBadge } from '../../components/ui'
+import { Text, Button, Card, StatusBadge, DragHandle } from '../../components/ui'
 
 const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
@@ -176,6 +176,7 @@ export function PantryItemDetailScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.surface.background }]}
     >
+      <DragHandle />
       <View style={[styles.content, { padding: spacing.md }]}>
         <View style={[styles.header, { marginBottom: spacing.lg }]}>
           {isEditingName ? (
