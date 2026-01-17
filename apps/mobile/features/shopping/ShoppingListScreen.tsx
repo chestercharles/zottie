@@ -152,7 +152,7 @@ function ShoppingItemRow({
           accessibilityRole="button"
           accessibilityLabel={isStaple ? 'Mark as in stock' : 'Delete item'}
         >
-          <Ionicons name={isStaple ? 'checkmark' : 'trash'} size={24} color={colors.text.inverse} />
+          <Ionicons name="trash" size={24} color={colors.text.inverse} />
         </TouchableOpacity>
       </Reanimated.View>
 

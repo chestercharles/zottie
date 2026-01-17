@@ -1,16 +1,12 @@
 # zottie Development Progress
 
-## Contextual swipe behavior for shopping list items
+## Use iOS-standard delete icon for swipe action
 
-Implemented contextual swipe behavior based on item type:
+Changed the swipe action icon to consistently use the trash icon for both staples and planned items. Previously, staples showed a checkmark which was confusing since tapping already toggles checked state. Now both item types show the familiar iOS delete icon, making the swipe action's purpose immediately clear.
 
-- **Staples**: Swiping reveals a green checkmark button. Tapping marks the item as "in stock", which removes it from the shopping list but preserves it in the pantry. The item will reappear when marked running low again.
-- **Planned items**: Swiping reveals a red trash button. Tapping deletes the item entirely since it was a one-time purchase.
+The underlying contextual behavior remains unchanged:
+- **Staples**: Swipe action marks as "in stock" (green background)
+- **Planned items**: Swipe action deletes entirely (red background)
 
 Changes made to `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
-- Added `useUpdatePantryItem` hook import
-- Added `isStaple` check to determine item type
-- Changed swipe action button color: green for staples, red for planned
-- Changed swipe action icon: checkmark for staples, trash for planned
-- Added `handleSwipeAction` callback that routes to the appropriate mutation based on item type
-- Renamed styles from `deleteButtonContainer`/`deleteButton` to `swipeActionContainer`/`swipeActionButton`
+- Changed icon from conditional (`isStaple ? 'checkmark' : 'trash'`) to always use `'trash'`
