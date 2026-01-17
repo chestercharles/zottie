@@ -57,7 +57,7 @@
   {
     "name": "Increase header height for better touch confidence",
     "description": "The navigation headers across the app feel cramped, making it harder for users to confidently tap action buttons. The header height should be increased slightly to provide more negative space around the action icons (search, settings, add buttons). This additional breathing room helps users feel more confident they're hitting the right target, aligning with our design principle that the interface should feel 'reassuring' and avoid 'dense layouts'. The change applies to all screens with header action buttons - both large title headers on top-level screens (like Pantry, Shopping List) and standard title headers on detail/sub-screens. The icons themselves don't need to be larger; the goal is simply more vertical space in the header area so elements don't feel squeezed together.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Swipe-to-reveal delete on shopping list items",

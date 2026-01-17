@@ -1,5 +1,19 @@
 # zottie Development Progress
 
+## Increase header height for better touch confidence
+
+Increased the navigation header height across the app to provide more negative space around action icons. The previous headers felt cramped, making it harder for users to confidently tap the small icon buttons.
+
+Changes:
+- Created custom header components using `@react-navigation/elements` Header with increased height (56pt vs iOS default 44pt)
+- Updated authenticated tab layout (`(authenticated)/_layout.tsx`) with custom header function
+- Updated pantry nested stack layout (`pantry/_layout.tsx`) with custom header for modal screens
+- Updated shopping nested stack layout (`shopping/_layout.tsx`) with custom header for future screens
+- Updated root layout (`_layout.tsx`) with custom header for screens like "Join Household"
+- All headers use consistent 56pt height and 12px horizontal padding on header containers
+
+This additional 12pt of breathing room helps users feel more confident they're hitting the right target, aligning with the design principle that the interface should feel "reassuring" and avoid "dense layouts". The change applies to all screens with header action buttons.
+
 ## Swipe-to-reveal delete on shopping list items
 
 Changed the direct swipe-to-delete gesture on shopping list items to a safer swipe-to-reveal pattern. The previous direct swipe made it too easy to accidentally delete items when swiping quickly through the list.
