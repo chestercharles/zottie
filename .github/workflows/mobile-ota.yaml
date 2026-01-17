@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -33,6 +35,9 @@ jobs:
 
       - name: 📦 Install dependencies
         run: pnpm install
+
+      - name: 🔍 Check for native changes
+        run: node native-changes-check.js --range "${{ github.event.before }}...${{ github.sha }}"
 
       - name: 🚀 Create iOS OTA Update
         run: |
