@@ -32,4 +32,6 @@ zottie is built with deep empathy for users. Every interaction should make users
 
 ## Important
 
-This is a public repo, NEVER commit any senstive data such as API keys.
+- This is a public repo, NEVER commit any senstive data such as API keys.
+- DONT read .ralph/history/completed-progress.md, it's too big of a file
+- DONT read .ralph/history/completed-prds.md, its too big of a file
