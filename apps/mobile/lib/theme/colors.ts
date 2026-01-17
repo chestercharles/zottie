@@ -17,7 +17,7 @@ export const colors = {
       strong: '#C7C7CC',
     },
     feedback: {
-      success: '#34C759',
+      success: '#14B8A6',
       warning: '#FF9500',
       error: '#FF3B30',
       info: '#5856D6',
@@ -47,7 +47,7 @@ export const colors = {
       strong: '#545456',
     },
     feedback: {
-      success: '#32D74B',
+      success: '#2DD4BF',
       warning: '#FF9F0A',
       error: '#FF453A',
       info: '#5E5CE6',

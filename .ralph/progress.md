@@ -1,5 +1,21 @@
 # zottie Development Progress
 
+## Update success color to teal
+
+Replaced the bright green success color with a teal/cyan color that better aligns with zottie's warm, empathetic personality. The previous green (#32D74B in dark mode, #34C759 in light mode) felt too technical and "hackery" - more appropriate for developer tools than a household app about cooking and meal prep.
+
+Changes:
+- Updated dark mode success color from `#32D74B` (bright green) to `#2DD4BF` (teal)
+- Updated light mode success color from `#34C759` (iOS green) to `#14B8A6` (darker teal for light backgrounds)
+- The new teal maintains the positive/success semantic meaning while feeling calmer and more modern
+- Both colors are from the same teal family for visual consistency between modes
+
+Affected UI components that use `feedback.success`:
+- StatusBadge: "In Stock" status badges in pantry
+- ShoppingListScreen: Checkmarks on completed shopping items, purchase action button
+- CommandsScreen: Checkmark for completed commands
+- JoinScreen: Success icons in household join flow
+
 ## Direct swipe-to-delete on shopping list items
 
 Simplified the delete interaction for shopping list items from a two-step action (swipe to reveal button, then tap) to a single direct swipe gesture.

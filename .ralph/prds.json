@@ -32,7 +32,7 @@
   {
     "name": "Update dark mode success color to teal",
     "description": "Replace the current dark mode success/positive color (bright green #32D74B) with a teal/cyan color that better aligns with zottie's warm, empathetic personality. The current green feels too technical and 'hackery' - more appropriate for developer tools than a household app about cooking and meal prep. A teal/cyan maintains the positive/success meaning while feeling calmer and more modern. This affects the success color token in the design system (feedback.success in dark mode), which is used for: 'In Stock' status badges, checkmarks on completed shopping list items, success states in household join flow, and completed command indicators. The light mode success color can also be evaluated for consistency, but the primary concern is dark mode.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Fix add planned item sheet dismissal navigation",
