@@ -29,7 +29,7 @@ Create the infrastructure that all components will use.
   - `space.2xl`: 48
 
 ### 1.3 Typography Tokens
-- [ ] Create `lib/theme/typography.ts` with text styles
+- [x] Create `lib/theme/typography.ts` with text styles
   - `title.large`: size 28, weight semibold
   - `title.medium`: size 22, weight semibold
   - `title.small`: size 18, weight semibold
@@ -295,7 +295,7 @@ Update each screen to use design tokens and new components.
 
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
-| 1. Foundation | 14 | 5 | In Progress |
+| 1. Foundation | 14 | 6 | In Progress |
 | 2. Core Components | 9 | 0 | Not Started |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
@@ -303,7 +303,7 @@ Update each screen to use design tokens and new components.
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **58** | **5** | **9%** |
+| **Total** | **58** | **6** | **10%** |
 
 ---
 
