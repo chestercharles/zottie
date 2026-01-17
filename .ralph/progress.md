@@ -1,5 +1,14 @@
 # zottie Development Progress
 
+## Smoother search overlay animation on Pantry screen
+
+Adjusted the search overlay animation to feel more native and polished by using critically-damped spring physics that don't overshoot.
+
+Changes:
+- Updated spring animation parameters in SearchOverlay component from `damping: 20, stiffness: 300` to `damping: 28, stiffness: 400, mass: 0.8`
+- The new parameters create a smooth slide-in without the bouncy overshoot that felt inconsistent with iOS native search bar behavior
+- Animation now feels like iOS Settings/Mail app search animations - quick and smooth with no bounce
+
 ## Move drag handle above Settings modal header
 
 Moved the drag handle to appear at the very top of the Settings modal, above the title, to match iOS modal presentation conventions.

@@ -312,8 +312,9 @@ function SearchOverlay({
 
   useEffect(() => {
     animationProgress.value = withSpring(isVisible ? 1 : 0, {
-      damping: 20,
-      stiffness: 300,
+      damping: 28,
+      stiffness: 400,
+      mass: 0.8,
     })
     if (isVisible) {
       setTimeout(() => inputRef.current?.focus(), 100)
