@@ -58,5 +58,10 @@
     "name": "Increase header height for better touch confidence",
     "description": "The navigation headers across the app feel cramped, making it harder for users to confidently tap action buttons. The header height should be increased slightly to provide more negative space around the action icons (search, settings, add buttons). This additional breathing room helps users feel more confident they're hitting the right target, aligning with our design principle that the interface should feel 'reassuring' and avoid 'dense layouts'. The change applies to all screens with header action buttons - both large title headers on top-level screens (like Pantry, Shopping List) and standard title headers on detail/sub-screens. The icons themselves don't need to be larger; the goal is simply more vertical space in the header area so elements don't feel squeezed together.",
     "completed": false
+  },
+  {
+    "name": "Swipe-to-reveal delete on shopping list items",
+    "description": "The current direct swipe-to-delete gesture on shopping list items makes it too easy to accidentally delete items. Change the behavior so that swiping left on a shopping list item reveals a delete button (trash can icon) instead of immediately deleting the item. The user must then tap the trash can button to confirm deletion. This adds a deliberate confirmation step that prevents accidental deletions while still keeping the interaction quick and intuitive. Only the delete button should be revealed - no other action buttons. The swipe-to-reveal pattern follows standard iOS conventions for destructive actions, giving users the confidence that they won't lose items by mistake.",
+    "completed": true
   }
 ]

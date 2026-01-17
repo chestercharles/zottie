@@ -1,5 +1,22 @@
 # zottie Development Progress
 
+## Swipe-to-reveal delete on shopping list items
+
+Changed the direct swipe-to-delete gesture on shopping list items to a safer swipe-to-reveal pattern. The previous direct swipe made it too easy to accidentally delete items when swiping quickly through the list.
+
+Changes:
+- Replaced direct swipe-to-delete with swipe-to-reveal pattern
+- Swiping left on a shopping list item now reveals a red delete button with trash icon
+- The delete button is 80px wide and stays visible until the user either:
+  - Taps the delete button to confirm deletion
+  - Taps the row to close it (and toggle checked state)
+  - Swipes the row back to the right
+- Tapping the revealed delete button triggers haptic feedback and animates the item off-screen
+- The row snaps open when swiped past 40px threshold, or snaps back if not
+- Uses spring animations for smooth, native-feeling behavior
+
+This adds a deliberate confirmation step that prevents accidental deletions while still keeping the interaction quick and intuitive.
+
 ## Consistent header action icon button colors
 
 Updated the plus button in the pantry and shopping list screen headers to use the same color as other header action icons (like search and settings). Previously, the plus button used `colors.action.primary` (purple accent color) while other icons used `tintColor` (the standard navigation header text color). This inconsistency made the plus button stand out unnecessarily.

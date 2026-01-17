@@ -54,7 +54,8 @@ const itemTypeLabels: Record<ItemType, string> = {
 
 const SHEET_SNAP_POINTS = ['90%']
 
-const DELETE_THRESHOLD = 100
+const DELETE_BUTTON_WIDTH = 80
+const REVEAL_THRESHOLD = 40
 
 function ShoppingItemRow({
   item,
@@ -74,50 +75,46 @@ function ShoppingItemRow({
   radius: ReturnType<typeof useTheme>['radius']
 }) {
   const translateX = useSharedValue(0)
-  const hasTriggeredHaptic = useRef(false)
+  const isOpen = useSharedValue(false)
 
-  const triggerDelete = useCallback(() => {
-    onDelete()
-  }, [onDelete])
+  const closeRow = useCallback(() => {
+    translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
+    isOpen.value = false
+  }, [translateX, isOpen])
 
-  const triggerHaptic = useCallback(() => {
-    if (!hasTriggeredHaptic.current) {
-      hasTriggeredHaptic.current = true
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+  const handleDelete = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    translateX.value = withTiming(-400, { duration: 200, easing: Easing.out(Easing.ease) }, () => {
+      runOnJS(onDelete)()
+    })
+  }, [onDelete, translateX])
+
+  const handleRowPress = useCallback(() => {
+    if (isOpen.value) {
+      closeRow()
+    } else {
+      onToggleCheck()
     }
-  }, [])
-
-  const resetHaptic = useCallback(() => {
-    hasTriggeredHaptic.current = false
-  }, [])
+  }, [isOpen, closeRow, onToggleCheck])
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
     .failOffsetY([-5, 5])
     .onUpdate((event) => {
-      const clampedX = Math.min(0, event.translationX)
-      translateX.value = clampedX
-
-      if (Math.abs(clampedX) >= DELETE_THRESHOLD) {
-        runOnJS(triggerHaptic)()
-      } else {
-        runOnJS(resetHaptic)()
-      }
+      const startX = isOpen.value ? -DELETE_BUTTON_WIDTH : 0
+      const newX = startX + event.translationX
+      translateX.value = Math.max(-DELETE_BUTTON_WIDTH, Math.min(0, newX))
     })
-    .onEnd(() => {
-      if (Math.abs(translateX.value) >= DELETE_THRESHOLD) {
-        translateX.value = withTiming(
-          -400,
-          { duration: 200, easing: Easing.out(Easing.ease) },
-          () => {
-            runOnJS(triggerDelete)()
-          }
-        )
+    .onEnd((event) => {
+      const startX = isOpen.value ? -DELETE_BUTTON_WIDTH : 0
+      const finalX = startX + event.translationX
+
+      if (finalX < -REVEAL_THRESHOLD) {
+        translateX.value = withSpring(-DELETE_BUTTON_WIDTH, { damping: 20, stiffness: 300 })
+        isOpen.value = true
       } else {
-        translateX.value = withSpring(0, {
-          damping: 20,
-          stiffness: 300,
-        })
+        translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
+        isOpen.value = false
       }
     })
 
@@ -125,10 +122,10 @@ function ShoppingItemRow({
     transform: [{ translateX: translateX.value }],
   }))
 
-  const deleteBackgroundStyle = useAnimatedStyle(() => {
+  const deleteButtonStyle = useAnimatedStyle(() => {
     const progress = interpolate(
       Math.abs(translateX.value),
-      [0, DELETE_THRESHOLD],
+      [0, DELETE_BUTTON_WIDTH],
       [0, 1],
       'clamp'
     )
@@ -137,37 +134,24 @@ function ShoppingItemRow({
     }
   })
 
-  const deleteIconStyle = useAnimatedStyle(() => {
-    const progress = interpolate(
-      Math.abs(translateX.value),
-      [0, 60, DELETE_THRESHOLD],
-      [0, 0.8, 1],
-      'clamp'
-    )
-    const scale = interpolate(
-      Math.abs(translateX.value),
-      [60, DELETE_THRESHOLD],
-      [0.8, 1],
-      'clamp'
-    )
-    return {
-      opacity: progress,
-      transform: [{ scale }],
-    }
-  })
-
   return (
     <View style={[styles.swipeContainer, { marginBottom: spacing.sm }]}>
       <Reanimated.View
         style={[
-          styles.deleteBackground,
+          styles.deleteButtonContainer,
           { backgroundColor: colors.feedback.error, borderRadius: radius.lg },
-          deleteBackgroundStyle,
+          deleteButtonStyle,
         ]}
       >
-        <Reanimated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDelete}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Delete item"
+        >
           <Ionicons name="trash" size={24} color={colors.text.inverse} />
-        </Reanimated.View>
+        </TouchableOpacity>
       </Reanimated.View>
 
       <GestureDetector gesture={panGesture}>
@@ -181,7 +165,7 @@ function ShoppingItemRow({
                 padding: spacing.md,
               },
             ]}
-            onPress={onToggleCheck}
+            onPress={handleRowPress}
             activeOpacity={0.7}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isChecked }}
@@ -627,17 +611,18 @@ const styles = StyleSheet.create({
   swipeContainer: {
     position: 'relative',
   },
-  deleteBackground: {
+  deleteButtonContainer: {
     position: 'absolute',
     top: 0,
-    left: 0,
     right: 0,
     bottom: 0,
+    width: DELETE_BUTTON_WIDTH,
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingRight: 20,
+    alignItems: 'center',
   },
-  deleteIconContainer: {
+  deleteButton: {
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
