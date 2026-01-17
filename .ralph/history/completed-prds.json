@@ -290,5 +290,86 @@
     "description": "Create a backend endpoint that parses natural language text into pantry items and/or shopping list items using OpenAI. The endpoint accepts text input and context about what the user is describing (injected into the prompt - e.g., 'the user is listing what they have in their pantry' or 'the user is listing what they need from the store'). The endpoint can parse either type or both from the same message. For pantry items, create them with 'in_stock' status. For shopping items, create them as planned shopping list items. Return a structured response indicating what was created (e.g., { pantryItems: [...], shoppingItems: [...] }). The endpoint creates these items in the database for the user's household. Handle the case where the user explicitly says they have nothing to add (return empty lists, not an error). Return an error only if the text is unclear or completely unrelated to pantry/shopping items.",
     "completed": true,
     "note": "Decision made to reuse existing /api/commands/parse and /api/commands/execute endpoints instead of creating a separate onboarding-specific endpoint. Frontend will format user input as commands (e.g., 'add milk, eggs, bread to pantry') and orchestrate the parse + execute flow."
+  },
+  {
+    "name": "New onboarding pantry input screen",
+    "description": "Create the first screen of the new conversational onboarding that asks users what they have in their pantry. Show empathetic, encouraging copy that prompts them to just start listing items, and reassure them they can add more or change things easily later. Provide a text input (or voice input if preferred) for them to list pantry items. Include a clearly visible 'Skip' button. When they submit, immediately move to the next screen (shopping list input) without waiting for backend parsing - trigger the parsing API call in the background with context indicating this is pantry items. Store the parsing promise/request so we can wait for it later.",
+    "completed": true
+  },
+  {
+    "name": "New onboarding shopping list input screen",
+    "description": "Create the second screen of the new conversational onboarding that asks users if there's anything they want to get from the store. Show empathetic copy encouraging them to list shopping items. Provide a text input (or voice input if preferred). Include a clearly visible 'Skip' button. When they submit, trigger the parsing API call in the background with context indicating this is shopping list items and immediately move to the loading/processing screen. Do not wait for the API response before navigating.",
+    "completed": true
+  },
+  {
+    "name": "New onboarding processing screen",
+    "description": "Create a loading screen that shows while waiting for both pantry and shopping list parsing to complete. Display empathetic copy explaining what's happening (e.g., 'Adding your items...', 'Getting your shopping list ready...'). Show a subtle, nice animation that indicates processing is in progress (not a generic spinner - something that feels warm and engaging). Wait for both parsing requests to complete. If both succeed (or return empty lists for legitimate 'nothing to add' cases), navigate to the household invitation screen. If either fails with a true error (couldn't parse the text), show an empathetic error message explaining what happened and why, with a button to retry that specific step (pantry or shopping).",
+    "completed": true,
+    "note": "Implemented with warm breathing animation using spring physics. Parses and executes both pantry and shopping inputs in parallel. Shows empathetic error UI with specific retry options if either fails. Currently navigates to pantry screen on success (will be updated to household invitation screen once that's built)."
+  },
+  {
+    "name": "New onboarding household invitation screen",
+    "description": "Create a screen that prompts users to invite their household partner. Show copy explaining the value of inviting someone (shared lists, coordination, etc.). Provide an input for entering an email or phone number to send an invitation. Include a clearly visible 'Skip' button - this step is entirely optional. After submitting an invitation or skipping, navigate to the pantry screen where they can see their populated pantry and shopping list.",
+    "completed": true,
+    "note": "Implemented with automatic invite code generation and native Share API integration. Screen shows empathetic copy, displays invite code prominently, and includes clearly visible Skip button. Both sharing and skipping navigate to pantry screen."
+  },
+  {
+    "name": "New onboarding household creation",
+    "description": "At the start of the new conversational onboarding flow (before showing any screens), automatically create a household for the user with a default name like 'My Household'. Store the household ID so subsequent parsing endpoints can associate pantry and shopping items with this household. Users can change the household name later from settings. This creation should happen silently without requiring any user input.",
+    "completed": true
+  },
+  {
+    "name": "New onboarding flow orchestration",
+    "description": "Create the main orchestrator for the new conversational onboarding experience. When the app determines it needs to show onboarding, call the feature flag API endpoint first to determine which onboarding to show. If the flag returns 'conversational', initiate the new flow: (1) create household with default name, (2) show pantry input screen, (3) show shopping input screen, (4) show processing screen, (5) show household invitation screen, (6) navigate to pantry. If the flag returns 'original', show the existing onboarding flow. Ensure the implementation allows clean toggling between the two experiences and that all state is properly managed throughout the flow.",
+    "completed": true,
+    "note": "Implemented orchestration for conversational vs original onboarding flows. Conversational flow auto-creates household and currently shows pantry input screen (other screens to be added as they're built). Original flow unchanged."
+  },
+  {
+    "name": "Commands parsing comprehensive eval system",
+    "description": "Expand the existing command parsing eval (commandParse.eval.ts) to include comprehensive test coverage of diverse user inputs. Add many more test cases covering: varied phrasings ('I have X', 'got some X', 'X in pantry'), plural/singular variations, common typos, informal language, regional dialects, and edge cases. Evaluate whether to use fuzzy matching (Levenshtein distance) or strict matching for validation. Consider the trade-offs: fuzzy matching is more resilient to prompt changes but requires tuning thresholds; exact matching is simpler but may need updates when prompts change. The eval should test through the API endpoint to remain resilient to implementation changes. Research whether vitest (already in use) is sufficient or if a dedicated eval/testing library would be better suited. The goal is to catch regressions when modifying the system prompt or model, ensuring consistent parsing behavior across a wide range of natural language inputs.",
+    "completed": true,
+    "note": "Expanded from 6 to 52 test cases. Added itemsMatch() for flexible comparison with allowAlternateItems. Tests cover varied phrasings, plurals, typos, informal language, compound items, multiple items, status variations, case variations, quantities, and context clues. Used simplified fuzzy matching (normalize + alternates) over Levenshtein. Vitest is sufficient."
+  },
+  {
+    "name": "Commands parsing maximize empathy behavior",
+    "description": "Strengthen the command parsing system prompt and add specific eval test cases to ensure maximum empathy toward user intent. When a user mentions having an item (e.g., 'I have apples', 'got milk', 'we have bread'), the system should immediately create an add_to_pantry action with appropriate status rather than returning a message asking if they want to add it. The system should always assume the user wants to take action when they mention items in the context of their pantry or shopping. Add eval test cases specifically for empathy scenarios: mentioning items without explicit 'add' commands, implicit status indicators ('almost out of X' should map to running_low), and context-dependent intents. The tone of any messages returned should be supportive and action-oriented, never questioning whether the user actually wants to do something. Update the system prompt in commandParse.ts to emphasize this empathetic, action-first approach.",
+    "completed": true,
+    "note": "Updated system prompt with CORE PRINCIPLE for action-first empathy and EMPATHETIC INTENT RECOGNITION mappings. Added 15 empathy scenario tests and 3 behavior validation tests. All 76 eval tests pass. System now takes action immediately when items are mentioned rather than asking for confirmation."
+  },
+  {
+    "name": "Commands processing enhanced animation",
+    "description": "Replace the basic ActivityIndicator shown during command processing with a more polished, iOS-native animation. The current implementation (line 230-238 in CommandsScreen.tsx) shows a spinner in the mic button when recordingState is 'processing'. Instead, implement a subtle animation that feels warm and engaging: use a gentle pulsing/breathing animation on the mic button with spring physics (withSpring from react-native-reanimated), possibly combined with a subtle color transition. The animation should clearly communicate that processing is happening without being distracting or anxiety-inducing. Consider adding a subtle animation to the 'Processing command...' text as well (gentle fade or scale). Follow iOS design patterns for processing states - think of how iOS handles background processing (gentle, continuous, reassuring). The goal is to make the wait feel shorter and more pleasant while maintaining clarity about what's happening.",
+    "completed": true,
+    "note": "Replaced ActivityIndicator with breathing animation using spring physics (scale 1→1.06→1) and synchronized opacity fade (1→0.6→1). Added subtle text opacity animation. Mic icon stays visible during processing. Animation feels warm and iOS-native."
+  },
+  {
+    "name": "Commands feedback empathetic UI presentation",
+    "description": "Replace the danger box styling currently used to display command feedback when the system doesn't understand user input. The feedback should feel like a response from someone trying to help, not an error message. Remove red/danger colors and harsh styling. Instead, use a neutral or warm color scheme with a conversational, supportive design that matches the tone of helpful guidance. The visual treatment should make the feedback feel like part of a conversation rather than a warning or failure state. Consider using a message bubble design or a subtle info card with softer styling. The goal is to make users feel supported and guided toward success, not like they've made a mistake.",
+    "completed": true,
+    "note": "Replaced red danger styling with soft gray message bubble design. Uses chatbubble-ellipses-outline icon and warm neutral colors (#F5F6F7, #5D6D7E) for conversational feel."
+  },
+  {
+    "name": "Abstract voice recording into reusable VoiceInput component",
+    "description": "Extract the voice recording implementation from CommandsScreen into a reusable VoiceInput component. The component should encapsulate: (1) expo-speech-recognition integration with permission handling, (2) animated mic button using react-native-reanimated with spring physics, (3) recording state management (idle, recording, processing), (4) haptic feedback on interactions, (5) visual feedback with color changes based on state, (6) status text display. The component should accept props for: onTranscriptReceived callback (called with final transcript), customizable button size/colors, optional processing state control (for when parent needs to show processing after transcript is received), error display/handling, and optional contextual strings for speech recognition. After creating this component, refactor CommandsScreen to use it. The abstraction should be flexible enough to work in different contexts (commands screen, onboarding, etc.) while maintaining the polished iOS-native feel with smooth animations and interactions.",
+    "completed": true,
+    "note": "Created reusable VoiceInput component with all required functionality. Refactored CommandsScreen to use it, reducing complexity from ~430 lines to ~230 lines. Component is fully customizable and ready for use in onboarding screens."
+  },
+  {
+    "name": "Update pantry onboarding screen to use voice input",
+    "description": "Replace the TextInput in NewPantryInputScreen with the new VoiceInput component. The screen should show the icon, title, and subtitle as before, but instead of a text input field, display the animated voice recording button. Update the help text to reflect voice input (e.g., 'Tap the microphone and start listing items you have'). The Continue button should be enabled after the user records something and voice transcription completes. When the user finishes recording and the transcript is received, automatically enable the Continue button (no need to wait for them to tap it - though they should have the option to re-record or skip). The transcript should be passed to onSubmit when they tap Continue, maintaining the existing behavior of triggering background parsing. Keep the Skip button visible and functional. Ensure keyboard doesn't interfere since we're no longer using text input. The voice input should feel natural and aligned with the empathetic, supportive tone of the onboarding experience.",
+    "completed": true,
+    "note": "Replaced TextInput with VoiceInput component. Screen now uses voice recording button instead of text input. Help text updated to guide voice input. Keyboard-related code removed. Continue button enables after transcript is received. Flow and navigation maintained."
+  },
+  {
+    "name": "Update shopping list onboarding screen to use voice input",
+    "description": "Replace the TextInput in NewShoppingListInputScreen with the new VoiceInput component, following the same pattern as the pantry screen. Show the cart icon, title, and subtitle, then the voice recording button instead of text input. Update help text to guide voice input (e.g., 'Tap the microphone and list what you need from the store'). Enable the Continue button after voice transcription completes. Pass the transcript to onSubmit when they tap Continue, maintaining background parsing behavior. Keep the Skip button visible. The implementation should mirror the pantry screen for consistency while using shopping-specific copy and the cart icon. Both onboarding screens should provide a cohesive voice-first experience that feels natural and reduces friction during initial setup.",
+    "completed": true,
+    "note": "Updated screen to use VoiceInput component. Removed TextInput and keyboard handling. Both onboarding screens now provide consistent voice-first experience."
+  },
+  {
+    "name": "Pantry search icon in navigation header",
+    "description": "Replace the always-visible inline search bar with a magnifying glass icon in the pantry screen's navigation header. The icon should appear to the left of the existing add (+) and settings icons. Tapping the icon triggers entry into search mode. The inline search bar is removed from the main content area. When not in search mode, the pantry list shows all items without the search input taking up space.",
+    "completed": true,
+    "note": "Added search icon to navigation header, removed inline search bar. Search mode state tracks when search is active. Icon color changes when search mode is active."
   }
 ]

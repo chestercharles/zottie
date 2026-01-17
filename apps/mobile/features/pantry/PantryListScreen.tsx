@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   ActionSheetIOS,
-  TextInput as RNTextInput,
 } from 'react-native'
 import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
@@ -288,6 +287,7 @@ export function PantryListScreen() {
   const navigation = useNavigation()
   const { colors, spacing, radius, typography } = useTheme()
   const [searchTerm, setSearchTerm] = useState('')
+  const [isSearchMode, setIsSearchMode] = useState(false)
   const {
     items,
     mainListItems,
@@ -332,14 +332,38 @@ export function PantryListScreen() {
     []
   )
 
+  const toggleSearchMode = useCallback(() => {
+    setIsSearchMode((prev) => {
+      if (prev) {
+        setSearchTerm('')
+      }
+      return !prev
+    })
+  }, [])
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Pressable
+            onPress={toggleSearchMode}
+            style={{ marginRight: spacing.md, padding: spacing.xs }}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={isSearchMode ? 'Close search' : 'Search pantry'}
+          >
+            <Ionicons
+              name="search"
+              size={24}
+              color={isSearchMode ? colors.action.primary : colors.text.primary}
+            />
+          </Pressable>
+          <Pressable
             onPress={openAddSheet}
             style={{ marginRight: spacing.md, padding: spacing.xs }}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Add item"
           >
             <Ionicons name="add" size={28} color={colors.action.primary} />
           </Pressable>
@@ -347,6 +371,8 @@ export function PantryListScreen() {
             onPress={() => router.push('/pantry/settings')}
             style={{ marginRight: spacing.sm, padding: spacing.xs }}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
           >
             <Ionicons
               name="settings-outline"
@@ -357,7 +383,7 @@ export function PantryListScreen() {
         </View>
       ),
     })
-  }, [navigation, router, colors, spacing])
+  }, [navigation, router, colors, spacing, isSearchMode, toggleSearchMode])
 
   const handleAddItem = () => {
     if (!newItemName.trim()) return
@@ -600,59 +626,19 @@ export function PantryListScreen() {
           action={<Button title="Add Item" onPress={openAddSheet} />}
         />
       ) : (
-        <>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: colors.surface.grouped,
-              borderRadius: radius.lg,
-              marginHorizontal: spacing.md,
-              marginTop: spacing.md,
-              paddingHorizontal: spacing.sm + 4,
-            }}
-          >
-            <RNTextInput
-              style={{
-                flex: 1,
-                height: 44,
-                fontSize: typography.body.primary.fontSize,
-                color: colors.text.primary,
-              }}
-              placeholder="Search pantry items..."
-              placeholderTextColor={colors.text.tertiary}
-              value={searchTerm}
-              onChangeText={setSearchTerm}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {searchTerm.length > 0 && (
-              <TouchableOpacity
-                style={{ padding: spacing.sm }}
-                onPress={() => setSearchTerm('')}
-                accessibilityRole="button"
-                accessibilityLabel="Clear search"
-              >
-                <Text variant="body.primary" color="tertiary">
-                  ✕
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <FlatList
-            data={mainListItems}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            ListHeaderComponent={renderListHeader}
-            contentContainerStyle={{
-              padding: spacing.md,
-              paddingTop: spacing.sm,
-            }}
-            refreshControl={
-              <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
-            }
-          />
-        </>
+        <FlatList
+          data={mainListItems}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListHeaderComponent={renderListHeader}
+          contentContainerStyle={{
+            padding: spacing.md,
+            paddingTop: spacing.sm,
+          }}
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+          }
+        />
       )}
       <BottomSheet
         ref={bottomSheetRef}
