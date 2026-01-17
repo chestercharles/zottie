@@ -42,7 +42,7 @@ import {
   useMarkAsPurchased,
   useCreatePlannedItem,
 } from './hooks'
-import { useDeletePantryItem } from '@/features/pantry/hooks'
+import { useDeletePantryItem, useUpdatePantryItem } from '@/features/pantry/hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 import { useTheme } from '../../lib/theme'
 import { Text, Button, StatusBadge, EmptyState } from '../../components/ui'
@@ -61,7 +61,7 @@ function ShoppingItemRow({
   item,
   isChecked,
   onToggleCheck,
-  onDelete,
+  onSwipeAction,
   colors,
   spacing,
   radius,
@@ -69,7 +69,7 @@ function ShoppingItemRow({
   item: ShoppingItem
   isChecked: boolean
   onToggleCheck: () => void
-  onDelete: () => void
+  onSwipeAction: () => void
   colors: ReturnType<typeof useTheme>['colors']
   spacing: ReturnType<typeof useTheme>['spacing']
   radius: ReturnType<typeof useTheme>['radius']
@@ -77,17 +77,19 @@ function ShoppingItemRow({
   const translateX = useSharedValue(0)
   const isOpen = useSharedValue(false)
 
+  const isStaple = item.itemType === 'staple'
+
   const closeRow = useCallback(() => {
     translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
     isOpen.value = false
   }, [translateX, isOpen])
 
-  const handleDelete = useCallback(() => {
+  const handleSwipeAction = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     translateX.value = withTiming(-400, { duration: 200, easing: Easing.out(Easing.ease) }, () => {
-      runOnJS(onDelete)()
+      runOnJS(onSwipeAction)()
     })
-  }, [onDelete, translateX])
+  }, [onSwipeAction, translateX])
 
   const handleRowPress = useCallback(() => {
     if (isOpen.value) {
@@ -138,19 +140,19 @@ function ShoppingItemRow({
     <View style={[styles.swipeContainer, { marginBottom: spacing.sm }]}>
       <Reanimated.View
         style={[
-          styles.deleteButtonContainer,
-          { backgroundColor: colors.feedback.error, borderRadius: radius.lg },
+          styles.swipeActionContainer,
+          { backgroundColor: isStaple ? colors.feedback.success : colors.feedback.error, borderRadius: radius.lg },
           deleteButtonStyle,
         ]}
       >
         <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={handleDelete}
+          style={styles.swipeActionButton}
+          onPress={handleSwipeAction}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Delete item"
+          accessibilityLabel={isStaple ? 'Mark as in stock' : 'Delete item'}
         >
-          <Ionicons name="trash" size={24} color={colors.text.inverse} />
+          <Ionicons name={isStaple ? 'checkmark' : 'trash'} size={24} color={colors.text.inverse} />
         </TouchableOpacity>
       </Reanimated.View>
 
@@ -214,6 +216,7 @@ export function ShoppingListScreen() {
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
   const deletePantryItem = useDeletePantryItem()
+  const updatePantryItem = useUpdatePantryItem()
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [newItemName, setNewItemName] = useState('')
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -329,6 +332,14 @@ export function ShoppingListScreen() {
     })
   }
 
+  const handleSwipeAction = useCallback((item: ShoppingItem) => {
+    if (item.itemType === 'staple') {
+      updatePantryItem.mutate({ itemId: item.id, status: 'in_stock' })
+    } else {
+      deletePantryItem.mutate(item.id)
+    }
+  }, [updatePantryItem, deletePantryItem])
+
   const checkedCount = checkedIds.size
 
   if (isLoading) {
@@ -380,7 +391,7 @@ export function ShoppingListScreen() {
               item={item}
               isChecked={checkedIds.has(item.id)}
               onToggleCheck={() => handleToggleCheck(item.id)}
-              onDelete={() => deletePantryItem.mutate(item.id)}
+              onSwipeAction={() => handleSwipeAction(item)}
               colors={colors}
               spacing={spacing}
               radius={radius}
@@ -611,7 +622,7 @@ const styles = StyleSheet.create({
   swipeContainer: {
     position: 'relative',
   },
-  deleteButtonContainer: {
+  swipeActionContainer: {
     position: 'absolute',
     top: 0,
     right: 0,
@@ -620,7 +631,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteButton: {
+  swipeActionButton: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',

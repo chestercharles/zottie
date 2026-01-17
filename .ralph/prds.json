@@ -1,67 +1,7 @@
 [
   {
-    "name": "Automatic OTA updates",
-    "description": "Enable automatic over-the-air updates so users receive the latest app version without needing to go through the App Store. The app should check for updates on launch and silently download any available updates in the background. Updates are applied automatically on the next app restart with no user interaction required. This uses Expo's default update behavior - no custom UI or prompts needed. Implementation involves configuring expo-updates in app.config.js with appropriate runtime versioning and ensuring EAS Update is properly set up.",
-    "completed": true
-  },
-  {
-    "name": "Add drag handle to Settings modal",
-    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Settings modal screen to indicate it can be dismissed by swiping down. Currently, the Settings screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears in the pantry settings screen (pantry/settings route).",
-    "completed": true
-  },
-  {
-    "name": "Add drag handle to Pantry Add Item modal",
-    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Add Item modal screen to indicate it can be dismissed by swiping down. Currently, the Add Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when adding a new pantry item (pantry/create route).",
-    "completed": true
-  },
-  {
-    "name": "Add drag handle to Pantry Edit Item modal",
-    "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal screen to indicate it can be dismissed by swiping down. Currently, the Edit Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when editing an existing pantry item (pantry/[id] route).",
-    "completed": true
-  },
-  {
-    "name": "Smoother search overlay animation on Pantry screen",
-    "description": "The search overlay animation on the Pantry screen feels too bouncy when appearing, which is inconsistent with iOS native search bar behavior. When the user taps the search icon in the header, the search bar slides down from the top but overshoots its final position before settling back. iOS native search animations (like in Settings or Mail apps) use critically-damped springs that slide smoothly without overshoot. The animation should be adjusted to feel more native and polished - a smooth, quick slide-in without the bounce. This affects the SearchOverlay component in the PantryListScreen.",
-    "completed": true
-  },
-  {
-    "name": "Move drag handle above Settings modal header",
-    "description": "The drag handle on the Settings modal currently appears below the 'Settings' navigation header, which looks incorrect. The drag handle should appear at the very top of the modal, above the header, to match iOS modal presentation conventions. When users see a modal sheet, the drag handle should be the first visual element at the top edge of the sheet, not buried below the title. This requires restructuring how the Settings screen renders its header - likely using a custom header layout that includes both the drag handle and the 'Settings' title within the screen content, rather than relying on the navigation-provided header. This affects the Settings screen presented from pantry/settings route.",
-    "completed": true
-  },
-  {
-    "name": "Update dark mode success color to teal",
-    "description": "Replace the current dark mode success/positive color (bright green #32D74B) with a teal/cyan color that better aligns with zottie's warm, empathetic personality. The current green feels too technical and 'hackery' - more appropriate for developer tools than a household app about cooking and meal prep. A teal/cyan maintains the positive/success meaning while feeling calmer and more modern. This affects the success color token in the design system (feedback.success in dark mode), which is used for: 'In Stock' status badges, checkmarks on completed shopping list items, success states in household join flow, and completed command indicators. The light mode success color can also be evaluated for consistency, but the primary concern is dark mode.",
-    "completed": true
-  },
-  {
-    "name": "Fix add planned item sheet dismissal navigation",
-    "description": "When the 'add new planned item' bottom sheet on the shopping list screen is dismissed (by pulling down), it incorrectly navigates to the pantry screen. The expected behavior is that dismissing this sheet should keep the user on the shopping list screen where they initiated the action. This is a navigation bug that breaks the user's context - they opened the sheet from shopping list and should return to shopping list when they cancel or dismiss it.",
-    "completed": true
-  },
-  {
-    "name": "Direct swipe-to-delete on shopping list items",
-    "description": "Simplify the delete interaction for shopping list items. Currently, swiping left on a shopping list item reveals a delete button that must be tapped to complete the deletion. Change this to a direct swipe-to-delete gesture: when the user swipes left past a threshold, the item should animate sliding off the screen and be deleted immediately. This reduces the deletion from a two-step action (swipe then tap) to a single gesture, making list management faster and more fluid. The slide-off animation should feel smooth and natural, providing clear feedback that the item is being removed. The implementation should follow iOS Human Interface Guidelines for destructive swipe actions (including appropriate gesture thresholds, spring animations, and visual feedback) and use zottie's design system tokens for any colors or styling to ensure consistency across the app.",
-    "completed": true
-  },
-  {
-    "name": "Shopping list tap toggles checked state",
-    "description": "Tapping a shopping list item currently opens an item detail page, which interrupts the user's flow when they simply want to mark an item as bought. Change the tap behavior so that tapping an item toggles its checked/unchecked state directly without navigating anywhere. This matches the mental model users have when shopping - they want to quickly check off items as they put them in their cart. Opening a detail page for every tap creates friction and frustration, especially when users are in the store trying to move quickly through their list. The item detail page can still be accessible through a different gesture (like long-press or an edit button) if needed, but the primary tap interaction should be the quick toggle.",
-    "completed": true
-  },
-  {
-    "name": "Consistent header action icon button colors",
-    "description": "The plus button in the pantry and shopping list screen headers currently uses a purple color, which is inconsistent with the other action icon buttons in the header. All header action icon buttons should use the same color for visual consistency. Update the plus button to match the color used by the other header action icons (such as search or settings icons). This affects both the pantry screen header and the shopping list screen header where the add/plus button appears.",
-    "completed": true
-  },
-  {
-    "name": "Increase header height for better touch confidence",
-    "description": "The navigation headers across the app feel cramped, making it harder for users to confidently tap action buttons. The header height should be increased slightly to provide more negative space around the action icons (search, settings, add buttons). This additional breathing room helps users feel more confident they're hitting the right target, aligning with our design principle that the interface should feel 'reassuring' and avoid 'dense layouts'. The change applies to all screens with header action buttons - both large title headers on top-level screens (like Pantry, Shopping List) and standard title headers on detail/sub-screens. The icons themselves don't need to be larger; the goal is simply more vertical space in the header area so elements don't feel squeezed together.",
-    "completed": true
-  },
-  {
-    "name": "Swipe-to-reveal delete on shopping list items",
-    "description": "The current direct swipe-to-delete gesture on shopping list items makes it too easy to accidentally delete items. Change the behavior so that swiping left on a shopping list item reveals a delete button (trash can icon) instead of immediately deleting the item. The user must then tap the trash can button to confirm deletion. This adds a deliberate confirmation step that prevents accidental deletions while still keeping the interaction quick and intuitive. Only the delete button should be revealed - no other action buttons. The swipe-to-reveal pattern follows standard iOS conventions for destructive actions, giving users the confidence that they won't lose items by mistake.",
+    "name": "Contextual swipe behavior for shopping list items",
+    "description": "The shopping list contains two types of items: staples (recurring pantry items that auto-appear when running low) and planned items (one-time additions). Currently, swiping to delete treats both the same - permanently removing them from the pantry. This is problematic for staples because users lose their recurring item tracking. Change the swipe behavior to be contextual based on item type: when swiping a staple, mark it as 'in stock' which removes it from the shopping list but preserves it in the pantry for future use; when swiping a planned item, delete it entirely since it was a one-time purchase. No confirmation dialog or toast feedback is needed - the visual removal is sufficient feedback. This preserves the value of staples (they'll reappear when marked running low again) while keeping the quick swipe gesture intuitive for both item types.",
     "completed": true
   }
 ]
