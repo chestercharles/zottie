@@ -1,17 +1,5 @@
 [
   {
-    "name": "In-app theme toggle",
-    "description": "Add a theme toggle to the Settings screen that allows users to choose between Light, Dark, or System (default) appearance. The toggle should appear as a segmented control or list selection near the top of Settings. The user's preference should persist across app launches using AsyncStorage. When set to System, the app follows the device's system preference (current behavior). When set to Light or Dark, the app uses that mode regardless of system setting. The theme context should wrap the app and provide the resolved color scheme to the existing useTheme hook. No visual changes to the actual light/dark colors - just adding the ability to override the system preference."
-  },
-  {
-    "name": "Pantry search overlay keyboard behavior",
-    "description": "When the search overlay appears, the search input should automatically receive focus and the keyboard should appear. Tapping the large X to exit search mode should dismiss the keyboard and the overlay simultaneously. The search input should have a clear button (small X) that clears text without dismissing the overlay or keyboard. Pressing the keyboard's return/search key should dismiss the keyboard but keep the overlay visible with results filtered. This follows standard iOS search behavior where the search results remain visible after keyboard dismissal."
-  },
-  {
-    "name": "Move pantry settings gear to left side of navigation",
-    "description": "Move the settings gear icon from the right side of the Pantry screen navigation header to the left side. Currently, the right side has three icons (settings gear, search, and + button), which makes it easy for users to accidentally tap the settings gear when reaching for the more frequently used + or search buttons. By moving the settings gear to the left, it separates the less-frequently-used settings action from the primary actions, reducing accidental taps and improving the user experience."
-  },
-  {
     "name": "Design system audit for add item bottom sheets",
     "description": "Review and update both the 'Add Pantry Item' and 'Add Shopping Item' bottom sheets to fully conform with the design system. Currently, these bottom sheets have design inconsistencies - notably the background remains light when the app is in dark mode. Audit all aspects of these bottom sheets including: background colors, text colors, input field styling, button styling, spacing/padding, typography, and any other visual elements. Ensure all colors and styles are pulled from the design system tokens rather than hardcoded values, so they properly respond to light/dark mode changes and maintain consistency with the rest of the app."
   }

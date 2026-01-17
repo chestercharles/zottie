@@ -51,7 +51,14 @@ Typography Rules
 - Default text color: text.primary
 - Avoid bold body text unless necessary for clarity
 - Never use all-caps text
-- Respect system Dynamic Type settings
+
+Dynamic Type
+
+- All text must use scaled fonts via typography tokens
+- Test layouts at largest accessibility sizes (AX5)
+- Allow text to wrap rather than truncate at large sizes
+- Critical UI elements must remain functional at all sizes
+- Consider layout adaptation when text exceeds expected bounds
 
 ---
 
@@ -175,6 +182,14 @@ Lists
 - Use dividers sparingly
 - Tappable rows must have clear affordance
 
+Swipe Actions
+
+- Place destructive actions (delete) on trailing side with red background
+- Place non-destructive actions (edit, archive) on leading side
+- Full-swipe should trigger the primary action for that direction
+- Include haptic feedback when crossing action thresholds
+- Swipe actions should have both icon and label when space permits
+
 ---
 
 7. Motion and Feedback
@@ -187,8 +202,13 @@ Motion Principles
 
 Haptics
 
-- Light haptics for confirmations
-- Never use haptics for errors or warnings
+- Light impact for selections and minor confirmations
+- Medium impact for meaningful actions (delete, complete, toggle)
+- Use notification haptics appropriately:
+  - Success: task completion, successful submission
+  - Warning: destructive action confirmation dialogs
+  - Error: validation failure, operation failure (use sparingly)
+- Never overuse haptics — they should feel meaningful, not noisy
 
 ---
 
@@ -201,7 +221,63 @@ Haptics
 
 ---
 
-9. AI Usage Rules
+9. Safe Areas
+
+- Always use SafeAreaView or safe area insets for edge content
+- Bottom content must respect home indicator area
+- Headers must account for notch and Dynamic Island
+- Tab bars and toolbars should extend into safe area with proper insets
+- Test on devices with different safe area configurations
+
+---
+
+10. Navigation Patterns
+
+- Use push navigation for drill-down hierarchy (detail screens)
+- Use modal sheets for quick actions that don't leave context
+- Use full-screen modals for focused tasks (compose, edit, multi-step flows)
+- All modals must support swipe-to-dismiss
+- Use large titles for top-level screens, standard titles for detail screens
+- Place primary actions in the navigation bar, not as floating buttons
+
+Sheet Presentations
+
+- Prefer .medium detent for quick selection or preview
+- Use .large detent for content that needs more space
+- Allow users to expand sheets by dragging
+
+---
+
+11. Icons
+
+- Use SF Symbols as the primary icon source
+- Match symbol weight to adjacent text weight
+- Use semantic symbol names (e.g., "trash" not "delete-icon")
+- Prefer monochrome rendering for most UI; hierarchical for emphasis
+- Ensure all icons scale appropriately with Dynamic Type
+
+---
+
+12. Context Menus
+
+- Support long-press context menus on interactive list items
+- Group related actions with separators
+- Place destructive actions at the bottom with red text
+- Include relevant preview when appropriate
+- Keep menu items concise (2-3 words)
+
+---
+
+13. Pointer and Trackpad (iPad)
+
+- Provide hover states for interactive elements
+- Use pointer lift effect for buttons and tappable cards
+- Support keyboard shortcuts for common actions
+- Ensure focus states are visible for keyboard navigation
+
+---
+
+14. AI Usage Rules
 
 When generating UI:
 
@@ -213,7 +289,7 @@ When generating UI:
 
 ---
 
-10. Design Smell Checklist
+15. Design Smell Checklist
 
 Avoid:
 
