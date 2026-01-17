@@ -113,3 +113,31 @@ useMutation({
 ## Design System
 
 @DESIGN_SYSTEM.md
+
+### Using Design System Components
+
+Import components and the theme hook:
+
+```typescript
+import { Text, Button, Card, TextInput, StatusBadge, ListItem, EmptyState } from '@/components'
+import { useTheme } from '@/lib/theme'
+```
+
+Access theme tokens in your component:
+
+```typescript
+const { colors, spacing, radius, typography } = useTheme()
+```
+
+Always use semantic tokens instead of hardcoded values:
+
+```typescript
+// Good
+<View style={{ backgroundColor: colors.surface.background, padding: spacing.md }}>
+  <Text variant="title.medium">Hello</Text>
+  <Button variant="primary" title="Continue" onPress={handlePress} />
+</View>
+
+// Bad - never use hardcoded colors or spacing
+<View style={{ backgroundColor: '#fff', padding: 16 }}>
+```
