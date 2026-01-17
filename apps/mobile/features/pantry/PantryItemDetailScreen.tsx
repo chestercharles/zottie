@@ -1,31 +1,25 @@
 import { useState } from 'react'
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  TextInput,
+  TextInput as RNTextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import type { PantryItemStatus, ItemType } from './types'
 import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
+import { useTheme } from '../../lib/theme'
+import { Text, Button, Card, StatusBadge } from '../../components/ui'
 
 const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
   running_low: 'Running Low',
   out_of_stock: 'Out of Stock',
   planned: 'Planned',
-}
-
-const statusColors: Record<PantryItemStatus, string> = {
-  in_stock: '#27AE60',
-  running_low: '#F39C12',
-  out_of_stock: '#E74C3C',
-  planned: '#9B59B6',
 }
 
 function formatDate(timestamp: number): string {
@@ -52,6 +46,7 @@ export function PantryItemDetailScreen() {
   const router = useRouter()
   const updateMutation = useUpdatePantryItem()
   const deleteMutation = useDeletePantryItem()
+  const { colors, spacing, radius } = useTheme()
 
   const [currentStatus, setCurrentStatus] = useState<PantryItemStatus>(
     params.status
@@ -178,137 +173,214 @@ export function PantryItemDetailScreen() {
   ]
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
+      <View style={[styles.content, { padding: spacing.md }]}>
+        <View style={[styles.header, { marginBottom: spacing.lg }]}>
           {isEditingName ? (
-            <View style={styles.editNameContainer}>
-              <TextInput
-                style={styles.nameInput}
+            <View style={[styles.editNameContainer, { marginBottom: spacing.sm }]}>
+              <RNTextInput
+                style={[
+                  styles.nameInput,
+                  {
+                    color: colors.text.primary,
+                    backgroundColor: colors.surface.grouped,
+                    borderRadius: radius.sm,
+                    padding: spacing.sm,
+                    marginBottom: spacing.sm,
+                  },
+                ]}
                 value={editedName}
                 onChangeText={setEditedName}
                 selectTextOnFocus
                 onSubmitEditing={handleSaveName}
                 returnKeyType="done"
+                placeholderTextColor={colors.text.tertiary}
               />
-              <View style={styles.editNameButtons}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
+              <View style={[styles.editNameButtons, { gap: spacing.sm }]}>
+                <Button
+                  variant="secondary"
+                  title="Cancel"
                   onPress={handleCancelEdit}
                   disabled={updateMutation.isPending}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.saveButton,
-                    updateMutation.isPending && styles.saveButtonDisabled,
-                  ]}
+                  style={styles.editButton}
+                />
+                <Button
+                  title={updateMutation.isPending ? 'Saving...' : 'Save'}
                   onPress={handleSaveName}
                   disabled={updateMutation.isPending}
-                >
-                  {updateMutation.isPending ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  )}
-                </TouchableOpacity>
+                  style={styles.editButton}
+                />
               </View>
             </View>
           ) : (
             <TouchableOpacity
-              style={styles.nameContainer}
+              style={[styles.nameContainer, { gap: spacing.sm, marginBottom: spacing.sm }]}
               onPress={() => setIsEditingName(true)}
             >
-              <Text style={styles.name}>{currentName}</Text>
-              <Ionicons name="pencil" size={20} color="#999" />
+              <Text variant="title.large">{currentName}</Text>
+              <Ionicons name="pencil" size={20} color={colors.text.tertiary} />
             </TouchableOpacity>
           )}
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: statusColors[currentStatus] },
-            ]}
-          >
-            <Text style={styles.statusText}>{statusLabels[currentStatus]}</Text>
-          </View>
+          <StatusBadge status={currentStatus} />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Change Status</Text>
+        <Card style={[styles.section, { marginBottom: spacing.md }]}>
+          <Text variant="title.small" style={{ marginBottom: spacing.md }}>
+            Change Status
+          </Text>
           {updateMutation.isPending ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color="#3498DB" />
-              <Text style={styles.loadingText}>Updating...</Text>
+            <View style={[styles.loadingContainer, { paddingVertical: spacing.md }]}>
+              <ActivityIndicator size="small" color={colors.action.primary} />
+              <Text
+                variant="body.secondary"
+                color="secondary"
+                style={{ marginLeft: spacing.sm }}
+              >
+                Updating...
+              </Text>
             </View>
           ) : (
-            <View style={styles.statusButtons}>
-              {statuses.map((status) => (
-                <TouchableOpacity
-                  key={status}
-                  style={[
-                    styles.statusButton,
-                    currentStatus === status && styles.statusButtonActive,
-                  ]}
-                  onPress={() => handleStatusChange(status)}
-                  disabled={currentStatus === status}
-                >
-                  <Text
+            <View style={[styles.statusButtons, { gap: spacing.sm }]}>
+              {statuses.map((status) => {
+                const isActive = currentStatus === status
+                return (
+                  <TouchableOpacity
+                    key={status}
                     style={[
-                      styles.statusButtonText,
-                      currentStatus === status && styles.statusButtonTextActive,
+                      styles.statusButton,
+                      {
+                        backgroundColor: isActive
+                          ? colors.action.primary
+                          : colors.surface.background,
+                        borderColor: colors.action.primary,
+                        borderRadius: radius.sm,
+                        paddingVertical: spacing.sm,
+                        paddingHorizontal: spacing.md,
+                      },
                     ]}
+                    onPress={() => handleStatusChange(status)}
+                    disabled={isActive}
                   >
-                    {statusLabels[status]}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      variant="body.primary"
+                      style={[
+                        styles.statusButtonText,
+                        { color: isActive ? colors.text.inverse : colors.action.primary },
+                      ]}
+                    >
+                      {statusLabels[status]}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
             </View>
           )}
-        </View>
+        </Card>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Details</Text>
+        <Card style={[styles.section, { marginBottom: spacing.md }]}>
+          <Text variant="title.small" style={{ marginBottom: spacing.md }}>
+            Details
+          </Text>
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Item Name</Text>
-            <Text style={styles.detailValue}>{currentName}</Text>
+          <View
+            style={[
+              styles.detailRow,
+              {
+                paddingVertical: spacing.sm,
+                borderBottomColor: colors.border.subtle,
+              },
+            ]}
+          >
+            <Text variant="body.secondary" color="secondary">
+              Item Name
+            </Text>
+            <Text variant="body.secondary">{currentName}</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Status</Text>
-            <Text style={styles.detailValue}>
-              {statusLabels[currentStatus]}
+          <View
+            style={[
+              styles.detailRow,
+              {
+                paddingVertical: spacing.sm,
+                borderBottomColor: colors.border.subtle,
+              },
+            ]}
+          >
+            <Text variant="body.secondary" color="secondary">
+              Status
             </Text>
+            <Text variant="body.secondary">{statusLabels[currentStatus]}</Text>
           </View>
 
           {purchasedAt && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Last Purchased</Text>
-              <Text style={styles.detailValue}>{formatDate(purchasedAt)}</Text>
+            <View
+              style={[
+                styles.detailRow,
+                {
+                  paddingVertical: spacing.sm,
+                  borderBottomColor: colors.border.subtle,
+                },
+              ]}
+            >
+              <Text variant="body.secondary" color="secondary">
+                Last Purchased
+              </Text>
+              <Text variant="body.secondary">{formatDate(purchasedAt)}</Text>
             </View>
           )}
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Created</Text>
-            <Text style={styles.detailValue}>{formatDate(createdAt)}</Text>
+          <View
+            style={[
+              styles.detailRow,
+              {
+                paddingVertical: spacing.sm,
+                borderBottomColor: colors.border.subtle,
+              },
+            ]}
+          >
+            <Text variant="body.secondary" color="secondary">
+              Created
+            </Text>
+            <Text variant="body.secondary">{formatDate(createdAt)}</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Last Updated</Text>
-            <Text style={styles.detailValue}>{formatDate(updatedAt)}</Text>
+          <View
+            style={[
+              styles.detailRow,
+              {
+                paddingVertical: spacing.sm,
+                borderBottomWidth: 0,
+              },
+            ]}
+          >
+            <Text variant="body.secondary" color="secondary">
+              Last Updated
+            </Text>
+            <Text variant="body.secondary">{formatDate(updatedAt)}</Text>
           </View>
-        </View>
+        </Card>
 
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[
+            styles.deleteButton,
+            {
+              backgroundColor: colors.feedback.error,
+              borderRadius: radius.md,
+              paddingVertical: spacing.sm + spacing.xs,
+              marginTop: spacing.sm,
+            },
+          ]}
           onPress={handleDelete}
           disabled={deleteMutation.isPending}
         >
           {deleteMutation.isPending ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={colors.text.inverse} />
           ) : (
-            <Text style={styles.deleteButtonText}>Delete Item</Text>
+            <Text variant="body.primary" color="inverse" style={styles.deleteButtonText}>
+              Delete Item
+            </Text>
           )}
         </TouchableOpacity>
       </View>
@@ -319,154 +391,52 @@ export function PantryItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
-  content: {
-    padding: 16,
-  },
-  header: {
-    marginBottom: 24,
-  },
+  content: {},
+  header: {},
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
   },
-  name: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
-  },
-  editNameContainer: {
-    marginBottom: 12,
-  },
+  editNameContainer: {},
   nameInput: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
   },
   editNameButtons: {
     flexDirection: 'row',
-    gap: 12,
   },
-  cancelButton: {
+  editButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#f8f9fa',
-    alignItems: 'center',
   },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
-  },
-  saveButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#3498DB',
-    alignItems: 'center',
-  },
-  saveButtonDisabled: {
-    backgroundColor: '#A9CCE3',
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  section: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
+  section: {},
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
   },
-  loadingText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  statusButtons: {
-    gap: 8,
-  },
+  statusButtons: {},
   statusButton: {
-    backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#3498DB',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     alignItems: 'center',
-  },
-  statusButtonActive: {
-    backgroundColor: '#3498DB',
-    borderColor: '#3498DB',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   statusButtonText: {
-    fontSize: 16,
     fontWeight: '600',
-    color: '#3498DB',
-  },
-  statusButtonTextActive: {
-    color: '#fff',
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  detailValue: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: '600',
   },
   deleteButton: {
-    backgroundColor: '#E74C3C',
-    borderRadius: 8,
-    paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 8,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   deleteButtonText: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
 })
