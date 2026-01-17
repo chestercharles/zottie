@@ -105,26 +105,32 @@ jobs:
           fi
 
       - uses: pnpm/action-setup@v4
+        if: steps.check.outputs.bumped == 'false'
 
       - name: 🏗 Setup Node
+        if: steps.check.outputs.bumped == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
 
       - name: 🏗 Setup EAS
+        if: steps.check.outputs.bumped == 'false'
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
+        if: steps.check.outputs.bumped == 'false'
         run: pnpm install
 
       - name: 🔍 Check for native changes
+        if: steps.check.outputs.bumped == 'false'
         run: node native-changes-check.js --range "HEAD^...HEAD"
 
       - name: 🚀 Create OTA update
+        if: steps.check.outputs.bumped == 'false'
         run: |
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
           eas update -p ios --channel production --non-interactive --message "Main - $COMMIT_MSG (commit: ${{ github.sha }})"
