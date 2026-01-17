@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Reanimated, {
   SharedValue,
   useAnimatedStyle,
@@ -308,6 +309,7 @@ function SearchOverlay({
   typography: ReturnType<typeof useTheme>['typography']
 }) {
   const animationProgress = useSharedValue(0)
+  const gestureTranslateY = useSharedValue(0)
   const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
@@ -318,11 +320,35 @@ function SearchOverlay({
     })
     if (isVisible) {
       setTimeout(() => inputRef.current?.focus(), 100)
+    } else {
+      gestureTranslateY.value = 0
     }
   }, [isVisible])
 
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      if (event.translationY < 0) {
+        gestureTranslateY.value = event.translationY
+      }
+    })
+    .onEnd((event) => {
+      const shouldDismiss = event.translationY < -30 || event.velocityY < -500
+
+      if (shouldDismiss) {
+        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light)
+        runOnJS(Keyboard.dismiss)()
+        runOnJS(onClose)()
+        gestureTranslateY.value = 0
+      } else {
+        gestureTranslateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 300,
+        })
+      }
+    })
+
   const animatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
+    const baseTranslateY = interpolate(
       animationProgress.value,
       [0, 1],
       [-60, 0],
@@ -331,7 +357,7 @@ function SearchOverlay({
     const opacity = animationProgress.value
 
     return {
-      transform: [{ translateY }],
+      transform: [{ translateY: baseTranslateY + gestureTranslateY.value }],
       opacity,
     }
   })
@@ -341,98 +367,100 @@ function SearchOverlay({
   }
 
   return (
-    <Reanimated.View
-      style={[
-        {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: colors.surface.background,
-          paddingHorizontal: spacing.md,
-          paddingVertical: spacing.sm,
-          borderBottomWidth: 0.5,
-          borderBottomColor: colors.border.subtle,
-          zIndex: 100,
-        },
-        animatedStyle,
-      ]}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: spacing.sm,
-        }}
+    <GestureDetector gesture={panGesture}>
+      <Reanimated.View
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: colors.surface.background,
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            borderBottomWidth: 0.5,
+            borderBottomColor: colors.border.subtle,
+            zIndex: 100,
+          },
+          animatedStyle,
+        ]}
       >
         <View
           style={{
-            flex: 1,
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: colors.surface.grouped,
-            borderRadius: radius.sm,
-            paddingHorizontal: spacing.sm,
+            gap: spacing.sm,
           }}
         >
-          <Ionicons
-            name="search"
-            size={18}
-            color={colors.text.tertiary}
-            style={{ marginRight: spacing.xs }}
-          />
-          <TextInput
-            ref={inputRef}
+          <View
             style={{
               flex: 1,
-              paddingVertical: spacing.sm,
-              fontSize: typography.body.primary.fontSize,
-              color: colors.text.primary,
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.surface.grouped,
+              borderRadius: radius.sm,
+              paddingHorizontal: spacing.sm,
             }}
-            value={searchTerm}
-            onChangeText={onSearchTermChange}
-            placeholder="Search pantry items..."
-            placeholderTextColor={colors.text.tertiary}
-            returnKeyType="search"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onSubmitEditing={() => Keyboard.dismiss()}
-          />
-          {searchTerm.length > 0 && (
-            <Pressable
-              onPress={() => onSearchTermChange('')}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Clear search"
-            >
-              <View
-                style={{
-                  backgroundColor: colors.text.tertiary,
-                  borderRadius: 10,
-                  padding: 2,
-                }}
+          >
+            <Ionicons
+              name="search"
+              size={18}
+              color={colors.text.tertiary}
+              style={{ marginRight: spacing.xs }}
+            />
+            <TextInput
+              ref={inputRef}
+              style={{
+                flex: 1,
+                paddingVertical: spacing.sm,
+                fontSize: typography.body.primary.fontSize,
+                color: colors.text.primary,
+              }}
+              value={searchTerm}
+              onChangeText={onSearchTermChange}
+              placeholder="Search pantry items..."
+              placeholderTextColor={colors.text.tertiary}
+              returnKeyType="search"
+              autoCapitalize="none"
+              autoCorrect={false}
+              onSubmitEditing={() => Keyboard.dismiss()}
+            />
+            {searchTerm.length > 0 && (
+              <Pressable
+                onPress={() => onSearchTermChange('')}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Clear search"
               >
-                <Ionicons name="close" size={14} color={colors.surface.grouped} />
-              </View>
-            </Pressable>
-          )}
+                <View
+                  style={{
+                    backgroundColor: colors.text.tertiary,
+                    borderRadius: 10,
+                    padding: 2,
+                  }}
+                >
+                  <Ionicons name="close" size={14} color={colors.surface.grouped} />
+                </View>
+              </Pressable>
+            )}
+          </View>
+          <Pressable
+            onPress={() => {
+              Keyboard.dismiss()
+              onClose()
+            }}
+            style={{
+              padding: spacing.xs,
+            }}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Close search"
+          >
+            <Ionicons name="close" size={28} color={colors.text.primary} />
+          </Pressable>
         </View>
-        <Pressable
-          onPress={() => {
-            Keyboard.dismiss()
-            onClose()
-          }}
-          style={{
-            padding: spacing.xs,
-          }}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Close search"
-        >
-          <Ionicons name="close" size={28} color={colors.text.primary} />
-        </Pressable>
-      </View>
-    </Reanimated.View>
+      </Reanimated.View>
+    </GestureDetector>
   )
 }
 
