@@ -1,11 +1,8 @@
 import { useState } from 'react'
 import {
-  Text,
   View,
   StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  TextInput,
+  TextInput as RNTextInput,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -16,6 +13,8 @@ import { router } from 'expo-router'
 import { useCreateHousehold } from '@/features/household/hooks'
 import { useAuth } from '@/features/auth'
 import { queryClient } from '@/lib/query/client'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 interface CreateHouseholdScreenProps {
   onSuccess: () => void
@@ -30,6 +29,7 @@ export function CreateHouseholdScreen({
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { signOut } = useAuth()
   const insets = useSafeAreaInsets()
+  const { colors, spacing, radius, typography } = useTheme()
 
   const handleCreateHousehold = async () => {
     const trimmedName = householdName.trim()
@@ -75,23 +75,57 @@ export function CreateHouseholdScreen({
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.lg,
+          paddingTop: spacing['2xl'],
+        },
+      ]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.content}>
-        <Ionicons name="home" size={64} color="#3498DB" />
-        <Text style={styles.title}>Welcome to zottie</Text>
-        <Text style={styles.subtitle}>
+      <View
+        style={[
+          styles.content,
+          { gap: spacing.sm, marginBottom: spacing.xl, marginTop: spacing['2xl'] },
+        ]}
+      >
+        <Ionicons name="home" size={64} color={colors.action.primary} />
+        <Text variant="title.large" style={{ marginTop: spacing.md }}>
+          Welcome to zottie
+        </Text>
+        <Text
+          variant="body.primary"
+          color="secondary"
+          style={[styles.subtitle, { maxWidth: 300 }]}
+        >
           Create a household to start managing your pantry and shopping list.
         </Text>
       </View>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Household Name</Text>
-        <TextInput
-          style={styles.input}
+      <View style={{ marginBottom: spacing.lg }}>
+        <Text
+          variant="body.secondary"
+          style={{ fontWeight: '600', marginBottom: spacing.sm }}
+        >
+          Household Name
+        </Text>
+        <RNTextInput
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.surface.grouped,
+              borderColor: colors.border.subtle,
+              borderRadius: radius.sm,
+              paddingHorizontal: spacing.md,
+              paddingVertical: spacing.sm + spacing.xs,
+              fontSize: typography.body.primary.fontSize,
+              color: colors.text.primary,
+            },
+          ]}
           placeholder="e.g., Smith Family, My Apartment"
-          placeholderTextColor="#BDC3C7"
+          placeholderTextColor={colors.text.tertiary}
           value={householdName}
           onChangeText={setHouseholdName}
           autoFocus
@@ -102,32 +136,53 @@ export function CreateHouseholdScreen({
         />
       </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.primaryButton,
-            isButtonDisabled && styles.disabledButton,
-          ]}
+      <View style={{ gap: spacing.md }}>
+        <Button
+          title={isCreating ? 'Creating...' : 'Create Household'}
           onPress={handleCreateHousehold}
           disabled={isButtonDisabled}
-        >
-          {isCreating ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.primaryButtonText}>Create Household</Text>
-          )}
-        </TouchableOpacity>
+        />
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
+        <View style={[styles.divider, { marginVertical: spacing.sm }]}>
+          <View
+            style={[styles.dividerLine, { backgroundColor: colors.border.subtle }]}
+          />
+          <Text
+            variant="body.secondary"
+            color="secondary"
+            style={{ marginHorizontal: spacing.md }}
+          >
+            or
+          </Text>
+          <View
+            style={[styles.dividerLine, { backgroundColor: colors.border.subtle }]}
+          />
         </View>
 
-        <View style={styles.joinSection}>
-          <Ionicons name="link-outline" size={24} color="#7F8C8D" />
-          <Text style={styles.joinTitle}>Join an Existing Household</Text>
-          <Text style={styles.joinMessage}>
+        <View
+          style={[
+            styles.joinSection,
+            {
+              padding: spacing.lg,
+              backgroundColor: colors.surface.grouped,
+              borderRadius: radius.lg,
+              gap: spacing.sm,
+            },
+          ]}
+        >
+          <Ionicons
+            name="link-outline"
+            size={24}
+            color={colors.text.secondary}
+          />
+          <Text variant="body.primary" style={{ fontWeight: '600' }}>
+            Join an Existing Household
+          </Text>
+          <Text
+            variant="body.secondary"
+            color="secondary"
+            style={styles.joinMessage}
+          >
             Ask someone in the household to send you an invite link. Open the
             link to join their household.
           </Text>
@@ -135,17 +190,25 @@ export function CreateHouseholdScreen({
       </View>
 
       <View
-        style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}
+        style={[
+          styles.footer,
+          {
+            paddingTop: spacing.lg,
+            paddingBottom: Math.max(insets.bottom, spacing.lg),
+          },
+        ]}
       >
-        <TouchableOpacity
-          style={styles.logoutButton}
+        <Button
+          variant="secondary"
+          title={isLoggingOut ? 'Logging out...' : 'Log Out'}
           onPress={handleLogout}
           disabled={isLoggingOut}
-        >
-          <Text style={styles.logoutButtonText}>
-            {isLoggingOut ? 'Logging out...' : 'Log Out'}
-          </Text>
-        </TouchableOpacity>
+          style={{
+            borderWidth: 1,
+            borderColor: colors.feedback.error,
+            borderRadius: radius.md,
+          }}
+        />
       </View>
     </KeyboardAvoidingView>
   )
@@ -154,114 +217,31 @@ export function CreateHouseholdScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
-    paddingTop: 48,
   },
   content: {
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 32,
-    marginTop: 48,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    marginTop: 16,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#7F8C8D',
     textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-  },
-  formContainer: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C3E50',
-  },
-  buttonContainer: {
-    gap: 16,
-  },
-  primaryButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 8,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
-  },
-  dividerText: {
-    color: '#7F8C8D',
-    fontSize: 14,
-    marginHorizontal: 16,
   },
   joinSection: {
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    gap: 8,
-  },
-  joinTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2C3E50',
   },
   joinMessage: {
-    fontSize: 14,
-    color: '#7F8C8D',
     textAlign: 'center',
-    lineHeight: 20,
   },
   footer: {
     marginTop: 'auto',
-    paddingTop: 24,
-  },
-  logoutButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#E74C3C',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  logoutButtonText: {
-    color: '#E74C3C',
-    fontSize: 16,
-    fontWeight: '600',
   },
 })
