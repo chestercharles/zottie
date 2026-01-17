@@ -17,7 +17,7 @@
   {
     "name": "Remove redundant status display on edit item page",
     "description": "The edit item page currently shows the item's status twice: once as a read-only display right below the item name, and again in the status picker below that (where the current status is highlighted). This is redundant. Remove the first status display so that only the status picker is shown, with the current status already highlighted within it.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Move checked shopping list items to bottom",

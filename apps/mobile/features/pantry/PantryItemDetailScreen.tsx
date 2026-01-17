@@ -13,7 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import type { PantryItemStatus, ItemType } from './types'
 import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
 import { useTheme } from '../../lib/theme'
-import { Text, Button, Card, StatusBadge, DragHandle } from '../../components/ui'
+import { Text, Button, Card, DragHandle } from '../../components/ui'
 
 const statusLabels: Record<PantryItemStatus, string> = {
   in_stock: 'In Stock',
@@ -219,14 +219,13 @@ export function PantryItemDetailScreen() {
             </View>
           ) : (
             <TouchableOpacity
-              style={[styles.nameContainer, { gap: spacing.sm, marginBottom: spacing.sm }]}
+              style={[styles.nameContainer, { gap: spacing.sm }]}
               onPress={() => setIsEditingName(true)}
             >
               <Text variant="title.large">{currentName}</Text>
               <Ionicons name="pencil" size={20} color={colors.text.tertiary} />
             </TouchableOpacity>
           )}
-          <StatusBadge status={currentStatus} />
         </View>
 
         <Card style={[styles.section, { marginBottom: spacing.md }]}>
