@@ -6,7 +6,7 @@ export default {
   expo: {
     name: IS_DEV ? 'zottie (Dev)' : 'zottie',
     slug: 'zottie',
-    version: '1.0.0',
+    version: '1.1.0',
     runtimeVersion: {
       policy: 'fingerprint',
     },
