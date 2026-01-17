@@ -325,30 +325,31 @@ function SearchOverlay({
     }
   }, [isVisible])
 
-  const panGesture = Gesture.Pan()
-    .activeOffsetY([-8, 8])
-    .failOffsetX([-15, 15])
-    .onUpdate((event) => {
-      if (event.translationY < 0) {
-        gestureTranslateY.value = event.translationY
-      }
-    })
-    .onEnd((event) => {
-      const hasSignificantDistance = event.translationY < -60
-      const hasSignificantVelocity = event.velocityY < -1000
-      const shouldDismiss = hasSignificantDistance && hasSignificantVelocity
+  // Temporarily disabled until new dev build is created
+  // const panGesture = Gesture.Pan()
+  //   .activeOffsetY([-8, 8])
+  //   .failOffsetX([-15, 15])
+  //   .onUpdate((event) => {
+  //     if (event.translationY < 0) {
+  //       gestureTranslateY.value = event.translationY
+  //     }
+  //   })
+  //   .onEnd((event) => {
+  //     const hasSignificantDistance = event.translationY < -60
+  //     const hasSignificantVelocity = event.velocityY < -1000
+  //     const shouldDismiss = hasSignificantDistance && hasSignificantVelocity
 
-      if (shouldDismiss) {
-        runOnJS(Keyboard.dismiss)()
-        runOnJS(onClose)()
-        gestureTranslateY.value = 0
-      } else {
-        gestureTranslateY.value = withSpring(0, {
-          damping: 20,
-          stiffness: 300,
-        })
-      }
-    })
+  //     if (shouldDismiss) {
+  //       runOnJS(Keyboard.dismiss)()
+  //       runOnJS(onClose)()
+  //       gestureTranslateY.value = 0
+  //     } else {
+  //       gestureTranslateY.value = withSpring(0, {
+  //         damping: 20,
+  //         stiffness: 300,
+  //       })
+  //     }
+  //   })
 
   const animatedStyle = useAnimatedStyle(() => {
     const baseTranslateY = interpolate(
@@ -370,24 +371,23 @@ function SearchOverlay({
   }
 
   return (
-    <GestureDetector gesture={panGesture}>
-      <Reanimated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: colors.surface.background,
-            paddingHorizontal: spacing.md,
-            paddingVertical: spacing.sm,
-            borderBottomWidth: 0.5,
-            borderBottomColor: colors.border.subtle,
-            zIndex: 100,
-          },
-          animatedStyle,
-        ]}
-      >
+    <Reanimated.View
+      style={[
+        {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.sm,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border.subtle,
+          zIndex: 100,
+        },
+        animatedStyle,
+      ]}
+    >
         <View
           style={{
             flexDirection: 'row',
@@ -462,8 +462,7 @@ function SearchOverlay({
             <Ionicons name="close" size={28} color={colors.text.primary} />
           </Pressable>
         </View>
-      </Reanimated.View>
-    </GestureDetector>
+    </Reanimated.View>
   )
 }
 
