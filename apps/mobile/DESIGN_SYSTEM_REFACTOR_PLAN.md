@@ -96,7 +96,7 @@ Build reusable components using the design tokens. Each component should use tok
   - Uses typography and spacing tokens
 
 ### 2.8 Update Component Barrel Export
-- [ ] Update `components/index.ts` to export all new UI components
+- [x] Update `components/index.ts` to export all new UI components
 
 ---
 
@@ -296,14 +296,14 @@ Update each screen to use design tokens and new components.
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
 | 1. Foundation | 10 | 10 | Complete |
-| 2. Core Components | 9 | 7 | In Progress |
+| 2. Core Components | 9 | 9 | Complete |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **17** | **31%** |
+| **Total** | **54** | **19** | **35%** |
 
 ---
 
