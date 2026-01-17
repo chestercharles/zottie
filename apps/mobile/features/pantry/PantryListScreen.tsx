@@ -514,7 +514,7 @@ export function PantryListScreen() {
             accessibilityRole="button"
             accessibilityLabel="Add item"
           >
-            <Ionicons name="add" size={28} color={colors.action.primary} />
+            <Ionicons name="add" size={28} color={tintColor} />
           </TouchableOpacity>
         </View>
       ),

@@ -1,5 +1,16 @@
 # zottie Development Progress
 
+## Consistent header action icon button colors
+
+Updated the plus button in the pantry and shopping list screen headers to use the same color as other header action icons (like search and settings). Previously, the plus button used `colors.action.primary` (purple accent color) while other icons used `tintColor` (the standard navigation header text color). This inconsistency made the plus button stand out unnecessarily.
+
+Changes:
+- Updated PantryListScreen: Changed plus icon from `colors.action.primary` to `tintColor`
+- Updated ShoppingListScreen: Added `tintColor` prop to headerRight and changed plus icon color
+- Removed unused `colors` dependency from ShoppingListScreen's useLayoutEffect
+
+The plus button now matches the visual style of the search icon and other header actions, creating a more cohesive and consistent header appearance.
+
 ## Shopping list tap toggles checked state
 
 Changed the tap behavior on shopping list items so that tapping anywhere on an item toggles its checked/unchecked state directly, rather than navigating to a detail page. This matches the mental model users have when shopping - they want to quickly check off items as they put them in their cart.

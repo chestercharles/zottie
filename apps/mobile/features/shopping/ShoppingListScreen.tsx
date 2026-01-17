@@ -251,18 +251,18 @@ export function ShoppingListScreen() {
   useLayoutEffect(() => {
     const parent = navigation.getParent()
     parent?.setOptions({
-      headerRight: () => (
+      headerRight: ({ tintColor }: { tintColor?: string }) => (
         <TouchableOpacity
           onPress={openAddSheet}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Add item"
         >
-          <Ionicons name="add" size={28} color={colors.action.primary} />
+          <Ionicons name="add" size={28} color={tintColor} />
         </TouchableOpacity>
       ),
     })
-  }, [navigation, openAddSheet, colors])
+  }, [navigation, openAddSheet])
 
   const renderBackdrop = useCallback(
     (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
