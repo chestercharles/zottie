@@ -6,8 +6,9 @@ import {
   ActivityIndicator,
   RefreshControl,
   ActionSheetIOS,
+  TextInput,
 } from 'react-native'
-import { useState, useRef, useLayoutEffect, useCallback } from 'react'
+import { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ReanimatedSwipeable, {
@@ -17,6 +18,10 @@ import Reanimated, {
   SharedValue,
   useAnimatedStyle,
   runOnJS,
+  useSharedValue,
+  withSpring,
+  interpolate,
+  Extrapolation,
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
 import BottomSheet, {
@@ -281,6 +286,149 @@ const addItemStatusOptions: { label: string; value: PantryItemStatus }[] = [
   { label: 'Running Low', value: 'running_low' },
   { label: 'Out of Stock', value: 'out_of_stock' },
 ]
+
+function SearchOverlay({
+  isVisible,
+  searchTerm,
+  onSearchTermChange,
+  onClose,
+  colors,
+  spacing,
+  radius,
+  typography,
+}: {
+  isVisible: boolean
+  searchTerm: string
+  onSearchTermChange: (text: string) => void
+  onClose: () => void
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
+  typography: ReturnType<typeof useTheme>['typography']
+}) {
+  const animationProgress = useSharedValue(0)
+  const inputRef = useRef<TextInput>(null)
+
+  useEffect(() => {
+    animationProgress.value = withSpring(isVisible ? 1 : 0, {
+      damping: 20,
+      stiffness: 300,
+    })
+    if (isVisible) {
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [isVisible])
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      animationProgress.value,
+      [0, 1],
+      [-60, 0],
+      Extrapolation.CLAMP
+    )
+    const opacity = animationProgress.value
+
+    return {
+      transform: [{ translateY }],
+      opacity,
+    }
+  })
+
+  if (!isVisible && animationProgress.value === 0) {
+    return null
+  }
+
+  return (
+    <Reanimated.View
+      style={[
+        {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.sm,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border.subtle,
+          zIndex: 100,
+        },
+        animatedStyle,
+      ]}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.surface.grouped,
+            borderRadius: radius.sm,
+            paddingHorizontal: spacing.sm,
+          }}
+        >
+          <Ionicons
+            name="search"
+            size={18}
+            color={colors.text.tertiary}
+            style={{ marginRight: spacing.xs }}
+          />
+          <TextInput
+            ref={inputRef}
+            style={{
+              flex: 1,
+              paddingVertical: spacing.sm,
+              fontSize: typography.body.primary.fontSize,
+              color: colors.text.primary,
+            }}
+            value={searchTerm}
+            onChangeText={onSearchTermChange}
+            placeholder="Search pantry items..."
+            placeholderTextColor={colors.text.tertiary}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchTerm.length > 0 && (
+            <Pressable
+              onPress={() => onSearchTermChange('')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+            >
+              <View
+                style={{
+                  backgroundColor: colors.text.tertiary,
+                  borderRadius: 10,
+                  padding: 2,
+                }}
+              >
+                <Ionicons name="close" size={14} color={colors.surface.grouped} />
+              </View>
+            </Pressable>
+          )}
+        </View>
+        <Pressable
+          onPress={onClose}
+          style={{
+            padding: spacing.xs,
+          }}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Close search"
+        >
+          <Ionicons name="close" size={28} color={colors.text.primary} />
+        </Pressable>
+      </View>
+    </Reanimated.View>
+  )
+}
 
 export function PantryListScreen() {
   const router = useRouter()
@@ -619,6 +767,16 @@ export function PantryListScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.surface.background }}>
+      <SearchOverlay
+        isVisible={isSearchMode}
+        searchTerm={searchTerm}
+        onSearchTermChange={setSearchTerm}
+        onClose={toggleSearchMode}
+        colors={colors}
+        spacing={spacing}
+        radius={radius}
+        typography={typography}
+      />
       {items.length === 0 ? (
         <EmptyState
           title="No pantry items yet"
@@ -633,7 +791,7 @@ export function PantryListScreen() {
           ListHeaderComponent={renderListHeader}
           contentContainerStyle={{
             padding: spacing.md,
-            paddingTop: spacing.sm,
+            paddingTop: isSearchMode ? 60 : spacing.sm,
           }}
           refreshControl={
             <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
