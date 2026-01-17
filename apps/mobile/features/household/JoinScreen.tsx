@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native'
+import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/features/auth'
 import {
@@ -16,9 +9,12 @@ import {
   usePendingInvite,
 } from './hooks'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 export function JoinScreen() {
   const { code } = useLocalSearchParams<{ code: string }>()
+  const { colors, spacing, radius } = useTheme()
   const { storePendingInvite, clearPendingInvite } = usePendingInvite()
   const { signIn, isAuthenticated, isLoading: isAuthLoading } = useAuth()
 
@@ -93,27 +89,42 @@ export function JoinScreen() {
 
   if (isAuthLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#3498DB" />
+      <View
+        style={[styles.centerContainer, { backgroundColor: colors.surface.background }]}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
     )
   }
 
   if (!isAuthenticated) {
     return (
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Ionicons name="home-outline" size={64} color="#3498DB" />
-          <Text style={styles.title}>Join a Household</Text>
-          <Text style={styles.message}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.surface.background,
+            paddingHorizontal: spacing.lg,
+            paddingVertical: spacing['2xl'],
+          },
+        ]}
+      >
+        <View style={[styles.content, { gap: spacing.sm }]}>
+          <Ionicons name="home-outline" size={64} color={colors.action.primary} />
+          <Text variant="title.medium" style={{ marginTop: spacing.md }}>
+            Join a Household
+          </Text>
+          <Text
+            variant="body.primary"
+            color="secondary"
+            style={[styles.message, { maxWidth: 300 }]}
+          >
             Sign in or create an account to join this household.
           </Text>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn}>
-            <Text style={styles.primaryButtonText}>Sign In to Continue</Text>
-          </TouchableOpacity>
+        <View style={{ gap: spacing.sm }}>
+          <Button title="Sign In to Continue" onPress={handleSignIn} />
         </View>
       </View>
     )
@@ -121,20 +132,42 @@ export function JoinScreen() {
 
   if (isValidating || isLoadingHousehold) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#3498DB" />
-        <Text style={styles.loadingText}>Validating invite...</Text>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: colors.surface.background, gap: spacing.md },
+        ]}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
+        <Text variant="body.primary" color="secondary">
+          Validating invite...
+        </Text>
       </View>
     )
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Ionicons name="alert-circle-outline" size={64} color="#E74C3C" />
-          <Text style={styles.title}>Invalid Invite</Text>
-          <Text style={styles.errorMessage}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.surface.background,
+            paddingHorizontal: spacing.lg,
+            paddingVertical: spacing['2xl'],
+          },
+        ]}
+      >
+        <View style={[styles.content, { gap: spacing.sm }]}>
+          <Ionicons name="alert-circle-outline" size={64} color={colors.feedback.error} />
+          <Text variant="title.medium" style={{ marginTop: spacing.md }}>
+            Invalid Invite
+          </Text>
+          <Text
+            variant="body.primary"
+            color="secondary"
+            style={[styles.message, { maxWidth: 300 }]}
+          >
             This invite link is invalid or has expired. Please ask for a new
             invite link.
           </Text>
@@ -146,23 +179,38 @@ export function JoinScreen() {
   if (invite) {
     if (isAlreadyMember) {
       return (
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Ionicons name="checkmark-circle" size={64} color="#27AE60" />
-            <Text style={styles.title}>You're Already a Member</Text>
-            <Text style={styles.householdName}>{invite.householdName}</Text>
-            <Text style={styles.message}>
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: colors.surface.background,
+              paddingHorizontal: spacing.lg,
+              paddingVertical: spacing['2xl'],
+            },
+          ]}
+        >
+          <View style={[styles.content, { gap: spacing.sm }]}>
+            <Ionicons name="checkmark-circle" size={64} color={colors.feedback.success} />
+            <Text variant="title.medium" style={{ marginTop: spacing.md }}>
+              You're Already a Member
+            </Text>
+            <Text
+              variant="title.large"
+              style={{ color: colors.action.primary }}
+            >
+              {invite.householdName}
+            </Text>
+            <Text
+              variant="body.primary"
+              color="secondary"
+              style={[styles.message, { maxWidth: 300 }]}
+            >
               You're already part of this household.
             </Text>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handleCancel}
-            >
-              <Text style={styles.primaryButtonText}>Go Back</Text>
-            </TouchableOpacity>
+          <View style={{ gap: spacing.sm }}>
+            <Button title="Go Back" onPress={handleCancel} />
           </View>
         </View>
       )
@@ -170,82 +218,121 @@ export function JoinScreen() {
 
     if (hasExistingHousehold) {
       return (
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Ionicons name="swap-horizontal" size={64} color="#F39C12" />
-            <Text style={styles.title}>Switch Households?</Text>
-            <Text style={styles.householdName}>{invite.householdName}</Text>
-            <Text style={styles.warningMessage}>
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: colors.surface.background,
+              paddingHorizontal: spacing.lg,
+              paddingVertical: spacing['2xl'],
+            },
+          ]}
+        >
+          <View style={[styles.content, { gap: spacing.sm }]}>
+            <Ionicons name="swap-horizontal" size={64} color={colors.feedback.warning} />
+            <Text variant="title.medium" style={{ marginTop: spacing.md }}>
+              Switch Households?
+            </Text>
+            <Text
+              variant="title.large"
+              style={{ color: colors.action.primary }}
+            >
+              {invite.householdName}
+            </Text>
+            <Text
+              variant="body.primary"
+              color="secondary"
+              style={[styles.message, { maxWidth: 300 }]}
+            >
               You're currently in "{currentHousehold?.name}". Joining this
               household will remove you from your current one.
             </Text>
           </View>
 
-          <View style={styles.infoContainer}>
-            <Ionicons name="time-outline" size={16} color="#7F8C8D" />
-            <Text style={styles.expiryText}>
+          <View
+            style={[
+              styles.infoContainer,
+              { gap: spacing.xs, paddingBottom: spacing.lg },
+            ]}
+          >
+            <Ionicons name="time-outline" size={16} color={colors.text.secondary} />
+            <Text variant="body.secondary" color="secondary">
               Expires {new Date(invite.expiresAt).toLocaleDateString()}
             </Text>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                styles.warningButton,
-                isJoining && styles.disabledButton,
-              ]}
+          <View style={{ gap: spacing.sm }}>
+            <Button
+              title={isJoining ? 'Switching...' : 'Switch Households'}
               onPress={handleSwitchHousehold}
               disabled={isJoining}
-            >
-              {isJoining ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.primaryButtonText}>Switch Households</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.secondaryButton}
+              style={{ backgroundColor: colors.feedback.warning }}
+            />
+            <Button
+              variant="secondary"
+              title="Cancel"
               onPress={handleCancel}
               disabled={isJoining}
-            >
-              <Text style={styles.secondaryButtonText}>Cancel</Text>
-            </TouchableOpacity>
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border.subtle,
+                borderRadius: radius.md,
+              }}
+            />
           </View>
         </View>
       )
     }
 
     return (
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Ionicons name="home" size={64} color="#27AE60" />
-          <Text style={styles.title}>You're Invited!</Text>
-          <Text style={styles.householdName}>{invite.householdName}</Text>
-          <Text style={styles.message}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.surface.background,
+            paddingHorizontal: spacing.lg,
+            paddingVertical: spacing['2xl'],
+          },
+        ]}
+      >
+        <View style={[styles.content, { gap: spacing.sm }]}>
+          <Ionicons name="home" size={64} color={colors.feedback.success} />
+          <Text variant="title.medium" style={{ marginTop: spacing.md }}>
+            You're Invited!
+          </Text>
+          <Text
+            variant="title.large"
+            style={{ color: colors.action.primary }}
+          >
+            {invite.householdName}
+          </Text>
+          <Text
+            variant="body.primary"
+            color="secondary"
+            style={[styles.message, { maxWidth: 300 }]}
+          >
             You've been invited to join this household.
           </Text>
         </View>
 
-        <View style={styles.infoContainer}>
-          <Ionicons name="time-outline" size={16} color="#7F8C8D" />
-          <Text style={styles.expiryText}>
+        <View
+          style={[
+            styles.infoContainer,
+            { gap: spacing.xs, paddingBottom: spacing.lg },
+          ]}
+        >
+          <Ionicons name="time-outline" size={16} color={colors.text.secondary} />
+          <Text variant="body.secondary" color="secondary">
             Expires {new Date(invite.expiresAt).toLocaleDateString()}
           </Text>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.primaryButton, isJoining && styles.disabledButton]}
+        <View style={{ gap: spacing.sm }}>
+          <Button
+            title={isJoining ? 'Joining...' : 'Join Household'}
             onPress={handleJoinHousehold}
             disabled={isJoining}
-          >
-            {isJoining ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.primaryButtonText}>Join Household</Text>
-            )}
-          </TouchableOpacity>
+          />
         </View>
       </View>
     )
@@ -257,102 +344,23 @@ export function JoinScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
-    paddingVertical: 48,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    gap: 16,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    marginTop: 16,
-  },
-  householdName: {
-    fontSize: 28,
-    fontWeight: '600',
-    color: '#3498DB',
   },
   message: {
-    fontSize: 16,
-    color: '#7F8C8D',
     textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-  },
-  warningMessage: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#7F8C8D',
-  },
-  buttonContainer: {
-    gap: 12,
-  },
-  primaryButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  warningButton: {
-    backgroundColor: '#F39C12',
-  },
-  secondaryButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#BDC3C7',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  secondaryButtonText: {
-    color: '#7F8C8D',
-    fontSize: 18,
-    fontWeight: '600',
   },
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingBottom: 24,
-  },
-  expiryText: {
-    fontSize: 14,
-    color: '#7F8C8D',
   },
 })

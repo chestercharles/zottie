@@ -215,7 +215,7 @@ Update each screen to use design tokens and new components.
   - Update spacing and typography
 
 ### 4.8 Household Screens
-- [ ] `features/household/JoinScreen.tsx`
+- [x] `features/household/JoinScreen.tsx`
   - Use TextInput component
   - Use Button component
   - Replace hardcoded colors with tokens
@@ -303,7 +303,7 @@ Update each screen to use design tokens and new components.
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **38** | **70%** |
+| **Total** | **54** | **39** | **72%** |
 
 ---
 
