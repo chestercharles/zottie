@@ -9,7 +9,7 @@ import type { PantryItemStatus } from './types'
 import { useRouter } from 'expo-router'
 import { useCreatePantryItem } from './hooks'
 import { useTheme } from '../../lib/theme'
-import { Text, Button } from '../../components/ui'
+import { Text, Button, DragHandle } from '../../components/ui'
 
 export function CreatePantryItemScreen() {
   const router = useRouter()
@@ -51,9 +51,11 @@ export function CreatePantryItemScreen() {
     <View
       style={[
         styles.container,
-        { padding: spacing.lg, backgroundColor: colors.surface.background },
+        { backgroundColor: colors.surface.background },
       ]}
     >
+      <DragHandle />
+      <View style={{ padding: spacing.lg, flex: 1 }}>
       <Text
         variant="body.primary"
         style={[styles.label, { marginBottom: spacing.sm }]}
@@ -157,6 +159,7 @@ export function CreatePantryItemScreen() {
         onPress={handleCreate}
         disabled={createMutation.isPending}
       />
+      </View>
     </View>
   )
 }

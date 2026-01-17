@@ -1,5 +1,14 @@
 # zottie Development Progress
 
+## Add drag handle to Pantry Add Item modal
+
+Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Add Item modal to indicate it can be dismissed by swiping down.
+
+Changes:
+- Added DragHandle component to CreatePantryItemScreen at the top of the modal
+- Wrapped the form content in a View with padding to maintain proper layout
+- Reuses the existing DragHandle component from components/ui
+
 ## Add drag handle to Settings modal
 
 Added an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Settings modal to indicate it can be dismissed by swiping down.

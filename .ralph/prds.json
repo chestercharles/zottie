@@ -12,11 +12,16 @@
   {
     "name": "Add drag handle to Pantry Add Item modal",
     "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Add Item modal screen to indicate it can be dismissed by swiping down. Currently, the Add Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when adding a new pantry item (pantry/create route).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add drag handle to Pantry Edit Item modal",
     "description": "Add an iOS-standard drag handle (pill-shaped grabber bar) to the top of the Edit Item modal screen to indicate it can be dismissed by swiping down. Currently, the Edit Item screen is presented as a modal but lacks the visual affordance that tells users they can swipe down to dismiss. The drag handle should be a subtle, rounded pill shape centered at the top of the modal, following iOS conventions. This appears when editing an existing pantry item (pantry/[id] route).",
+    "completed": false
+  },
+  {
+    "name": "Smoother search overlay animation on Pantry screen",
+    "description": "The search overlay animation on the Pantry screen feels too bouncy when appearing, which is inconsistent with iOS native search bar behavior. When the user taps the search icon in the header, the search bar slides down from the top but overshoots its final position before settling back. iOS native search animations (like in Settings or Mail apps) use critically-damped springs that slide smoothly without overshoot. The animation should be adjusted to feel more native and polished - a smooth, quick slide-in without the bounce. This affects the SearchOverlay component in the PantryListScreen.",
     "completed": false
   }
 ]
