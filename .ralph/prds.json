@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "name": "Alphabetical Sorting for Pantry and Shopping List",
+    "description": "Users need to quickly find specific items in their pantry and shopping lists, especially as lists grow longer. Currently items are ordered with recent additions at the bottom, making it difficult to locate specific items without scanning the entire list.\n\nBoth the pantry screen and shopping list screen should display items in alphabetical order (A-Z) by item name. This sorting should be automatic and consistent across both screens.\n\nWhen users view their pantry or shopping list, items appear sorted alphabetically. When new items are added, they should automatically be placed in the correct alphabetical position rather than at the top or bottom. This gives users a predictable, scannable list where they can quickly find any item by thinking \"it starts with B, so it should be near the top.\"\n\nThe alphabetical sorting applies to all items regardless of their other properties (like quantity, status, or when they were added). If item names start with the same letter, sort by subsequent letters in the standard alphabetical way.",
+    "completed": false
+  }
+]
