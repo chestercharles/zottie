@@ -8,16 +8,19 @@
 - Added pan gesture detection to the SearchOverlay component in `apps/mobile/features/pantry/PantryListScreen.tsx`
 - Imported `Gesture` and `GestureDetector` from `react-native-gesture-handler`
 - Created `gestureTranslateY` shared value to track vertical pan gestures
+- Added a dedicated drag handle (pill-shaped indicator) at the top of the search overlay
+- Applied GestureDetector only to the drag handle to avoid conflicts with the TextInput
 - Implemented pan gesture handler with:
+  - `activeOffsetY([-10, 10])`: Requires 10pt vertical movement before activating
+  - `failOffsetX([-10, 10])`: Fails if horizontal movement exceeds 10pt
   - `onUpdate`: Tracks upward swipe movements (negative Y translations)
-  - `onEnd`: Dismisses search if user swipes up more than 30px OR with velocity over 500
+  - `onEnd`: Dismisses search if user swipes up more than 50px OR with velocity over 800
   - Spring animation to snap back if gesture doesn't meet dismiss threshold
 - Added light haptic feedback when gesture triggers dismissal
-- Wrapped SearchOverlay content in GestureDetector to enable gesture handling
 - Combined gesture translation with base animation for smooth transitions
 
 **Technical Details:**
-The swipe gesture follows iOS patterns by requiring either a minimum distance (30px) or sufficient velocity (500) to trigger dismissal. When dismissed via gesture, it calls the same `onClose` handler as the X button, ensuring consistent behavior (hiding search and clearing the filter). The gesture only responds to upward swipes (negative Y values) to avoid conflicts with scrolling. Light haptic feedback provides subtle user confirmation of the dismissal action.
+The swipe gesture follows iOS bottom sheet patterns with a visible drag handle indicator. The gesture only applies to the handle area, not the entire overlay, preventing interference with the TextInput interaction. The gesture requires either a minimum distance (50px) or sufficient velocity (800) to trigger dismissal, with activation offsets to ensure deliberate swipes. When dismissed via gesture, it calls the same `onClose` handler as the X button, ensuring consistent behavior (hiding search and clearing the filter). Light haptic feedback provides subtle user confirmation of the dismissal action.
 
 **Verification:**
 - ✅ Linting passed
