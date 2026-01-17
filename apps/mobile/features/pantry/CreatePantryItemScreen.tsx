@@ -1,19 +1,20 @@
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
+  TextInput as RNTextInput,
 } from 'react-native'
 import { useState } from 'react'
 import type { PantryItemStatus } from './types'
 import { useRouter } from 'expo-router'
 import { useCreatePantryItem } from './hooks'
+import { useTheme } from '../../lib/theme'
+import { Text, Button } from '../../components/ui'
 
 export function CreatePantryItemScreen() {
   const router = useRouter()
   const createMutation = useCreatePantryItem()
+  const { colors, spacing, radius } = useTheme()
   const [name, setName] = useState('')
   const [status, setStatus] = useState<PantryItemStatus>('in_stock')
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -47,60 +48,115 @@ export function CreatePantryItemScreen() {
   ]
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Item Name</Text>
-      <TextInput
-        style={styles.input}
+    <View
+      style={[
+        styles.container,
+        { padding: spacing.lg, backgroundColor: colors.surface.background },
+      ]}
+    >
+      <Text
+        variant="body.primary"
+        style={[styles.label, { marginBottom: spacing.sm }]}
+      >
+        Item Name
+      </Text>
+      <RNTextInput
+        style={[
+          styles.input,
+          {
+            borderColor: validationError
+              ? colors.feedback.error
+              : colors.border.subtle,
+            borderRadius: radius.sm,
+            paddingVertical: spacing.sm,
+            paddingHorizontal: spacing.md,
+            marginBottom: spacing.lg,
+            color: colors.text.primary,
+            backgroundColor: colors.surface.background,
+          },
+        ]}
         value={name}
-        onChangeText={setName}
+        onChangeText={(text) => {
+          setName(text)
+          if (validationError) setValidationError(null)
+        }}
         placeholder="e.g. Milk, Eggs, Bread"
+        placeholderTextColor={colors.text.tertiary}
         editable={!createMutation.isPending}
       />
 
-      <Text style={styles.label}>Status</Text>
-      <View style={styles.statusContainer}>
-        {statusOptions.map((option) => (
-          <TouchableOpacity
-            key={option.value}
-            style={[
-              styles.statusButton,
-              status === option.value && styles.statusButtonActive,
-            ]}
-            onPress={() => setStatus(option.value)}
-            disabled={createMutation.isPending}
-          >
-            <Text
+      <Text
+        variant="body.primary"
+        style={[styles.label, { marginBottom: spacing.sm }]}
+      >
+        Status
+      </Text>
+      <View style={[styles.statusContainer, { gap: spacing.sm, marginBottom: spacing.lg }]}>
+        {statusOptions.map((option) => {
+          const isActive = status === option.value
+          return (
+            <TouchableOpacity
+              key={option.value}
               style={[
-                styles.statusButtonText,
-                status === option.value && styles.statusButtonTextActive,
+                styles.statusButton,
+                {
+                  borderRadius: radius.sm,
+                  borderColor: isActive
+                    ? colors.action.primary
+                    : colors.border.subtle,
+                  backgroundColor: isActive
+                    ? colors.action.primary
+                    : colors.surface.background,
+                  paddingVertical: spacing.sm,
+                  paddingHorizontal: spacing.md,
+                },
               ]}
+              onPress={() => setStatus(option.value)}
+              disabled={createMutation.isPending}
             >
-              {option.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                variant="body.secondary"
+                style={[
+                  styles.statusButtonText,
+                  {
+                    color: isActive
+                      ? colors.text.inverse
+                      : colors.text.secondary,
+                  },
+                ]}
+              >
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
       </View>
 
       {validationError && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{validationError}</Text>
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              padding: spacing.sm,
+              borderRadius: radius.sm,
+              marginBottom: spacing.lg,
+              borderWidth: 1,
+              borderColor: colors.feedback.error,
+              backgroundColor: colors.surface.background,
+            },
+          ]}
+        >
+          <Text variant="body.secondary" style={{ color: colors.feedback.error }}>
+            {validationError}
+          </Text>
         </View>
       )}
 
-      <TouchableOpacity
-        style={[
-          styles.button,
-          createMutation.isPending && styles.buttonDisabled,
-        ]}
+      <Button
+        title={createMutation.isPending ? 'Adding...' : 'Add to Pantry'}
         onPress={handleCreate}
         disabled={createMutation.isPending}
-      >
-        {createMutation.isPending ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Add to Pantry</Text>
-        )}
-      </TouchableOpacity>
+      />
     </View>
   )
 }
@@ -108,72 +164,27 @@ export function CreatePantryItemScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
   },
   label: {
-    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
-    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     fontSize: 16,
-    marginBottom: 24,
+    minHeight: 44,
   },
   statusContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
   },
   statusButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
     alignItems: 'center',
-  },
-  statusButtonActive: {
-    backgroundColor: '#3498DB',
-    borderColor: '#3498DB',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   statusButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-  },
-  statusButtonTextActive: {
-    color: '#fff',
-  },
-  button: {
-    backgroundColor: '#27AE60',
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
-  errorContainer: {
-    backgroundColor: '#FADBD8',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 24,
-  },
-  errorText: {
-    color: '#C0392B',
-    fontSize: 14,
-  },
+  errorContainer: {},
 })

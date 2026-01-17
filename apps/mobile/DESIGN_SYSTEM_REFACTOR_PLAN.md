@@ -147,7 +147,7 @@ Update each screen to use design tokens and new components.
   - Replace hardcoded colors with tokens
   - Update spacing and typography
 
-- [ ] `features/pantry/CreatePantryItemScreen.tsx`
+- [x] `features/pantry/CreatePantryItemScreen.tsx`
   - Use TextInput component with labels
   - Use Button component
   - Replace hardcoded colors with tokens
@@ -298,12 +298,12 @@ Update each screen to use design tokens and new components.
 | 1. Foundation | 10 | 10 | Complete |
 | 2. Core Components | 9 | 9 | Complete |
 | 3. VoiceInput | 4 | 4 | Complete |
-| 4. Feature Screens | 15 | 4 | In Progress |
+| 4. Feature Screens | 15 | 5 | In Progress |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **27** | **50%** |
+| **Total** | **54** | **28** | **52%** |
 
 ---
 
