@@ -33,7 +33,7 @@ export default function PantryLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          title: 'Edit Item',
+          headerShown: false,
           presentation: 'modal',
         }}
       />

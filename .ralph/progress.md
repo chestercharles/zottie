@@ -1,5 +1,27 @@
 # zottie Development Progress
 
+## 2026-01-17: Fix edit item sheet handle position
+
+**Feature:** Positioned the drag handle above the "Edit Item" title to match the Settings page pattern
+
+**Changes:**
+- Updated `apps/mobile/app/(authenticated)/pantry/_layout.tsx` to set `headerShown: false` for the `[id]` screen
+- Added a custom "Edit Item" header in `apps/mobile/features/pantry/PantryItemDetailScreen.tsx` below the DragHandle
+- Added `sheetHeader` style for centered alignment
+
+**Technical Details:**
+The edit item screen was using the default Stack navigation header which placed the "Edit Item" title above the DragHandle component rendered inside the screen. This was inconsistent with the Settings page, which uses `headerShown: false` and renders a custom header below the DragHandle.
+
+The fix follows the Settings page pattern:
+1. Hide the Stack navigation header
+2. Render DragHandle at the very top of the screen
+3. Render a custom centered header with the title below the DragHandle
+
+**Verification:**
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Auto-sort checked shopping list items to bottom
 
 **Feature:** Checked shopping list items now automatically move to the bottom of the list

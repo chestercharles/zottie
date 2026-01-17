@@ -12,7 +12,7 @@
   {
     "name": "Fix edit item sheet handle position",
     "description": "On the edit item bottom sheet, the handle (drag indicator) is currently positioned below the 'Edit Item' title. This is inconsistent with the settings page, where the handle is correctly positioned above the page title. The edit item sheet should match this pattern with the handle above the title. This likely requires using a custom header similar to how the settings page is structured.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Remove redundant status display on edit item page",

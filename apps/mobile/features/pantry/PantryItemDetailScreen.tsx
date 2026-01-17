@@ -175,6 +175,9 @@ export function PantryItemDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       <DragHandle />
+      <View style={[styles.sheetHeader, { paddingHorizontal: spacing.lg, paddingBottom: spacing.md }]}>
+        <Text variant="title.medium">Edit Item</Text>
+      </View>
       <ScrollView>
         <View style={[styles.content, { padding: spacing.md }]}>
           <View style={[styles.header, { marginBottom: spacing.lg }]}>
@@ -392,6 +395,9 @@ export function PantryItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  sheetHeader: {
+    alignItems: 'center',
   },
   content: {},
   header: {},
