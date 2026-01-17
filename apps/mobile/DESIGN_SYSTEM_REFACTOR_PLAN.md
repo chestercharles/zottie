@@ -120,21 +120,21 @@ The existing complex component needs token adoption.
 Update each screen to use design tokens and new components.
 
 ### 4.1 Landing Screen
-- [ ] `features/landing/LandingScreen.tsx`
+- [x] `features/landing/LandingScreen.tsx`
   - Replace hardcoded colors with tokens
   - Use Button component for CTAs
   - Use Text component for typography
   - Update spacing to use tokens
 
 ### 4.2 Home Screen
-- [ ] `features/home/HomeScreen.tsx`
+- [x] `features/home/HomeScreen.tsx`
   - Replace green `#2ECC71` and red `#E74C3C` with semantic tokens
   - Use Button component
   - Use Card component for sections
   - Update spacing and typography
 
 ### 4.3 Pantry Screens
-- [ ] `features/pantry/PantryListScreen.tsx`
+- [x] `features/pantry/PantryListScreen.tsx`
   - Replace status color mapping with StatusBadge component
   - Replace blue `#3498DB` accent with `action.primary`
   - Use ListItem component for pantry items
@@ -298,12 +298,12 @@ Update each screen to use design tokens and new components.
 | 1. Foundation | 10 | 10 | Complete |
 | 2. Core Components | 9 | 9 | Complete |
 | 3. VoiceInput | 4 | 4 | Complete |
-| 4. Feature Screens | 15 | 0 | Not Started |
+| 4. Feature Screens | 15 | 3 | In Progress |
 | 5. Navigation | 3 | 0 | Not Started |
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **54** | **23** | **43%** |
+| **Total** | **54** | **26** | **48%** |
 
 ---
 

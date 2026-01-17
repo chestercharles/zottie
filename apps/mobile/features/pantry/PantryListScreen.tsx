@@ -1,14 +1,12 @@
 import {
   View,
-  Text,
-  StyleSheet,
   TouchableOpacity,
   Pressable,
   FlatList,
   ActivityIndicator,
   RefreshControl,
   ActionSheetIOS,
-  TextInput,
+  TextInput as RNTextInput,
 } from 'react-native'
 import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
@@ -33,20 +31,8 @@ import {
   useCreatePantryItem,
 } from './hooks'
 import type { PantryItem, PantryItemStatus } from './types'
-
-const statusLabels: Record<PantryItemStatus, string> = {
-  in_stock: 'In Stock',
-  running_low: 'Running Low',
-  out_of_stock: 'Out of Stock',
-  planned: 'Planned',
-}
-
-const statusColors: Record<PantryItemStatus, string> = {
-  in_stock: '#27AE60',
-  running_low: '#F39C12',
-  out_of_stock: '#E74C3C',
-  planned: '#9B59B6',
-}
+import { Text, Button, StatusBadge, EmptyState } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 const SWIPE_THRESHOLD = -150
 
@@ -59,6 +45,7 @@ function SwipeActionButton({
   position,
   totalWidth,
   buttonCount = 2,
+  textColor,
 }: {
   label: string
   icon: keyof typeof Ionicons.glyphMap
@@ -68,6 +55,7 @@ function SwipeActionButton({
   position: number
   totalWidth: number
   buttonCount?: number
+  textColor: string
 }) {
   const buttonWidth = totalWidth / buttonCount
   const animatedStyle = useAnimatedStyle(() => {
@@ -84,14 +72,37 @@ function SwipeActionButton({
 
   return (
     <Reanimated.View
-      style={[styles.swipeActionButton, { width: buttonWidth }, animatedStyle]}
+      style={[
+        {
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: buttonWidth,
+        },
+        animatedStyle,
+      ]}
     >
       <TouchableOpacity
-        style={[styles.swipeActionContent, { backgroundColor: color }]}
+        style={{
+          flex: 1,
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 8,
+          marginHorizontal: 2,
+          gap: 4,
+          backgroundColor: color,
+        }}
         onPress={onPress}
       >
-        <Ionicons name={icon} size={22} color="#fff" />
-        <Text style={styles.swipeActionLabel}>{label}</Text>
+        <Ionicons name={icon} size={22} color={textColor} />
+        <Text
+          variant="caption"
+          color="inverse"
+          style={{ fontWeight: '600' }}
+        >
+          {label}
+        </Text>
       </TouchableOpacity>
     </Reanimated.View>
   )
@@ -103,12 +114,18 @@ function PantryItemRow({
   onMarkLow,
   onMarkOut,
   onMore,
+  colors,
+  spacing,
+  radius,
 }: {
   item: PantryItem
   onPress: () => void
   onMarkLow: () => void
   onMarkOut: () => void
   onMore: () => void
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
 }) {
   const swipeableRef = useRef<SwipeableMethods>(null)
   const hasTriggeredHaptic = useRef(false)
@@ -138,7 +155,12 @@ function PantryItemRow({
 
     return (
       <Reanimated.View
-        style={[styles.swipeActionsContainer, { width: actionsWidth }]}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.sm + 4,
+          width: actionsWidth,
+        }}
         onLayout={() => {
           checkSwipeThreshold()
         }}
@@ -148,7 +170,8 @@ function PantryItemRow({
             <SwipeActionButton
               label="Low"
               icon="alert-circle"
-              color="#F39C12"
+              color={colors.feedback.warning}
+              textColor={colors.text.inverse}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
                 onMarkLow()
@@ -162,7 +185,8 @@ function PantryItemRow({
             <SwipeActionButton
               label="Out"
               icon="close-circle"
-              color="#E74C3C"
+              color={colors.feedback.error}
+              textColor={colors.text.inverse}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
                 onMarkOut()
@@ -178,7 +202,8 @@ function PantryItemRow({
           <SwipeActionButton
             label="More"
             icon="ellipsis-horizontal"
-            color="#3498DB"
+            color={colors.action.primary}
+            textColor={colors.text.inverse}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
               onMore()
@@ -204,27 +229,46 @@ function PantryItemRow({
         hasTriggeredHaptic.current = false
       }}
     >
-      <TouchableOpacity style={styles.itemRow} onPress={onPress}>
-        <View style={styles.itemInfo}>
-          <View style={styles.itemNameContainer}>
-            <Text style={styles.itemName}>{item.name}</Text>
+      <TouchableOpacity
+        style={{
+          backgroundColor: colors.surface.grouped,
+          borderRadius: radius.lg,
+          padding: spacing.md,
+          marginBottom: spacing.sm + 4,
+        }}
+        onPress={onPress}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              flex: 1,
+              gap: spacing.xs + 2,
+            }}
+          >
+            <Text
+              variant="body.primary"
+              style={{ fontWeight: '600', flexShrink: 1 }}
+            >
+              {item.name}
+            </Text>
             {showPlannedIndicator && (
               <Ionicons
                 name="pricetag-outline"
                 size={14}
-                color="#9B59B6"
-                style={styles.plannedIcon}
+                color={colors.feedback.info}
+                style={{ opacity: 0.8 }}
               />
             )}
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: statusColors[item.status] },
-            ]}
-          >
-            <Text style={styles.statusText}>{statusLabels[item.status]}</Text>
-          </View>
+          <StatusBadge status={item.status} />
         </View>
       </TouchableOpacity>
     </ReanimatedSwipeable>
@@ -240,6 +284,7 @@ const addItemStatusOptions: { label: string; value: PantryItemStatus }[] = [
 export function PantryListScreen() {
   const router = useRouter()
   const navigation = useNavigation()
+  const { colors, spacing, radius, typography } = useTheme()
   const [searchTerm, setSearchTerm] = useState('')
   const {
     items,
@@ -291,22 +336,26 @@ export function PantryListScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Pressable
             onPress={openAddSheet}
-            style={{ marginRight: 16, padding: 4 }}
+            style={{ marginRight: spacing.md, padding: spacing.xs }}
             hitSlop={8}
           >
-            <Ionicons name="add" size={28} color="#3498DB" />
+            <Ionicons name="add" size={28} color={colors.action.primary} />
           </Pressable>
           <Pressable
             onPress={() => router.push('/pantry/settings')}
-            style={{ marginRight: 8, padding: 4 }}
+            style={{ marginRight: spacing.sm, padding: spacing.xs }}
             hitSlop={8}
           >
-            <Ionicons name="settings-outline" size={24} color="#333" />
+            <Ionicons
+              name="settings-outline"
+              size={24}
+              color={colors.text.primary}
+            />
           </Pressable>
         </View>
       ),
     })
-  }, [navigation, router])
+  }, [navigation, router, colors, spacing])
 
   const handleAddItem = () => {
     if (!newItemName.trim()) return
@@ -398,30 +447,75 @@ export function PantryListScreen() {
             ? showPlannedActionSheet(item)
             : showStapleActionSheet(item)
         }
+        colors={colors}
+        spacing={spacing}
+        radius={radius}
       />
     ),
-    [updatePantryItem]
+    [updatePantryItem, colors, spacing, radius]
   )
 
   const renderListHeader = useCallback(() => {
     if (plannedItems.length === 0) return null
 
     return (
-      <View style={styles.plannedSection}>
+      <View
+        style={{
+          marginBottom: spacing.md,
+          backgroundColor: colors.surface.grouped,
+          borderRadius: radius.lg,
+          overflow: 'hidden',
+        }}
+      >
         <TouchableOpacity
-          style={styles.plannedHeader}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: spacing.md,
+          }}
           onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
         >
-          <View style={styles.plannedHeaderLeft}>
-            <Text style={styles.plannedHeaderText}>Planned Items</Text>
-            <View style={styles.plannedCountBadge}>
-              <Text style={styles.plannedCountText}>{plannedItems.length}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: spacing.sm,
+            }}
+          >
+            <Text
+              variant="body.primary"
+              style={{ fontWeight: '600', color: colors.feedback.info }}
+            >
+              Planned Items
+            </Text>
+            <View
+              style={{
+                backgroundColor: colors.feedback.info,
+                paddingVertical: 2,
+                paddingHorizontal: spacing.sm,
+                borderRadius: 10,
+              }}
+            >
+              <Text variant="caption" color="inverse" style={{ fontWeight: '600' }}>
+                {plannedItems.length}
+              </Text>
             </View>
           </View>
-          <Text style={styles.chevron}>{isPlannedExpanded ? '▼' : '▶'}</Text>
+          <Text
+            variant="caption"
+            style={{ color: colors.feedback.info }}
+          >
+            {isPlannedExpanded ? '▼' : '▶'}
+          </Text>
         </TouchableOpacity>
         {isPlannedExpanded && (
-          <View style={styles.plannedContent}>
+          <View
+            style={{
+              paddingHorizontal: spacing.sm + 4,
+              paddingBottom: spacing.sm + 4,
+            }}
+          >
             {plannedItems.map((item) => (
               <PantryItemRow
                 key={item.id}
@@ -440,52 +534,89 @@ export function PantryListScreen() {
                   })
                 }
                 onMore={() => showPlannedActionSheet(item)}
+                colors={colors}
+                spacing={spacing}
+                radius={radius}
               />
             ))}
           </View>
         )}
       </View>
     )
-  }, [plannedItems, isPlannedExpanded, updatePantryItem])
+  }, [plannedItems, isPlannedExpanded, updatePantryItem, colors, spacing, radius])
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3498DB" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.surface.background,
+          padding: spacing.lg,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
     )
   }
 
   if (error) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.surface.background,
+          padding: spacing.lg,
+        }}
+      >
+        <Text
+          variant="body.primary"
+          style={{
+            color: colors.feedback.error,
+            textAlign: 'center',
+            marginBottom: spacing.md,
+          }}
+        >
+          {error}
+        </Text>
+        <Button title="Retry" onPress={() => refetch()} />
       </View>
     )
   }
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.background }}>
       {items.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No pantry items yet</Text>
-          <Text style={styles.emptySubtext}>
-            Add your first item to start tracking your pantry
-          </Text>
-          <TouchableOpacity style={styles.addButton} onPress={openAddSheet}>
-            <Text style={styles.addButtonText}>Add Item</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          title="No pantry items yet"
+          message="Add your first item to start tracking your pantry"
+          action={<Button title="Add Item" onPress={openAddSheet} />}
+        />
       ) : (
         <>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.surface.grouped,
+              borderRadius: radius.lg,
+              marginHorizontal: spacing.md,
+              marginTop: spacing.md,
+              paddingHorizontal: spacing.sm + 4,
+            }}
+          >
+            <RNTextInput
+              style={{
+                flex: 1,
+                height: 44,
+                fontSize: typography.body.primary.fontSize,
+                color: colors.text.primary,
+              }}
               placeholder="Search pantry items..."
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.text.tertiary}
               value={searchTerm}
               onChangeText={setSearchTerm}
               autoCapitalize="none"
@@ -493,10 +624,12 @@ export function PantryListScreen() {
             />
             {searchTerm.length > 0 && (
               <TouchableOpacity
-                style={styles.clearButton}
+                style={{ padding: spacing.sm }}
                 onPress={() => setSearchTerm('')}
               >
-                <Text style={styles.clearButtonText}>✕</Text>
+                <Text variant="body.primary" color="tertiary">
+                  ✕
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -505,7 +638,10 @@ export function PantryListScreen() {
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             ListHeaderComponent={renderListHeader}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={{
+              padding: spacing.md,
+              paddingTop: spacing.sm,
+            }}
             refreshControl={
               <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
             }
@@ -521,68 +657,120 @@ export function PantryListScreen() {
         onChange={handleSheetChange}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
-        handleIndicatorStyle={styles.sheetHandle}
+        handleIndicatorStyle={{ backgroundColor: colors.border.strong }}
       >
-        <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.sheetHeader}>
+        <BottomSheetView style={{ flex: 1 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: spacing.md,
+              paddingTop: spacing.sm,
+              paddingBottom: spacing.sm + 4,
+              borderBottomWidth: 0.5,
+              borderBottomColor: colors.border.subtle,
+            }}
+          >
             <TouchableOpacity
-              style={styles.sheetHeaderButton}
+              style={{
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
               onPress={closeAddSheet}
               disabled={createPantryItem.isPending}
             >
-              <Ionicons name="close" size={28} color="#333" />
+              <Ionicons name="close" size={28} color={colors.text.primary} />
             </TouchableOpacity>
-            <Text style={styles.sheetTitle}>Add Item</Text>
+            <Text variant="title.small">Add Item</Text>
             <TouchableOpacity
-              style={[
-                styles.sheetHeaderButton,
-                (!newItemName.trim() || createPantryItem.isPending) &&
-                  styles.sheetHeaderButtonDisabled,
-              ]}
+              style={{
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity:
+                  !newItemName.trim() || createPantryItem.isPending ? 0.5 : 1,
+              }}
               onPress={handleAddItem}
               disabled={!newItemName.trim() || createPantryItem.isPending}
             >
               {createPantryItem.isPending ? (
-                <ActivityIndicator color="#3498DB" />
+                <ActivityIndicator color={colors.action.primary} />
               ) : (
                 <Ionicons
                   name="checkmark"
                   size={28}
-                  color={newItemName.trim() ? '#3498DB' : '#ccc'}
+                  color={
+                    newItemName.trim()
+                      ? colors.action.primary
+                      : colors.action.disabled
+                  }
                 />
               )}
             </TouchableOpacity>
           </View>
-          <View style={styles.sheetBody}>
+          <View style={{ padding: spacing.lg }}>
             <BottomSheetTextInput
-              style={styles.sheetInput}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border.subtle,
+                borderRadius: radius.sm,
+                paddingVertical: spacing.sm + 4,
+                paddingHorizontal: spacing.md,
+                fontSize: typography.body.primary.fontSize,
+                marginBottom: spacing.lg,
+                color: colors.text.primary,
+              }}
               value={newItemName}
               onChangeText={setNewItemName}
               placeholder="Item name"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.text.tertiary}
               editable={!createPantryItem.isPending}
               onSubmitEditing={handleAddItem}
               returnKeyType="done"
             />
-            <Text style={styles.sheetLabel}>Status</Text>
-            <View style={styles.sheetStatusContainer}>
+            <Text
+              variant="body.secondary"
+              color="secondary"
+              style={{ fontWeight: '600', marginBottom: spacing.sm }}
+            >
+              Status
+            </Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
               {addItemStatusOptions.map((option) => (
                 <TouchableOpacity
                   key={option.value}
-                  style={[
-                    styles.sheetStatusButton,
-                    newItemStatus === option.value &&
-                      styles.sheetStatusButtonActive,
-                  ]}
+                  style={{
+                    flex: 1,
+                    paddingVertical: spacing.sm + 2,
+                    paddingHorizontal: spacing.sm,
+                    borderRadius: radius.sm,
+                    borderWidth: 1,
+                    borderColor:
+                      newItemStatus === option.value
+                        ? colors.action.primary
+                        : colors.border.subtle,
+                    backgroundColor:
+                      newItemStatus === option.value
+                        ? colors.action.primary
+                        : 'transparent',
+                    alignItems: 'center',
+                  }}
                   onPress={() => setNewItemStatus(option.value)}
                   disabled={createPantryItem.isPending}
                 >
                   <Text
-                    style={[
-                      styles.sheetStatusButtonText,
-                      newItemStatus === option.value &&
-                        styles.sheetStatusButtonTextActive,
-                    ]}
+                    variant="caption"
+                    style={{
+                      fontWeight: '600',
+                      color:
+                        newItemStatus === option.value
+                          ? colors.text.inverse
+                          : colors.text.secondary,
+                    }}
                   >
                     {option.label}
                   </Text>
@@ -595,263 +783,3 @@ export function PantryListScreen() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 24,
-  },
-  listContent: {
-    padding: 16,
-    paddingTop: 8,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginTop: 16,
-    paddingHorizontal: 12,
-  },
-  searchInput: {
-    flex: 1,
-    height: 44,
-    fontSize: 16,
-    color: '#333',
-  },
-  clearButton: {
-    padding: 8,
-  },
-  clearButtonText: {
-    fontSize: 16,
-    color: '#999',
-  },
-  itemRow: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  swipeActionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  swipeActionButton: {
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  swipeActionContent: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    marginHorizontal: 2,
-    gap: 4,
-  },
-  swipeActionLabel: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  itemInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  itemNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 6,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    flexShrink: 1,
-  },
-  plannedIcon: {
-    opacity: 0.8,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  addButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#E74C3C',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  sheetContent: {
-    flex: 1,
-  },
-  sheetHandle: {
-    backgroundColor: '#c0c0c0',
-  },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ddd',
-  },
-  sheetHeaderButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sheetHeaderButtonDisabled: {
-    opacity: 0.5,
-  },
-  sheetTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#333',
-  },
-  sheetBody: {
-    padding: 24,
-  },
-  sheetInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 24,
-  },
-  sheetLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 8,
-  },
-  sheetStatusContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  sheetStatusButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-  },
-  sheetStatusButtonActive: {
-    backgroundColor: '#3498DB',
-    borderColor: '#3498DB',
-  },
-  sheetStatusButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#666',
-  },
-  sheetStatusButtonTextActive: {
-    color: '#fff',
-  },
-  plannedSection: {
-    marginBottom: 16,
-    backgroundColor: '#F5F0FA',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  plannedHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  plannedHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  plannedHeaderText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#9B59B6',
-  },
-  plannedCountBadge: {
-    backgroundColor: '#9B59B6',
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-  },
-  plannedCountText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  chevron: {
-    fontSize: 12,
-    color: '#9B59B6',
-  },
-  plannedContent: {
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-  },
-})

@@ -1,62 +1,34 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/features/auth'
+import { Text, Button } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 export function HomeScreen() {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const { colors, spacing } = useTheme()
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcome}>Welcome, {user?.name || user?.email}!</Text>
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={() => router.push('/pantry')}
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: spacing.lg,
+        backgroundColor: colors.surface.background,
+      }}
+    >
+      <Text
+        variant="title.medium"
+        style={{ marginBottom: spacing.lg, textAlign: 'center' }}
       >
-        <Text style={styles.primaryButtonText}>View Pantry</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
-        <Text style={styles.signOutButtonText}>Sign Out</Text>
-      </TouchableOpacity>
+        Welcome, {user?.name || user?.email}!
+      </Text>
+      <View style={{ gap: spacing.sm, width: '100%', maxWidth: 300 }}>
+        <Button title="View Pantry" onPress={() => router.push('/pantry')} />
+        <Button title="Sign Out" variant="secondary" onPress={signOut} />
+      </View>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#fff',
-  },
-  welcome: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  primaryButton: {
-    backgroundColor: '#2ECC71',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  signOutButton: {
-    backgroundColor: '#E74C3C',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  signOutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-})
