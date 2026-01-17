@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,17 +10,19 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
+import { Text } from '@/components'
+import { useTheme } from '@/lib/theme'
 
 interface NewProcessingScreenProps {
   step: 'pantry' | 'shopping' | 'both'
 }
 
 export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
+  const { colors, spacing } = useTheme()
   const scale = useSharedValue(1)
   const opacity = useSharedValue(0.6)
 
   useEffect(() => {
-    // Breathing/pulsing animation with spring physics for warm, organic feel
     scale.value = withRepeat(
       withSequence(
         withSpring(1.15, {
@@ -36,7 +38,6 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
       false
     )
 
-    // Gentle opacity fade for additional warmth
     opacity.value = withRepeat(
       withSequence(
         withTiming(1, {
@@ -70,15 +71,29 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Animated.View style={[styles.iconContainer, animatedStyle]}>
-          <Ionicons name="checkmark-circle" size={80} color="#3498DB" />
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.lg,
+        },
+      ]}
+    >
+      <View style={[styles.content, { gap: spacing.lg }]}>
+        <Animated.View style={[{ marginBottom: spacing.sm }, animatedStyle]}>
+          <Ionicons name="checkmark-circle" size={80} color={colors.action.primary} />
         </Animated.View>
 
-        <Text style={styles.message}>{getMessage()}</Text>
+        <Text variant="title.medium" style={styles.message}>
+          {getMessage()}
+        </Text>
 
-        <Text style={styles.subtitle}>
+        <Text
+          variant="body.primary"
+          color="secondary"
+          style={[styles.subtitle, { maxWidth: 300 }]}
+        >
           This will just take a moment. We're organizing everything for you.
         </Text>
       </View>
@@ -89,29 +104,16 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-  },
-  iconContainer: {
-    marginBottom: 8,
   },
   message: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2C3E50',
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#7F8C8D',
     textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
   },
 })
