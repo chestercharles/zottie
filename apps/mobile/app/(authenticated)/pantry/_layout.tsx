@@ -17,10 +17,33 @@ export default function PantryLayout() {
         },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Pantry' }} />
-      <Stack.Screen name="create" options={{ title: 'Add Item' }} />
-      <Stack.Screen name="[id]" options={{ title: 'Edit Item' }} />
-      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="create"
+        options={{
+          title: 'Add Item',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          title: 'Edit Item',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          presentation: 'modal',
+        }}
+      />
     </Stack>
   )
 }

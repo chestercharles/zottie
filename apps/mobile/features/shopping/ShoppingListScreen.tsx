@@ -276,6 +276,22 @@ export function ShoppingListScreen() {
     }
   }, [])
 
+  useLayoutEffect(() => {
+    const parent = navigation.getParent()
+    parent?.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={openAddSheet}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Add item"
+        >
+          <Ionicons name="add" size={28} color={colors.action.primary} />
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation, openAddSheet, colors])
+
   const renderBackdrop = useCallback(
     (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
       <BottomSheetBackdrop
@@ -287,19 +303,6 @@ export function ShoppingListScreen() {
     []
   )
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Pressable
-          onPress={openAddSheet}
-          style={{ marginRight: spacing.sm, padding: spacing.xs }}
-          hitSlop={8}
-        >
-          <Ionicons name="add" size={28} color={colors.action.primary} />
-        </Pressable>
-      ),
-    })
-  }, [navigation, openAddSheet, colors, spacing])
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()

@@ -17,7 +17,12 @@ export default function ShoppingLayout() {
         },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Shopping' }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   )
 }

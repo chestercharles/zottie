@@ -1,11 +1,19 @@
-import { Tabs, Redirect } from 'expo-router'
+import { Tabs, Redirect, useRouter } from 'expo-router'
 import { useAuth } from '@/features/auth'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '@/lib/theme'
+import { View, TouchableOpacity, StyleSheet } from 'react-native'
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    paddingHorizontal: 12,
+  },
+})
 
 export default function AuthenticatedLayout() {
   const { isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
+  const router = useRouter()
 
   if (isLoading) {
     return null
@@ -32,15 +40,47 @@ export default function AuthenticatedLayout() {
           fontWeight: '600',
           color: colors.text.primary,
         },
+        headerLeftContainerStyle: styles.headerContainer,
+        headerRightContainerStyle: styles.headerContainer,
       }}
     >
       <Tabs.Screen
         name="pantry"
         options={{
           title: 'Pantry',
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
+          ),
+          headerLeft: ({ tintColor }) => (
+            <TouchableOpacity
+              onPress={() => router.push('/pantry/settings')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+            >
+              <Ionicons name="settings-outline" size={24} color={tintColor} />
+            </TouchableOpacity>
+          ),
+          headerRight: ({ tintColor }) => (
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}
+            >
+              <TouchableOpacity
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Search pantry"
+              >
+                <Ionicons name="search" size={24} color={tintColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Add item"
+              >
+                <Ionicons name="add" size={28} color={colors.action.primary} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -48,9 +88,18 @@ export default function AuthenticatedLayout() {
         name="shopping"
         options={{
           title: 'Shopping',
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="cart-outline" size={size} color={color} />
+          ),
+          headerRight: ({ tintColor }) => (
+            <TouchableOpacity
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Add item"
+            >
+              <Ionicons name="add" size={28} color={colors.action.primary} />
+            </TouchableOpacity>
           ),
         }}
       />

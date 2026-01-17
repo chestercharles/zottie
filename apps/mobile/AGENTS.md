@@ -10,6 +10,10 @@ Features should be implemented consistently with iOS native design patterns. Pre
 - Place primary actions in the navigation header bar rather than floating action buttons
 - Follow iOS conventions for dismiss gestures (swipe down, tap backdrop)
 
+### Expo Router navigation headers
+
+With nested navigators (Tabs containing Stacks), define headers at the Tab level to avoid icon flash on tab switches. For sub-screens within a Stack that would create double headers, use `presentation: 'modal'` to present them over the Tab header rather than trying to dynamically hide/show parent headers with `navigation.getParent()?.setOptions()`. When screens need working header button callbacks, use `useLayoutEffect` with `navigation.getParent()?.setOptions()` to inject the handlers from the screen component.
+
 ### Implementing native-feeling interactions
 
 Before hand-rolling gesture-driven UI (bottom sheets, drawers, pickers), check if a mature library exists. Custom implementations often miss subtle iOS behaviors that users notice subconsciously.

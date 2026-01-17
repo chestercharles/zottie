@@ -495,50 +495,30 @@ export function PantryListScreen() {
   }, [])
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <Pressable
-          onPress={() => router.push('/pantry/settings')}
-          style={{ marginLeft: spacing.sm, padding: spacing.xs }}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={colors.text.primary}
-          />
-        </Pressable>
-      ),
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Pressable
+    const parent = navigation.getParent()
+    parent?.setOptions({
+      headerRight: ({ tintColor }: { tintColor?: string }) => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <TouchableOpacity
             onPress={toggleSearchMode}
-            style={{ marginRight: spacing.md, padding: spacing.xs }}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={isSearchMode ? 'Close search' : 'Search pantry'}
+            accessibilityLabel="Search pantry"
           >
-            <Ionicons
-              name="search"
-              size={24}
-              color={isSearchMode ? colors.action.primary : colors.text.primary}
-            />
-          </Pressable>
-          <Pressable
+            <Ionicons name="search" size={24} color={tintColor} />
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={openAddSheet}
-            style={{ marginRight: spacing.sm, padding: spacing.xs }}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Add item"
           >
             <Ionicons name="add" size={28} color={colors.action.primary} />
-          </Pressable>
+          </TouchableOpacity>
         </View>
       ),
     })
-  }, [navigation, router, colors, spacing, isSearchMode, toggleSearchMode])
+  }, [navigation, openAddSheet, toggleSearchMode, colors])
 
   const handleAddItem = () => {
     if (!newItemName.trim()) return
