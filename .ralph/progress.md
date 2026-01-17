@@ -1,5 +1,15 @@
 # zottie Development Progress
 
+## Pantry search overlay keyboard behavior
+
+Improved the keyboard behavior of the pantry search overlay to follow standard iOS search patterns.
+
+Changes:
+- Pressing the keyboard's return/search key now dismisses the keyboard but keeps the overlay visible with filtered results
+- Tapping the large X button to exit search mode now properly dismisses both the keyboard and the overlay simultaneously
+- The small X clear button inside the input continues to clear text without dismissing overlay or keyboard (already working)
+- Auto-focus on the search input when the overlay appears (already working)
+
 ## iOS Calendar-style search overlay for pantry
 
 Implemented an animated search overlay that slides down from the top of the pantry screen when the search icon is tapped, following iOS Calendar-style patterns. The overlay covers the navigation area and contains a search input with clear functionality.

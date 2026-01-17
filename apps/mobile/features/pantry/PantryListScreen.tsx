@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ActionSheetIOS,
   TextInput,
+  Keyboard,
 } from 'react-native'
 import { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react'
 import { useRouter, useNavigation } from 'expo-router'
@@ -394,6 +395,7 @@ function SearchOverlay({
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}
+            onSubmitEditing={() => Keyboard.dismiss()}
           />
           {searchTerm.length > 0 && (
             <Pressable
@@ -415,7 +417,10 @@ function SearchOverlay({
           )}
         </View>
         <Pressable
-          onPress={onClose}
+          onPress={() => {
+            Keyboard.dismiss()
+            onClose()
+          }}
           style={{
             padding: spacing.xs,
           }}
