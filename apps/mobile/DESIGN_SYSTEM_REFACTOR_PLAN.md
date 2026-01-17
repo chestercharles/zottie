@@ -45,8 +45,8 @@ Create the infrastructure that all components will use.
 
 ### 1.5 Theme Infrastructure
 - [x] Create `lib/theme/index.ts` barrel export
-- [ ] Create `lib/theme/useTheme.ts` hook for consuming tokens (handles light/dark mode)
-- [ ] Integrate theme hook with system color scheme preference
+- [x] Create `lib/theme/useTheme.ts` hook for consuming tokens (handles light/dark mode)
+- [x] Integrate theme hook with system color scheme preference
 
 ---
 
@@ -295,7 +295,7 @@ Update each screen to use design tokens and new components.
 
 | Phase | Items | Completed | Status |
 |-------|-------|-----------|--------|
-| 1. Foundation | 14 | 8 | In Progress |
+| 1. Foundation | 10 | 10 | Complete |
 | 2. Core Components | 9 | 0 | Not Started |
 | 3. VoiceInput | 4 | 0 | Not Started |
 | 4. Feature Screens | 15 | 0 | Not Started |
@@ -303,7 +303,7 @@ Update each screen to use design tokens and new components.
 | 6. Accessibility | 3 | 0 | Not Started |
 | 7. Dark Mode | 4 | 0 | Not Started |
 | 8. Final Cleanup | 6 | 0 | Not Started |
-| **Total** | **58** | **8** | **14%** |
+| **Total** | **54** | **10** | **19%** |
 
 ---
 
