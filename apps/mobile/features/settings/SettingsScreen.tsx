@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Alert,
-  TextInput,
+  TextInput as RNTextInput,
   ActivityIndicator,
   Share,
 } from 'react-native'
@@ -20,9 +19,12 @@ import {
   useLeaveHousehold,
 } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
+import { useTheme } from '../../lib/theme'
+import { Text, Button } from '../../components/ui'
 
 export function SettingsScreen() {
   const router = useRouter()
+  const { colors, spacing, radius } = useTheme()
   const { user, signOut } = useAuth()
   const { household, members, isLoading: isLoadingHousehold } = useHousehold()
   const updateHouseholdMutation = useUpdateHousehold()
@@ -108,66 +110,89 @@ export function SettingsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.accountSection}>
-          <Text style={styles.sectionTitle}>Account</Text>
-          {user?.email && <Text style={styles.emailText}>{user.email}</Text>}
+    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+      <View style={[styles.content, { padding: spacing.lg }]}>
+        <View style={[styles.accountSection, { marginBottom: spacing.xl }]}>
+          <Text variant="caption" color="secondary" style={styles.sectionTitle}>
+            ACCOUNT
+          </Text>
+          {user?.email && (
+            <Text variant="body.primary">{user.email}</Text>
+          )}
         </View>
 
-        <View style={styles.householdSection}>
-          <Text style={styles.sectionTitle}>Household</Text>
+        <View style={[styles.householdSection, { marginBottom: spacing.xl }]}>
+          <Text variant="caption" color="secondary" style={styles.sectionTitle}>
+            HOUSEHOLD
+          </Text>
           {isLoadingHousehold ? (
-            <ActivityIndicator size="small" color="#3498DB" />
+            <ActivityIndicator size="small" color={colors.action.primary} />
           ) : isEditingName ? (
-            <View style={styles.editContainer}>
-              <TextInput
-                style={styles.nameInput}
+            <View style={[styles.editContainer, { gap: spacing.sm }]}>
+              <RNTextInput
+                style={[
+                  styles.nameInput,
+                  {
+                    color: colors.text.primary,
+                    borderColor: colors.border.subtle,
+                    borderRadius: radius.sm,
+                    paddingHorizontal: spacing.sm,
+                    paddingVertical: spacing.sm,
+                  },
+                ]}
                 value={editedName}
                 onChangeText={setEditedName}
                 placeholder="Household name"
+                placeholderTextColor={colors.text.tertiary}
               />
-              <View style={styles.editButtons}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
+              <View style={[styles.editButtons, { gap: spacing.sm }]}>
+                <Button
+                  variant="secondary"
+                  title="Cancel"
                   onPress={handleCancelEdit}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.saveButton}
+                  style={styles.flex1}
+                />
+                <Button
+                  title={updateHouseholdMutation.isPending ? 'Saving...' : 'Save'}
                   onPress={handleSaveName}
-                  disabled={
-                    updateHouseholdMutation.isPending || !editedName.trim()
-                  }
-                >
-                  <Text style={styles.saveButtonText}>
-                    {updateHouseholdMutation.isPending ? 'Saving...' : 'Save'}
-                  </Text>
-                </TouchableOpacity>
+                  disabled={updateHouseholdMutation.isPending || !editedName.trim()}
+                  style={styles.flex1}
+                />
               </View>
             </View>
           ) : (
             <TouchableOpacity onPress={handleStartEditing}>
-              <Text style={styles.householdName}>
-                {household?.name ?? 'My Household'}
+              <Text variant="title.small">{household?.name ?? 'My Household'}</Text>
+              <Text
+                variant="caption"
+                style={{ color: colors.action.primary, marginTop: spacing.xs }}
+              >
+                Tap to edit
               </Text>
-              <Text style={styles.tapToEdit}>Tap to edit</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={styles.inviteButton}
+            style={[
+              styles.inviteButton,
+              {
+                backgroundColor: colors.surface.grouped,
+                borderRadius: radius.sm,
+                paddingVertical: spacing.sm,
+                paddingHorizontal: spacing.md,
+                marginTop: spacing.md,
+              },
+            ]}
             onPress={handleInvite}
             disabled={createInviteMutation.isPending}
           >
             <Ionicons
               name="person-add-outline"
               size={20}
-              color="#3498DB"
-              style={styles.inviteIcon}
+              color={colors.action.primary}
+              style={{ marginRight: spacing.sm }}
             />
-            <Text style={styles.inviteButtonText}>
+            <Text variant="body.secondary" style={{ color: colors.action.primary, fontWeight: '600' }}>
               {createInviteMutation.isPending
                 ? 'Creating invite...'
                 : 'Invite to Household'}
@@ -175,24 +200,37 @@ export function SettingsScreen() {
           </TouchableOpacity>
 
           {members.length > 0 && (
-            <View style={styles.membersContainer}>
-              <Text style={styles.membersTitle}>Members</Text>
+            <View style={[styles.membersContainer, { marginTop: spacing.lg }]}>
+              <Text variant="caption" color="secondary" style={[styles.sectionTitle, { marginBottom: spacing.sm }]}>
+                MEMBERS
+              </Text>
               {members.map((member) => {
                 const isCurrentUser = member.userId === user?.id
                 return (
-                  <View key={member.id} style={styles.memberRow}>
+                  <View
+                    key={member.id}
+                    style={[
+                      styles.memberRow,
+                      {
+                        paddingVertical: spacing.sm,
+                        borderBottomColor: colors.border.subtle,
+                      },
+                    ]}
+                  >
                     <Ionicons
                       name="person-outline"
                       size={20}
-                      color="#666"
-                      style={styles.memberIcon}
+                      color={colors.text.secondary}
+                      style={{ marginRight: spacing.sm }}
                     />
                     <View style={styles.memberInfo}>
-                      <Text style={styles.memberEmail}>
+                      <Text variant="body.primary">
                         {member.name || member.email}
                       </Text>
                       {isCurrentUser && (
-                        <Text style={styles.memberYouLabel}>You</Text>
+                        <Text variant="caption" style={{ color: colors.action.primary, fontWeight: '600' }}>
+                          You
+                        </Text>
                       )}
                     </View>
                   </View>
@@ -202,17 +240,27 @@ export function SettingsScreen() {
           )}
 
           <TouchableOpacity
-            style={styles.leaveButton}
+            style={[
+              styles.leaveButton,
+              {
+                borderRadius: radius.sm,
+                paddingVertical: spacing.sm,
+                paddingHorizontal: spacing.md,
+                marginTop: spacing.lg,
+                borderWidth: 1,
+                borderColor: colors.feedback.error,
+              },
+            ]}
             onPress={handleLeaveHousehold}
             disabled={leaveHouseholdMutation.isPending}
           >
             <Ionicons
               name="exit-outline"
               size={20}
-              color="#E74C3C"
-              style={styles.leaveIcon}
+              color={colors.feedback.error}
+              style={{ marginRight: spacing.sm }}
             />
-            <Text style={styles.leaveButtonText}>
+            <Text variant="body.secondary" style={{ color: colors.feedback.error, fontWeight: '600' }}>
               {leaveHouseholdMutation.isPending
                 ? 'Leaving...'
                 : 'Leave Household'}
@@ -221,13 +269,22 @@ export function SettingsScreen() {
         </View>
       </View>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { padding: spacing.lg, paddingBottom: spacing['2xl'] }]}>
         <TouchableOpacity
-          style={styles.logoutButton}
+          style={[
+            styles.logoutButton,
+            {
+              backgroundColor: colors.surface.background,
+              borderWidth: 1,
+              borderColor: colors.feedback.error,
+              borderRadius: radius.sm,
+              paddingVertical: spacing.sm + spacing.xs,
+            },
+          ]}
           onPress={handleLogout}
           disabled={isLoggingOut}
         >
-          <Text style={styles.logoutButtonText}>
+          <Text variant="body.primary" style={{ color: colors.feedback.error, fontWeight: '600' }}>
             {isLoggingOut ? 'Logging out...' : 'Log Out'}
           </Text>
         </TouchableOpacity>
@@ -239,135 +296,40 @@ export function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   content: {
     flex: 1,
-    padding: 24,
   },
-  accountSection: {
-    marginBottom: 32,
-  },
-  householdSection: {
-    marginBottom: 32,
-  },
+  accountSection: {},
+  householdSection: {},
   sectionTitle: {
-    fontSize: 13,
     fontWeight: '600',
-    color: '#888',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 8,
   },
-  emailText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  householdName: {
+  editContainer: {},
+  nameInput: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    borderWidth: 1,
+    minHeight: 44,
   },
-  tapToEdit: {
-    fontSize: 13,
-    color: '#3498DB',
-    marginTop: 4,
+  editButtons: {
+    flexDirection: 'row',
+  },
+  flex1: {
+    flex: 1,
   },
   inviteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EBF5FB',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 16,
+    minHeight: 44,
   },
-  inviteIcon: {
-    marginRight: 8,
-  },
-  inviteButtonText: {
-    color: '#3498DB',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  editContainer: {
-    gap: 12,
-  },
-  nameInput: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  editButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: '#3498DB',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  footer: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-  logoutButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#E74C3C',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  logoutButtonText: {
-    color: '#E74C3C',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  membersContainer: {
-    marginTop: 24,
-  },
-  membersTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#888',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
+  membersContainer: {},
   memberRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  memberIcon: {
-    marginRight: 12,
   },
   memberInfo: {
     flex: 1,
@@ -375,30 +337,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  memberEmail: {
-    fontSize: 16,
-    color: '#333',
-  },
-  memberYouLabel: {
-    fontSize: 13,
-    color: '#3498DB',
-    fontWeight: '600',
-  },
   leaveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FDF2F2',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 24,
+    minHeight: 44,
   },
-  leaveIcon: {
-    marginRight: 8,
-  },
-  leaveButtonText: {
-    color: '#E74C3C',
-    fontSize: 15,
-    fontWeight: '600',
+  footer: {},
+  logoutButton: {
+    alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
   },
 })
