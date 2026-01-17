@@ -41,19 +41,23 @@ export function usePantryItems(searchTerm: string = '') {
 
   const mainListItems = useMemo(
     () =>
-      filteredItems.filter(
-        (item) =>
-          item.itemType === 'staple' ||
-          (item.itemType === 'planned' && item.status !== 'planned')
-      ),
+      filteredItems
+        .filter(
+          (item) =>
+            item.itemType === 'staple' ||
+            (item.itemType === 'planned' && item.status !== 'planned')
+        )
+        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
     [filteredItems]
   )
 
   const plannedItems = useMemo(
     () =>
-      filteredItems.filter(
-        (item) => item.itemType === 'planned' && item.status === 'planned'
-      ),
+      filteredItems
+        .filter(
+          (item) => item.itemType === 'planned' && item.status === 'planned'
+        )
+        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
     [filteredItems]
   )
 

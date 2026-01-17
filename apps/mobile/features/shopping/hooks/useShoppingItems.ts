@@ -26,12 +26,14 @@ export function useShoppingItems() {
     enabled: !!user?.id,
     placeholderData: keepPreviousData,
     select: (items): ShoppingItem[] =>
-      items.filter(
-        (item) =>
-          item.status === 'running_low' ||
-          item.status === 'out_of_stock' ||
-          item.status === 'planned'
-      ),
+      items
+        .filter(
+          (item) =>
+            item.status === 'running_low' ||
+            item.status === 'out_of_stock' ||
+            item.status === 'planned'
+        )
+        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
   })
 
   const refetch = useCallback(async () => {
