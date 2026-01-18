@@ -22,7 +22,7 @@
   {
     "name": "(Education Epic) First status change teaches shopping list connection",
     "description": "When a user marks an item as 'running low' or 'out of stock' for the first time ever, show brief feedback explaining that this item now appears on their shopping list. This teaches the core value loop: changes in your pantry automatically update your shopping list. The feedback should be dismissible and only appear once (first time across the user's lifetime, not per-item). This is the 'aha moment' where users understand why tracking pantry status matters.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Education Epic) Instructional shopping list empty state",

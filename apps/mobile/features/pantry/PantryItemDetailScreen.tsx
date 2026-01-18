@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   View,
   StyleSheet,
@@ -18,8 +18,14 @@ import Animated, {
 } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import BottomSheet from '@gorhom/bottom-sheet'
 import type { PantryItemStatus, ItemType } from './types'
-import { useUpdatePantryItem, useDeletePantryItem } from './hooks'
+import {
+  useUpdatePantryItem,
+  useDeletePantryItem,
+  useStatusChangeEducation,
+} from './hooks'
+import { StatusChangeEducationSheet } from './StatusChangeEducationSheet'
 import { useTheme } from '../../lib/theme'
 import { Text, Button, Card, DragHandle } from '../../components/ui'
 
@@ -136,6 +142,15 @@ export function PantryItemDetailScreen() {
   const updateMutation = useUpdatePantryItem()
   const deleteMutation = useDeletePantryItem()
   const { colors, spacing, radius } = useTheme()
+  const { showEducation, triggerEducation, dismissEducation } =
+    useStatusChangeEducation()
+  const educationSheetRef = useRef<BottomSheet>(null)
+
+  useEffect(() => {
+    if (showEducation) {
+      educationSheetRef.current?.expand()
+    }
+  }, [showEducation])
 
   const [currentStatus, setCurrentStatus] = useState<PantryItemStatus>(
     params.status
@@ -218,12 +233,17 @@ export function PantryItemDetailScreen() {
     }
 
     setPendingStatus(newStatus)
+    const isStatusChangeToShoppingList =
+      newStatus === 'running_low' || newStatus === 'out_of_stock'
     updateMutation.mutate(
       { itemId: params.id, status: newStatus },
       {
         onSuccess: () => {
           setCurrentStatus(newStatus)
           setPendingStatus(null)
+          if (isStatusChangeToShoppingList) {
+            triggerEducation()
+          }
         },
         onError: (error) => {
           setPendingStatus(null)
@@ -439,6 +459,10 @@ export function PantryItemDetailScreen() {
           </Card>
         </View>
       </ScrollView>
+      <StatusChangeEducationSheet
+        ref={educationSheetRef}
+        onDismiss={dismissEducation}
+      />
     </View>
   )
 }

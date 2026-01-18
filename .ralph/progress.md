@@ -1,5 +1,51 @@
 # zottie Development Progress
 
+## 2026-01-17: First status change teaches shopping list connection
+
+Implemented the "(Education Epic) First status change teaches shopping list connection" feature.
+
+### Changes
+
+- Created `apps/mobile/features/pantry/hooks/useStatusChangeEducation.ts`:
+  - New hook that tracks whether the user has seen the education sheet using AsyncStorage
+  - Exposes `triggerEducation()` to show the sheet and `dismissEducation()` to mark as seen
+  - The `hasSeenEducation` flag is stored locally with key `hasSeenStatusChangeEducation`
+
+- Created `apps/mobile/features/pantry/StatusChangeEducationSheet.tsx`:
+  - Bottom sheet component explaining the shopping list connection
+  - Shows a cart icon, title "Added to Shopping List", and explanation text
+  - Uses the existing design system components (Card, Button, Text)
+  - Follows iOS design patterns with spring physics
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Integrated the education hook and sheet
+  - Created `handleStatusChange` wrapper that triggers education on successful status changes
+  - Updated all status change interactions (swipe actions, action sheets) to use the new handler
+
+- Modified `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added the same education integration for status changes made from the detail screen
+  - Only triggers for `running_low` or `out_of_stock` status changes
+
+- Updated `apps/mobile/features/pantry/hooks/index.ts`:
+  - Exported the new `useStatusChangeEducation` hook
+
+### How it works
+
+When a user marks an item as "running low" or "out of stock" for the first time ever:
+1. The status change completes successfully
+2. The hook checks if `hasSeenStatusChangeEducation` is false in AsyncStorage
+3. If not seen, a bottom sheet appears explaining: "Items marked as running low or out of stock automatically appear on your shopping list. When you restock, just update the status."
+4. User taps "Got it" to dismiss
+5. The flag is saved to AsyncStorage so the education never shows again
+
+This teaches the core value loop of zottie: pantry status changes automatically update the shopping list.
+
+### Testing locally
+
+The education state is stored in AsyncStorage on the device. To test this feature:
+- Clear app data/reinstall the app to reset the storage
+- Or clear the `hasSeenStatusChangeEducation` key from AsyncStorage via debugger
+
 ## 2026-01-17: Clarify onboarding prompt language
 
 Implemented the "(Onboarding Epic) Clarify onboarding prompt language" feature.

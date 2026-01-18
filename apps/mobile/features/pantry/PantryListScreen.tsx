@@ -40,8 +40,10 @@ import {
   usePantryItems,
   useUpdatePantryItem,
   useCreatePantryItem,
+  useStatusChangeEducation,
 } from './hooks'
 import { PantryOnboardingCard } from './PantryOnboardingCard'
+import { StatusChangeEducationSheet } from './StatusChangeEducationSheet'
 import type { PantryItem, PantryItemStatus } from './types'
 import { Text, Button, StatusBadge, EmptyState } from '@/components'
 import { useTheme } from '@/lib/theme'
@@ -486,6 +488,29 @@ export function PantryListScreen() {
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
   const updatePantryItem = useUpdatePantryItem()
   const createPantryItem = useCreatePantryItem()
+  const { showEducation, triggerEducation, dismissEducation } =
+    useStatusChangeEducation()
+  const educationSheetRef = useRef<BottomSheet>(null)
+
+  useEffect(() => {
+    if (showEducation) {
+      educationSheetRef.current?.expand()
+    }
+  }, [showEducation])
+
+  const handleStatusChange = useCallback(
+    (itemId: string, newStatus: 'running_low' | 'out_of_stock') => {
+      updatePantryItem.mutate(
+        { itemId, status: newStatus },
+        {
+          onSuccess: () => {
+            triggerEducation()
+          },
+        }
+      )
+    },
+    [updatePantryItem, triggerEducation]
+  )
 
   const [newItemName, setNewItemName] = useState('')
   const [newItemStatus, setNewItemStatus] =
@@ -581,9 +606,9 @@ export function PantryListScreen() {
       },
       (buttonIndex) => {
         if (buttonIndex === 1) {
-          updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
+          handleStatusChange(item.id, 'running_low')
         } else if (buttonIndex === 2) {
-          updatePantryItem.mutate({ itemId: item.id, status: 'out_of_stock' })
+          handleStatusChange(item.id, 'out_of_stock')
         }
       }
     )
@@ -602,13 +627,14 @@ export function PantryListScreen() {
       },
       (buttonIndex) => {
         if (buttonIndex === 1) {
-          updatePantryItem.mutate({ itemId: item.id, status: 'running_low' })
+          handleStatusChange(item.id, 'running_low')
         } else if (buttonIndex === 2) {
           updatePantryItem.mutate({
             itemId: item.id,
             itemType: 'staple',
             status: 'out_of_stock',
           })
+          triggerEducation()
         }
       }
     )
@@ -634,18 +660,8 @@ export function PantryListScreen() {
       <PantryItemRow
         item={item}
         onPress={() => navigateToItem(item)}
-        onMarkLow={() =>
-          updatePantryItem.mutate({
-            itemId: item.id,
-            status: 'running_low',
-          })
-        }
-        onMarkOut={() =>
-          updatePantryItem.mutate({
-            itemId: item.id,
-            status: 'out_of_stock',
-          })
-        }
+        onMarkLow={() => handleStatusChange(item.id, 'running_low')}
+        onMarkOut={() => handleStatusChange(item.id, 'out_of_stock')}
         onMore={() =>
           item.itemType === 'planned'
             ? showPlannedActionSheet(item)
@@ -656,7 +672,7 @@ export function PantryListScreen() {
         radius={radius}
       />
     ),
-    [updatePantryItem, colors, spacing, radius]
+    [handleStatusChange, colors, spacing, radius]
   )
 
   const renderListHeader = useCallback(() => {
@@ -733,17 +749,9 @@ export function PantryListScreen() {
                     key={item.id}
                     item={item}
                     onPress={() => navigateToItem(item)}
-                    onMarkLow={() =>
-                      updatePantryItem.mutate({
-                        itemId: item.id,
-                        status: 'running_low',
-                      })
-                    }
+                    onMarkLow={() => handleStatusChange(item.id, 'running_low')}
                     onMarkOut={() =>
-                      updatePantryItem.mutate({
-                        itemId: item.id,
-                        status: 'out_of_stock',
-                      })
+                      handleStatusChange(item.id, 'out_of_stock')
                     }
                     onMore={() => showPlannedActionSheet(item)}
                     colors={colors}
@@ -760,7 +768,7 @@ export function PantryListScreen() {
   }, [
     plannedItems,
     isPlannedExpanded,
-    updatePantryItem,
+    handleStatusChange,
     colors,
     spacing,
     radius,
@@ -982,6 +990,10 @@ export function PantryListScreen() {
           </View>
         </BottomSheetView>
       </BottomSheet>
+      <StatusChangeEducationSheet
+        ref={educationSheetRef}
+        onDismiss={dismissEducation}
+      />
     </View>
   )
 }

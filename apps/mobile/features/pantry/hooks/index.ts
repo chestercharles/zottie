@@ -4,3 +4,4 @@ export {
   useUpdatePantryItem,
   useDeletePantryItem,
 } from './usePantryMutations'
+export { useStatusChangeEducation } from './useStatusChangeEducation'
