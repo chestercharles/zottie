@@ -1,5 +1,25 @@
 # zottie Development Progress
 
+## 2026-01-17: Clarify onboarding prompt language
+
+Implemented the "(Onboarding Epic) Clarify onboarding prompt language" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/onboarding/NewShoppingListInputScreen.tsx`:
+  - Changed the main prompt from "What do you need from the store?" to "What should we add to your shopping list?"
+  - Updated the helper text from "Tap the microphone and list what you need from the store, or skip if you're all set for now." to "Tap the microphone and tell me what to add, or skip if you're all set for now."
+
+### How it works
+
+The new language directly connects user intent to where their items will appear. When users see "What should we add to your shopping list?", it creates a clear mental model:
+
+1. They understand they're building a shopping list
+2. They know exactly where their spoken items will end up
+3. The language matches the destination (Shopping tab) they'll land on after onboarding
+
+This completes the Onboarding Epic by ensuring all touchpoints use consistent, action-oriented language that sets accurate expectations.
+
 ## 2026-01-17: Land users on Shopping tab after onboarding
 
 Implemented the "(Onboarding Epic) Land users on Shopping tab after onboarding" feature.

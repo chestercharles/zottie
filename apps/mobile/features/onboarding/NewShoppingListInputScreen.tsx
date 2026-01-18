@@ -40,7 +40,7 @@ export function NewShoppingListInputScreen({
       <View style={[styles.content, { paddingTop: 60, gap: spacing.md }]}>
         <Ionicons name="cart" size={64} color={colors.action.primary} />
         <Text variant="title.large" style={{ marginTop: spacing.md }}>
-          What do you need from the store?
+          What should we add to your shopping list?
         </Text>
         <Text
           variant="body.primary"
@@ -68,8 +68,8 @@ export function NewShoppingListInputScreen({
           color="tertiary"
           style={{ fontStyle: 'italic', lineHeight: 20 }}
         >
-          Tap the microphone and list what you need from the store, or skip if
-          you're all set for now.
+          Tap the microphone and tell me what to add, or skip if you're all set
+          for now.
         </Text>
       </View>
 

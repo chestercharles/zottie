@@ -17,7 +17,7 @@
   {
     "name": "(Onboarding Epic) Clarify onboarding prompt language",
     "description": "Update the onboarding voice input screen prompt from 'What do you need from the store?' to 'What should we add to your shopping list?' This language directly connects user intent to where their items will appear, reducing confusion about the relationship between what they say and what they see in the app.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Education Epic) First status change teaches shopping list connection",
