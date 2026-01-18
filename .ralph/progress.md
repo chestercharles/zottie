@@ -1,5 +1,26 @@
 # zottie Development Progress
 
+## 2026-01-17: Instructional shopping list empty state
+
+Implemented the "(Education Epic) Instructional shopping list empty state" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
+  - Changed empty state title from "You're all set!" to "Your list is empty"
+  - Changed empty state message from "Items that are running low or out of stock will appear here." to "Mark items in your Pantry as running low to add them here, or tap + to add items directly."
+  - The "Add Planned Item" button remains as a direct action
+
+### How it works
+
+When the shopping list is empty, users now see an instructional empty state that:
+1. Clearly indicates the list is empty ("Your list is empty")
+2. Teaches the primary way to add items: marking pantry items as running low
+3. Offers an alternative: tapping + to add items directly
+4. Includes a button to immediately add a planned item
+
+This completes the Education Epic by teaching users the connection between pantry status and shopping list directly in the UI, rather than passively describing what appears.
+
 ## 2026-01-17: First status change teaches shopping list connection
 
 Implemented the "(Education Epic) First status change teaches shopping list connection" feature.

@@ -469,8 +469,8 @@ export function ShoppingListScreen() {
     >
       {items.length === 0 ? (
         <EmptyState
-          title="You're all set!"
-          message="Items that are running low or out of stock will appear here."
+          title="Your list is empty"
+          message="Mark items in your Pantry as running low to add them here, or tap + to add items directly."
           action={<Button title="Add Planned Item" onPress={openAddSheet} />}
         />
       ) : (

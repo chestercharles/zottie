@@ -27,7 +27,7 @@
   {
     "name": "(Education Epic) Instructional shopping list empty state",
     "description": "Update the Shopping tab empty state to guide users on how items get added. Change the current copy from 'Items that are running low or out of stock will appear here' to something more actionable like 'Mark items in your Pantry as running low to add them here, or tap + to add items directly.' The empty state should teach users the connection between pantry status and shopping list rather than just describing what appears here passively.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",
@@ -97,6 +97,16 @@
   {
     "name": "Persistent voice-add button on Pantry screen",
     "description": "Add a microphone button to the Pantry screen header that allows users to quickly add items via voice at any time, not just during onboarding. When tapped, the button starts voice recording; tapping again stops recording and processes the spoken items. The voice input uses the lightweight parse endpoint to extract items from natural speech (e.g., 'cherries, grapes, and some milk') and adds them directly to the pantry without requiring a full assistant conversation. Items are auto-added for speed - no confirmation step. This solves the problem that currently voice input only exists in the onboarding card, which disappears once the user has pantry items. Users who prefer voice input should be able to keep using it for ongoing additions without switching to the Assistant tab.",
+    "completed": false
+  },
+  {
+    "name": "(Go-tos Epic) Go-tos management UI",
+    "description": "Add a new 'Go-tos' tab where users can save and manage their personal go-to meals - dishes they know how to make and want quick access to. Each go-to has a name and a freeform text field describing what's needed to make it (ingredients, amounts, notes). The data structure is intentionally simple: just a name string and a 'needs' text string. The list screen shows cards with the go-to name and a truncated preview of the needs text. Tapping a card opens the edit screen. The create/edit screen has two fields: a name input at the top, then a 'needs' label followed by a multiline text area. This creates a natural sentence structure: '[Name] needs [ingredients text]'. The text input includes a microphone button for voice input - users can tap to record and speak their ingredients naturally, which transcribes into the text field. A delete option appears at the bottom of the edit screen. The plus button in the header creates a new go-to. This tab serves as the foundation for go-tos - users can create and manage them here, and later the Assistant will gain the ability to use this data when helping with shopping lists.",
+    "completed": false
+  },
+  {
+    "name": "(Go-tos Epic) Assistant integration for go-tos",
+    "description": "Give the Assistant awareness of the user's saved go-tos so it can help with meal planning and shopping. The Assistant should be able to: (1) Create new go-tos via conversation - when a user says something like 'save my pork and beans - needs salt pork, pinto beans, lots of butter', the Assistant creates the go-to and confirms. (2) Use go-tos when adding to shopping list - when a user says 'add what I need for pork and beans', the Assistant looks up that go-to, checks the pantry for what's already in stock, and adds only the missing items to the shopping list. The Assistant should confirm what was added and mention if anything was skipped because it's already in the pantry. (3) Reference go-tos in general conversation - the Assistant should know what go-tos exist so it can suggest them or answer questions like 'what do I need to make my stir fry?' The go-to's 'needs' field is freeform text, so the Assistant interprets it contextually - it can handle specific items ('pinto beans'), vague descriptions ('some kind of protein'), and quantity hints ('lots of butter'). When checking pantry status against quantity hints, the Assistant should warn if an item is running low and the go-to needs 'a lot' of it.",
     "completed": false
   }
 ]
