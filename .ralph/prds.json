@@ -10,6 +10,26 @@
     "completed": true
   },
   {
+    "name": "(Onboarding Epic) Land users on Shopping tab after onboarding",
+    "description": "After completing the onboarding voice input flow, land users on the Shopping tab instead of the Pantry tab. Users just told us what they need from the store - they should immediately see those items on their shopping list where they expect them. This creates a clear mental model: 'I said what I need to buy, and here's my list.' The Pantry tab remains accessible via navigation for users who want to explore it.",
+    "completed": false
+  },
+  {
+    "name": "(Onboarding Epic) Clarify onboarding prompt language",
+    "description": "Update the onboarding voice input screen prompt from 'What do you need from the store?' to 'What should we add to your shopping list?' This language directly connects user intent to where their items will appear, reducing confusion about the relationship between what they say and what they see in the app.",
+    "completed": false
+  },
+  {
+    "name": "(Education Epic) First status change teaches shopping list connection",
+    "description": "When a user marks an item as 'running low' or 'out of stock' for the first time ever, show brief feedback explaining that this item now appears on their shopping list. This teaches the core value loop: changes in your pantry automatically update your shopping list. The feedback should be dismissible and only appear once (first time across the user's lifetime, not per-item). This is the 'aha moment' where users understand why tracking pantry status matters.",
+    "completed": false
+  },
+  {
+    "name": "(Education Epic) Instructional shopping list empty state",
+    "description": "Update the Shopping tab empty state to guide users on how items get added. Change the current copy from 'Items that are running low or out of stock will appear here' to something more actionable like 'Mark items in your Pantry as running low to add them here, or tap + to add items directly.' The empty state should teach users the connection between pantry status and shopping list rather than just describing what appears here passively.",
+    "completed": false
+  },
+  {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",
     "description": "Give the AI Assistant access to the last purchase date for items it reasons about. This helps the assistant understand item freshness when answering questions or making suggestions. For example, if a user asks 'should I buy more milk?', the assistant can factor in that they last purchased milk 2 weeks ago. The last purchase date should be included in the context for any items the assistant is reasoning about - whether they're currently in the pantry, on the shopping list, or just mentioned in the conversation. This is backend-only; the last purchase date doesn't need to be displayed in the app UI.",
     "completed": true
@@ -67,6 +87,16 @@
   {
     "name": "Settings gear accessible from all main tab screens",
     "description": "Make the settings gear icon accessible from all main tab screens (Shopping List, Pantry, Assistant), not just the Pantry. The settings gear should appear in the top left corner of each main tab screen's header. Tapping it opens the same settings modal that currently exists. This may require reorganizing how settings is implemented - currently it lives within the Pantry routes, but it should become a shared component that any main tab screen can access. Sub-screens (like item detail views) should not show the settings gear.",
+    "completed": false
+  },
+  {
+    "name": "Lightweight command parse endpoint",
+    "description": "Add a /api/commands/parse endpoint that takes natural language text and returns structured pantry actions. This is a focused, non-conversational endpoint designed for quick item addition - it extracts item names from speech like 'cherries, grapes, and some milk' and returns actions that can be passed to /api/commands/execute. It should handle status hints in the input (e.g., 'running low on eggs' -> status: running_low). This endpoint is simpler and faster than routing through the full assistant - no conversation history, no streaming, just text-in/actions-out. It powers both the pantry onboarding card (currently broken with a 404) and the persistent voice-add button. The mobile app already has client code expecting this endpoint to exist.",
+    "completed": true
+  },
+  {
+    "name": "Persistent voice-add button on Pantry screen",
+    "description": "Add a microphone button to the Pantry screen header that allows users to quickly add items via voice at any time, not just during onboarding. When tapped, the button starts voice recording; tapping again stops recording and processes the spoken items. The voice input uses the lightweight parse endpoint to extract items from natural speech (e.g., 'cherries, grapes, and some milk') and adds them directly to the pantry without requiring a full assistant conversation. Items are auto-added for speed - no confirmation step. This solves the problem that currently voice input only exists in the onboarding card, which disappears once the user has pantry items. Users who prefer voice input should be able to keep using it for ongoing additions without switching to the Assistant tab.",
     "completed": false
   }
 ]

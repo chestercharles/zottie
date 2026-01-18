@@ -1,5 +1,59 @@
 # zottie Development Progress
 
+## 2026-01-17: Lightweight command parse endpoint
+
+Implemented the "Lightweight command parse endpoint" feature.
+
+### Changes
+
+#### Backend API
+
+- Created `apps/api/src/endpoints/commandParse.ts`:
+  - New endpoint that takes natural language text and returns structured pantry actions
+  - Uses OpenAI's `gpt-4o-mini` model for fast, focused parsing
+  - Non-conversational: no history, no streaming, just text-in/actions-out
+  - Extracts item names from speech like "cherries, grapes, and some milk"
+  - Handles status hints in input:
+    - "running low on X" or "almost out of X" → status: `running_low`
+    - "out of X" or "need X" → status: `out_of_stock`
+    - Default status is `in_stock`
+  - Returns actions that can be passed directly to `/api/commands/execute`
+
+- Modified `apps/api/src/index.ts`:
+  - Added import of `CommandParseEndpoint`
+  - Registered route at `/api/commands/parse`
+
+### How it works
+
+The endpoint accepts a POST request with a `command` string:
+
+```json
+{
+  "command": "cherries, grapes, and I'm running low on milk"
+}
+```
+
+And returns structured actions:
+
+```json
+{
+  "success": true,
+  "result": {
+    "actions": [
+      { "type": "add_to_pantry", "item": "cherries", "status": "in_stock" },
+      { "type": "add_to_pantry", "item": "grapes", "status": "in_stock" },
+      { "type": "add_to_pantry", "item": "milk", "status": "running_low" }
+    ]
+  }
+}
+```
+
+This endpoint powers:
+1. The pantry onboarding card (voice input to add items)
+2. The future persistent voice-add button on the Pantry screen
+
+It's simpler and faster than the full assistant conversation flow, making it ideal for quick item additions.
+
 ## 2026-01-17: Remove Commands tab and related code
 
 Implemented the "Remove Commands tab and related code" feature.
