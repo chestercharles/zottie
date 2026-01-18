@@ -20,6 +20,7 @@ export const PantryItemStatusEnum = z.enum([
   'running_low',
   'out_of_stock',
   'planned',
+  'dormant',
 ])
 
 export const PantryItemTypeEnum = z.enum(['staple', 'planned'])

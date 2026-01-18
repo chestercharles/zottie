@@ -1,5 +1,58 @@
 # zottie Development Progress
 
+## 2026-01-17: Add choice when removing item from shopping list
+
+**Feature:** When swiping to remove an item from the shopping list, users now see two options: "Already have it" and "Don't want to buy it". This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.
+
+**Changes:**
+
+Backend (apps/api):
+- Updated `apps/api/src/db/schema.ts`:
+  - Added 'dormant' to the `pantryItemStatus` array
+- Updated `apps/api/src/types.ts`:
+  - Added 'dormant' to the `PantryItemStatusEnum` Zod schema
+
+Mobile (apps/mobile):
+- Updated `apps/mobile/features/pantry/types.ts`:
+  - Added 'dormant' to the `PantryItemStatus` type
+- Updated `apps/mobile/features/shopping/types.ts`:
+  - Added 'dormant' to the `PantryItemStatus` type
+- Updated `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
+  - Replaced direct swipe action with `ActionSheetIOS` showing two options
+  - "Already have it" marks item as `in_stock`
+  - "Don't want to buy it" marks item as `dormant`
+  - Changed swipe button to neutral color (action.primary) with ellipsis icon
+  - Removed unused `deletePantryItem` mutation and import
+- Updated `apps/mobile/components/ui/StatusBadge.tsx`:
+  - Added 'dormant' to the `PantryStatus` type and labels
+  - Added tertiary text color for dormant status badge
+- Updated `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added 'dormant' to status labels and status picker options
+
+**Technical Details:**
+
+1. Dormant status behavior:
+   - Items marked as dormant are filtered out of the shopping list (same filter as in_stock)
+   - Dormant items remain in the pantry but won't appear on shopping list until status is changed
+   - Users can manually change an item back from dormant via the pantry detail screen
+
+2. ActionSheetIOS flow:
+   - Swipe reveals a button with ellipsis icon (neutral styling)
+   - Tapping shows ActionSheetIOS with item name as title
+   - Two action options plus Cancel
+   - Both options use the existing `updatePantryItem` mutation
+
+3. Shopping list filtering (unchanged):
+   - Only shows items with status: `running_low`, `out_of_stock`, or `planned`
+   - `in_stock` and `dormant` items are automatically filtered out
+
+**Verification:**
+
+- API TypeScript type checking passed
+- Mobile linting passed
+- Mobile TypeScript type checking passed
+- Tests passed
+
 ## 2026-01-17: Add in-memory conversation history to Assistant tab
 
 **Feature:** Display conversation history in the Assistant tab. Conversations persist during the app session (surviving tab switches) but clear when the app is closed/restarted.

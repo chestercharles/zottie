@@ -43,6 +43,7 @@ export const pantryItemStatus = [
   'running_low',
   'out_of_stock',
   'planned',
+  'dormant',
 ] as const
 export type PantryItemStatus = (typeof pantryItemStatus)[number]
 

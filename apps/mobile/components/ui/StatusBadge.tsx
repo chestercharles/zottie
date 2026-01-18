@@ -2,7 +2,7 @@ import { View, StyleSheet } from 'react-native'
 import { useTheme } from '../../lib/theme'
 import { Text } from './Text'
 
-type PantryStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+type PantryStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned' | 'dormant'
 
 interface StatusBadgeProps {
   status: PantryStatus
@@ -13,6 +13,7 @@ const statusLabels: Record<PantryStatus, string> = {
   running_low: 'Running Low',
   out_of_stock: 'Out of Stock',
   planned: 'Planned',
+  dormant: 'Dormant',
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
@@ -28,6 +29,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
         return colors.feedback.error
       case 'planned':
         return colors.border.strong
+      case 'dormant':
+        return colors.text.tertiary
     }
   }
 

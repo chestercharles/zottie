@@ -73,7 +73,7 @@
   {
     "name": "Add choice when removing item from shopping list",
     "description": "When a user swipes to remove an item from the shopping list, show two options: 'Already have it' and 'Don't want to buy it'. If they choose 'Already have it', the item is marked as in-stock in the pantry. If they choose 'Don't want to buy it', the item is removed from the shopping list without changing its pantry status - it goes into a dormant state so it won't keep reappearing on the shopping list. This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Pulsing loading state for status change buttons",
@@ -128,6 +128,26 @@
   {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",
     "description": "Give the AI Assistant access to the last purchase date for items it reasons about. This helps the assistant understand item freshness when answering questions or making suggestions. For example, if a user asks 'should I buy more milk?', the assistant can factor in that they last purchased milk 2 weeks ago. The last purchase date should be included in the context for any items the assistant is reasoning about - whether they're currently in the pantry, on the shopping list, or just mentioned in the conversation. This is backend-only; the last purchase date doesn't need to be displayed in the app UI.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Anchor input at bottom of chat",
+    "description": "Move the Assistant's input controls to the bottom of the screen following standard chat app conventions. The input area should contain a text field and a microphone button to the right of it. Tapping the text field lets users type their message. Tapping the microphone button starts voice recording; tapping it again stops recording and inserts the transcription into the input. This replaces the current inline 'type a follow-up' element that appears after messages in the middle of the chat.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Standard chat scroll behavior",
+    "description": "Update the Assistant chat to use standard chat scroll behavior where new messages appear at the bottom and older messages scroll upward. The view should stay anchored to the bottom so users always see the latest messages. As the assistant streams its response, the view should auto-scroll to keep the new content visible.",
+    "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Add new conversation button to header",
+    "description": "Add a button in the top-right of the Assistant tab header that starts a new conversation. Tapping it clears the current conversation history and returns to a fresh chat state. This gives users an explicit way to start over rather than having conversations auto-clear or persist indefinitely.",
+    "completed": false
+  },
+  {
+    "name": "Remove Commands tab and related code",
+    "description": "Remove the Commands tab entirely from the app, along with all related code and backend endpoints. The Assistant feature has replaced the Commands functionality. This includes: removing the Commands tab from navigation, deleting the Commands UI components, removing any backend endpoints that were exclusively used by the Commands feature, and cleaning up any related state management or hooks. Before deleting, verify that no code is shared with the Assistant feature - the implementer should check for any dependencies between Commands and Assistant to ensure nothing breaks. If shared utilities or components are found, they should be preserved and only the Commands-specific code removed.",
     "completed": false
   }
 ]

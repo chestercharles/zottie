@@ -28,6 +28,7 @@ const statusLabels: Record<PantryItemStatus, string> = {
   running_low: 'Running Low',
   out_of_stock: 'Out of Stock',
   planned: 'Planned',
+  dormant: 'Dormant',
 }
 
 function formatDate(timestamp: number): string {
@@ -282,6 +283,7 @@ export function PantryItemDetailScreen() {
     'in_stock',
     'running_low',
     'out_of_stock',
+    'dormant',
   ]
 
   return (

@@ -3,6 +3,7 @@ export type PantryItemStatus =
   | 'running_low'
   | 'out_of_stock'
   | 'planned'
+  | 'dormant'
 
 export type ItemType = 'staple' | 'planned'
 

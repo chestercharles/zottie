@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  ActionSheetIOS,
 } from 'react-native'
 import {
   useEffect,
@@ -43,7 +44,7 @@ import {
   useMarkAsPurchased,
   useCreatePlannedItem,
 } from './hooks'
-import { useDeletePantryItem, useUpdatePantryItem } from '@/features/pantry/hooks'
+import { useUpdatePantryItem } from '@/features/pantry/hooks'
 import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
 import { useTheme } from '../../lib/theme'
 import { Text, Button, StatusBadge, EmptyState } from '../../components/ui'
@@ -77,8 +78,6 @@ function ShoppingItemRow({
 }) {
   const translateX = useSharedValue(0)
   const isOpen = useSharedValue(false)
-
-  const isStaple = item.itemType === 'staple'
 
   const closeRow = useCallback(() => {
     translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
@@ -142,7 +141,7 @@ function ShoppingItemRow({
       <Reanimated.View
         style={[
           styles.swipeActionContainer,
-          { backgroundColor: isStaple ? colors.feedback.success : colors.feedback.error, borderRadius: radius.lg },
+          { backgroundColor: colors.action.primary, borderRadius: radius.lg },
           deleteButtonStyle,
         ]}
       >
@@ -151,9 +150,9 @@ function ShoppingItemRow({
           onPress={handleSwipeAction}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel={isStaple ? 'Mark as in stock' : 'Delete item'}
+          accessibilityLabel="Item options"
         >
-          <Ionicons name="trash" size={24} color={colors.text.inverse} />
+          <Ionicons name="ellipsis-horizontal" size={24} color={colors.text.inverse} />
         </TouchableOpacity>
       </Reanimated.View>
 
@@ -216,7 +215,6 @@ export function ShoppingListScreen() {
   const { items, isLoading, isRefreshing, error, refetch } = useShoppingItems()
   const markAsPurchasedMutation = useMarkAsPurchased()
   const createPlannedItemMutation = useCreatePlannedItem()
-  const deletePantryItem = useDeletePantryItem()
   const updatePantryItem = useUpdatePantryItem()
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [newItemName, setNewItemName] = useState('')
@@ -333,12 +331,24 @@ export function ShoppingListScreen() {
   }
 
   const handleSwipeAction = useCallback((item: ShoppingItem) => {
-    if (item.itemType === 'staple') {
-      updatePantryItem.mutate({ itemId: item.id, status: 'in_stock' })
-    } else {
-      deletePantryItem.mutate(item.id)
-    }
-  }, [updatePantryItem, deletePantryItem])
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Already have it', "Don't want to buy it"],
+        cancelButtonIndex: 0,
+        title: item.name,
+        message: 'What would you like to do with this item?',
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) {
+          // Already have it - mark as in_stock
+          updatePantryItem.mutate({ itemId: item.id, status: 'in_stock' })
+        } else if (buttonIndex === 2) {
+          // Don't want to buy it - mark as dormant
+          updatePantryItem.mutate({ itemId: item.id, status: 'dormant' })
+        }
+      }
+    )
+  }, [updatePantryItem])
 
   const checkedCount = checkedIds.size
 
