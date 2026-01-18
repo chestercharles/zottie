@@ -114,6 +114,16 @@ export default function AuthenticatedLayout() {
         }}
       />
       <Tabs.Screen
+        name="assistant"
+        options={{
+          title: 'Assistant',
+          headerShown: true,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="home"
         options={{
           href: null,

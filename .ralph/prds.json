@@ -33,7 +33,7 @@
   {
     "name": "(Assistant Epic) Add Assistant tab with voice button and canned prompts",
     "description": "Add a new 'Assistant' tab to the app alongside existing tabs (does NOT replace the Commands tab). When opened, the tab shows a prominent voice input button at the top, followed by 3-4 canned prompt buttons for common actions like 'Update pantry items', 'Help me plan meals', and 'Add to shopping list'. Nothing needs to be functional yet - the voice button and prompt buttons are just UI placeholders. This PRD is only about getting the tab in place with the visual elements.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Enable voice input on Assistant tab",

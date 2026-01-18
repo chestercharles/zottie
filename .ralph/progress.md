@@ -1,5 +1,44 @@
 # zottie Development Progress
 
+## 2026-01-17: Add Assistant tab with voice button and canned prompts
+
+**Feature:** Added a new "Assistant" tab to the app with a prominent voice input button and canned prompt buttons
+
+**Changes:**
+
+- Created `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Large circular voice button (primary action color) with microphone icon
+  - Helper text explaining "Tap to speak with your assistant"
+  - Four canned prompt buttons: "Update pantry items", "Help me plan meals", "Add to shopping list", "What's in my pantry?"
+  - Prompt buttons styled as cards with icons and labels
+- Created `apps/mobile/features/assistant/index.ts` for module exports
+- Created `apps/mobile/app/(authenticated)/assistant.tsx` as the route entry point
+- Updated `apps/mobile/app/(authenticated)/_layout.tsx` to add the Assistant tab with chatbubble-outline icon
+
+**Technical Details:**
+
+1. Screen layout:
+   - Voice button positioned near the top center (120x120 circular button)
+   - Subtle shadow on voice button for elevation
+   - Canned prompts section below with full-width buttons
+   - Each prompt button has an icon and label in a row layout
+
+2. Placeholder handlers:
+   - `handleVoicePress` and `handlePromptPress` are placeholder functions
+   - Actual functionality will be added in subsequent PRDs
+
+3. Design system compliance:
+   - Uses semantic color tokens (`colors.action.primary`, `colors.surface.grouped`, etc.)
+   - Uses spacing tokens for consistent layout
+   - Uses radius tokens for button corners
+   - Uses design system Text component with variants
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Move edit name action to overflow menu on item detail
 
 **Feature:** Added "Edit Name" option to the overflow menu and removed direct tap-to-edit behavior from the item name
