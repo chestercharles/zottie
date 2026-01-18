@@ -1,5 +1,27 @@
 # zottie Development Progress
 
+## 2026-01-18: Consistent list spacing across Shopping List and Pantry
+
+Implemented the "Consistent list spacing across Shopping List and Pantry" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Changed FlatList `paddingTop` from `spacing.sm` to `spacing.md` to match Shopping List
+  - Changed item row `marginBottom` from `spacing.sm + 4` to `spacing.sm` to match Shopping List
+  - These changes apply to: main item rows, left swipe action containers, and right swipe action containers
+
+### How it works
+
+The Pantry screen now uses the same spacing pattern as the Shopping List screen:
+
+1. **Header to list spacing**: Both screens now have `spacing.md` (16px) padding at the top of the list content
+2. **Item spacing**: Both screens now use `spacing.sm` (8px) between list items
+
+This creates visual consistency when switching between the Shopping List and Pantry tabs. The screens now feel like cohesive parts of the same app with matching vertical rhythm.
+
+Note: The Shopping List items are taller due to the checkbox element, but the spacing between items is now consistent.
+
 ## 2026-01-18: Persistent voice-add button on Pantry screen
 
 Implemented the "Persistent voice-add button on Pantry screen" feature.

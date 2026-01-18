@@ -227,7 +227,7 @@ function PantryItemRow({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: spacing.sm + 4,
+          marginBottom: spacing.sm,
           width: 70,
         }}
       >
@@ -263,7 +263,7 @@ function PantryItemRow({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: spacing.sm + 4,
+          marginBottom: spacing.sm,
           width: actionsWidth,
         }}
         onLayout={checkSwipeThreshold}
@@ -340,7 +340,7 @@ function PantryItemRow({
           backgroundColor: colors.surface.grouped,
           borderRadius: radius.lg,
           padding: spacing.md,
-          marginBottom: spacing.sm + 4,
+          marginBottom: spacing.sm,
         }}
         onPress={onPress}
       >
@@ -1159,7 +1159,7 @@ export function PantryListScreen() {
             voiceState === 'processing' ||
             voiceError
               ? 48
-              : spacing.sm,
+              : spacing.md,
           flexGrow: 1,
         }}
         refreshControl={

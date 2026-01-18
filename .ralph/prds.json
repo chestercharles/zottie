@@ -82,7 +82,7 @@
   {
     "name": "Consistent list spacing across Shopping List and Pantry",
     "description": "Standardize the spacing and padding across the Shopping List and Pantry screens to create visual consistency when switching between tabs. Currently, the Shopping List has more space between the header and the start of the list content, while the Pantry has tighter spacing. There are also differences in padding between individual list items. Apply the Shopping List's spacing pattern to the Pantry screen so both screens feel like parts of the same cohesive app. This includes: consistent spacing between the header and the first list item, and consistent vertical padding between list items (accounting for the fact that Shopping List items are taller due to checkboxes).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Settings gear accessible from all main tab screens",
