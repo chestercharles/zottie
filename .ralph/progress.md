@@ -1,5 +1,49 @@
 # zottie Development Progress
 
+## 2026-01-18: Persistent voice-add button on Pantry screen
+
+Implemented the "Persistent voice-add button on Pantry screen" feature.
+
+### Changes
+
+- Created `apps/mobile/features/pantry/hooks/useVoiceAddItems.ts`:
+  - New hook that manages voice recording state and item parsing
+  - Uses `expo-speech-recognition` for voice input
+  - Leverages existing `useOnboardingItemParsing` hook for the parse → execute flow
+  - Exposes `voiceState` ('idle', 'recording', 'processing'), `error`, and `toggleRecording`
+  - Provides haptic feedback on success and error
+
+- Modified `apps/mobile/features/pantry/hooks/index.ts`:
+  - Exported the new `useVoiceAddItems` hook
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Added microphone button to the header (left of search and add buttons)
+  - Mic icon changes from outline to filled when recording
+  - Mic color changes to red when actively recording
+  - Added status banner that appears at the top of the screen:
+    - During recording: shows red dot and "Listening... tap mic to stop"
+    - During processing: shows spinner and "Adding items..."
+  - Added error banner that appears when voice recognition fails (dismissible by tap)
+  - Adjusted list padding to account for status/error banners
+
+### How it works
+
+Users can now add items to their pantry via voice at any time:
+
+1. **Start recording**: Tap the mic icon in the header. The icon turns red and filled, and a status banner appears showing "Listening..."
+
+2. **Speak items**: Users can speak naturally, like "cherries, grapes, and some milk" or "running low on eggs and butter"
+
+3. **Stop recording**: Tap the mic again, or speech recognition auto-stops after detecting silence
+
+4. **Processing**: A spinner appears while items are parsed and added to the pantry
+
+5. **Completion**: Items are auto-added without confirmation. Success haptic feedback plays on completion.
+
+6. **Errors**: If voice recognition fails, an error banner appears that can be dismissed by tapping
+
+This solves the problem that voice input previously only existed in the onboarding card, which disappears once the user has pantry items. Users who prefer voice input can now use it for ongoing additions.
+
 ## 2026-01-18: Add dormancy toggle to item detail screen
 
 Implemented the "Add dormancy toggle to item detail screen" feature.

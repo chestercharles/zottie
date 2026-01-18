@@ -41,6 +41,7 @@ import {
   useUpdatePantryItem,
   useCreatePantryItem,
   useStatusChangeEducation,
+  useVoiceAddItems,
 } from './hooks'
 import { PantryOnboardingCard } from './PantryOnboardingCard'
 import { StatusChangeEducationSheet } from './StatusChangeEducationSheet'
@@ -588,6 +589,12 @@ export function PantryListScreen() {
   const createPantryItem = useCreatePantryItem()
   const { showEducation, triggerEducation, dismissEducation } =
     useStatusChangeEducation()
+  const {
+    voiceState,
+    error: voiceError,
+    toggleRecording,
+    clearError: clearVoiceError,
+  } = useVoiceAddItems()
   const educationSheetRef = useRef<BottomSheet>(null)
 
   useEffect(() => {
@@ -672,6 +679,26 @@ export function PantryListScreen() {
       headerRight: ({ tintColor }: { tintColor?: string }) => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <TouchableOpacity
+            onPress={toggleRecording}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={
+              voiceState === 'recording'
+                ? 'Stop voice recording'
+                : 'Add items by voice'
+            }
+            disabled={voiceState === 'processing'}
+            style={{ opacity: voiceState === 'processing' ? 0.5 : 1 }}
+          >
+            <Ionicons
+              name={voiceState === 'recording' ? 'mic' : 'mic-outline'}
+              size={24}
+              color={
+                voiceState === 'recording' ? colors.feedback.error : tintColor
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={toggleSearchMode}
             hitSlop={8}
             accessibilityRole="button"
@@ -690,7 +717,7 @@ export function PantryListScreen() {
         </View>
       ),
     })
-  }, [navigation, openAddSheet, toggleSearchMode])
+  }, [navigation, openAddSheet, toggleSearchMode, toggleRecording, voiceState, colors.feedback.error])
 
   const handleAddItem = () => {
     if (!newItemName.trim()) return
@@ -1035,6 +1062,81 @@ export function PantryListScreen() {
         radius={radius}
         typography={typography}
       />
+      {(voiceState === 'recording' || voiceState === 'processing') && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: colors.surface.elevated,
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing.sm,
+            borderBottomWidth: 0.5,
+            borderBottomColor: colors.border.subtle,
+            zIndex: 50,
+          }}
+        >
+          {voiceState === 'recording' ? (
+            <>
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: colors.feedback.error,
+                }}
+              />
+              <Text variant="body.secondary" color="secondary">
+                Listening... tap mic to stop
+              </Text>
+            </>
+          ) : (
+            <>
+              <ActivityIndicator size="small" color={colors.action.primary} />
+              <Text variant="body.secondary" color="secondary">
+                Adding items...
+              </Text>
+            </>
+          )}
+        </View>
+      )}
+      {voiceError && (
+        <Pressable
+          onPress={clearVoiceError}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: colors.feedback.warning + '15',
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing.sm,
+            zIndex: 50,
+          }}
+        >
+          <Ionicons
+            name="alert-circle-outline"
+            size={18}
+            color={colors.feedback.warning}
+          />
+          <Text
+            variant="body.secondary"
+            style={{ color: colors.feedback.warning, flex: 1 }}
+          >
+            {voiceError}
+          </Text>
+          <Ionicons name="close" size={18} color={colors.feedback.warning} />
+        </Pressable>
+      )}
       <FlatList
         data={mainListItems}
         keyExtractor={(item) => item.id}
@@ -1051,7 +1153,13 @@ export function PantryListScreen() {
         }
         contentContainerStyle={{
           padding: spacing.md,
-          paddingTop: isSearchMode ? 60 : spacing.sm,
+          paddingTop:
+            isSearchMode ||
+            voiceState === 'recording' ||
+            voiceState === 'processing' ||
+            voiceError
+              ? 48
+              : spacing.sm,
           flexGrow: 1,
         }}
         refreshControl={

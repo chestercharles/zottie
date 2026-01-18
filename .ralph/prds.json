@@ -97,7 +97,7 @@
   {
     "name": "Persistent voice-add button on Pantry screen",
     "description": "Add a microphone button to the Pantry screen header that allows users to quickly add items via voice at any time, not just during onboarding. When tapped, the button starts voice recording; tapping again stops recording and processes the spoken items. The voice input uses the lightweight parse endpoint to extract items from natural speech (e.g., 'cherries, grapes, and some milk') and adds them directly to the pantry without requiring a full assistant conversation. Items are auto-added for speed - no confirmation step. This solves the problem that currently voice input only exists in the onboarding card, which disappears once the user has pantry items. Users who prefer voice input should be able to keep using it for ongoing additions without switching to the Assistant tab.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Go-tos Epic) Go-tos management UI",
