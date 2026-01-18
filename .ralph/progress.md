@@ -1,5 +1,33 @@
 # zottie Development Progress
 
+## 2026-01-17: Make Assistant responses brief and plain-text
+
+**Feature:** Updated the Assistant's response style to be brief and use only plain text without markdown formatting
+
+**Changes:**
+
+- Updated `apps/api/src/endpoints/assistantChat.ts`:
+  - Rewrote the system prompt to be more concise and explicit about response requirements
+  - Added clear instruction: responses should be 1-2 sentences max
+  - Explicitly prohibits markdown formatting (asterisks, bullet points, headers, code blocks)
+  - Maintains the warm, helpful tone per UX principles
+  - Kept tool calling instructions for proposing pantry actions
+
+**Technical Details:**
+
+The previous system prompt mentioned being "concise" with "2-4 sentences" but didn't explicitly prohibit markdown or enforce brevity strictly enough. The LLM was still producing verbose responses with markdown formatting that rendered as raw text in the chat UI.
+
+The new prompt is more direct:
+- "Keep responses SHORT - just 1-2 sentences max"
+- "Never use markdown formatting (no asterisks, bullet points, headers, or code blocks)"
+- "Write in plain conversational text only"
+
+This ensures responses feel quick and conversational, matching the app's UX principles of being supportive without being lengthy or documentation-like.
+
+**Verification:**
+
+- ✅ API TypeScript type checking passed
+
 ## 2026-01-17: Add human-in-the-loop tool calling to Assistant
 
 **Feature:** The Assistant can now propose actions like adding items or updating statuses, and users can approve or reject changes before they're executed

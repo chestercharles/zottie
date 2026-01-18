@@ -118,6 +118,6 @@
   {
     "name": "(Assistant Epic) Make Assistant responses brief and plain-text",
     "description": "The Assistant on the Assistant tab is currently too verbose and uses markdown formatting that renders as raw text in the chat UI. Update the Assistant's response style to be brief (just a few sentences at most) and use only plain text without any markdown formatting. The tone should remain the same - supportive and empathetic per the app's UX principles - just more concise. Responses should feel conversational and quick, not like reading documentation. This applies to all Assistant responses including answers to questions, confirmations of actions, and guided conversations from canned prompts.",
-    "completed": false
+    "completed": true
   }
 ]
