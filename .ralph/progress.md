@@ -1,5 +1,34 @@
 # zottie Development Progress
 
+## 2026-01-17: Simplify details section on edit item screen
+
+**Feature:** Removed redundant item name and status from the Details section on the edit item screen
+
+**Changes:**
+
+- Removed the "Item Name" row from the Details card in `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`
+- Removed the "Status" row from the Details card
+
+**Technical Details:**
+
+The Details section was showing information already visible elsewhere on the screen:
+
+1. Item Name - Already prominently displayed in the header at the top
+2. Status - Already shown and selectable in the "Change Status" section with highlighted current status
+
+The Details section now only contains useful, non-redundant information:
+- Last Purchased (when available)
+- Created date
+- Last Updated date
+
+This simplifies the UI by eliminating duplicate information, making the screen cleaner and easier to scan.
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Add swipe gesture to dismiss pantry search
 
 **Feature:** Added upward swipe gesture to dismiss the pantry search interface

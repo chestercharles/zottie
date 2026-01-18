@@ -286,36 +286,6 @@ export function PantryItemDetailScreen() {
             Details
           </Text>
 
-          <View
-            style={[
-              styles.detailRow,
-              {
-                paddingVertical: spacing.sm,
-                borderBottomColor: colors.border.subtle,
-              },
-            ]}
-          >
-            <Text variant="body.secondary" color="secondary">
-              Item Name
-            </Text>
-            <Text variant="body.secondary">{currentName}</Text>
-          </View>
-
-          <View
-            style={[
-              styles.detailRow,
-              {
-                paddingVertical: spacing.sm,
-                borderBottomColor: colors.border.subtle,
-              },
-            ]}
-          >
-            <Text variant="body.secondary" color="secondary">
-              Status
-            </Text>
-            <Text variant="body.secondary">{statusLabels[currentStatus]}</Text>
-          </View>
-
           {purchasedAt && (
             <View
               style={[

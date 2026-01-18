@@ -87,7 +87,7 @@
   {
     "name": "Simplify details section on edit item screen",
     "description": "The details section on the edit item screen currently shows redundant information: the item name (already displayed prominently at the top) and the status (already shown in the status picker above). Remove the item name and status from the details section, keeping only the useful information like last purchased date.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Remove Edit Item header title and fix Settings header spacing",
