@@ -43,7 +43,7 @@
   {
     "name": "(Assistant Epic) Connect Assistant to streaming LLM backend",
     "description": "Send the user's voice input (or canned prompt) to an LLM backend and display the streaming response. Responses should appear word-by-word as they're generated. The LLM should have context of the user's pantry and shopping list data so it can answer questions about their groceries. This is read-only - the assistant can answer questions but cannot take actions yet.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Enable canned prompt buttons on Assistant tab",
@@ -109,5 +109,10 @@
     "name": "Move edit name action to overflow menu on item detail",
     "description": "Currently users tap directly on the item name to edit it, which isn't very discoverable. Add an 'Edit Name' option to the overflow menu in the item detail header (same menu where delete lives). The implementer should determine the best UX for what happens when the user taps 'Edit Name' - options include: inline editing where the name becomes editable in place, a separate modal/sheet with a text input, or another pattern that follows iOS conventions. The goal is a clear, intentional way to edit the item name.",
     "completed": true
+  },
+  {
+    "name": "Improve tab bar selected state visibility",
+    "description": "The current tab bar's selected state is too subtle - the color difference between active and inactive tabs isn't noticeable enough for users to quickly see which tab they're on. Improve the visual distinction between selected and unselected tabs. The implementer should consider iOS-standard approaches such as using filled icons for the selected tab and outline icons for unselected tabs, adjusting the color contrast, or adding other visual indicators that make the selected state immediately obvious.",
+    "completed": false
   }
 ]

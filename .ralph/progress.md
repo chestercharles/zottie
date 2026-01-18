@@ -1,5 +1,68 @@
 # zottie Development Progress
 
+## 2026-01-17: Connect Assistant to streaming LLM backend
+
+**Feature:** Added streaming LLM integration to the Assistant tab, allowing users to speak and receive real-time AI responses with context about their pantry inventory
+
+**Changes:**
+
+Backend (apps/api):
+- Created `apps/api/src/endpoints/assistantChat.ts`:
+  - New streaming endpoint at POST `/api/assistant/chat`
+  - Uses OpenAI API with GPT-4o-mini model for cost-effective responses
+  - Streams response text back to client in real-time
+  - Includes user's pantry context (items grouped by status) in system prompt
+  - Handles authentication and household membership validation
+- Updated `apps/api/src/index.ts`:
+  - Registered new assistant chat endpoint
+
+Mobile (apps/mobile):
+- Created `apps/mobile/features/assistant/api.ts`:
+  - Async generator function `streamAssistantChat` that yields text chunks
+  - Uses `ReadableStream` reader to process streaming response
+- Created `apps/mobile/features/assistant/hooks/useStreamAssistant.ts`:
+  - Custom hook managing streaming state (idle, streaming, error)
+  - Handles authentication, accumulates response text
+  - Provides `streamMessage` function and `reset` for new conversations
+- Created `apps/mobile/features/assistant/hooks/index.ts`:
+  - Module export for hooks
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Integrated streaming hook
+  - Chat-style UI with user message bubble (right-aligned, primary color)
+  - Assistant response bubble (left-aligned, grouped background)
+  - "Thinking..." indicator with spinner while waiting for first token
+  - Auto-scrolls to bottom as response streams in
+  - "New conversation" button and smaller voice input for follow-ups
+  - Error display with warm styling
+- Updated `apps/mobile/features/assistant/index.ts`:
+  - Exported new hook
+
+**Technical Details:**
+
+1. Streaming implementation:
+   - Backend uses OpenAI's streaming API with `stream: true`
+   - Returns `ReadableStream` wrapped in Response with `text/event-stream` content type
+   - Client uses `ReadableStream` reader and `TextDecoder` to process chunks
+   - Hook accumulates chunks into full response via React state
+
+2. Pantry context:
+   - LLM receives categorized pantry inventory (in stock, running low, out of stock, planned)
+   - Enables contextual responses about what user has available
+   - System prompt emphasizes read-only nature - assistant can answer but not take actions
+
+3. UI states:
+   - Initial state: Large voice button + canned prompts
+   - Conversation state: Chat bubbles + actions at bottom
+   - Streaming state: "Thinking..." indicator until first token arrives
+   - Error state: Warm error message with guidance
+
+**Verification:**
+
+- ✅ API TypeScript type checking passed
+- ✅ Mobile linting passed
+- ✅ Mobile TypeScript type checking passed
+- ✅ Mobile tests passed
+
 ## 2026-01-17: Enable voice input on Assistant tab
 
 **Feature:** Made the voice button on the Assistant tab functional with speech-to-text transcription display
