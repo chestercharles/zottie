@@ -1,5 +1,28 @@
 # zottie Development Progress
 
+## 2026-01-18: Settings gear accessible from all main tab screens
+
+Implemented the "Settings gear accessible from all main tab screens" feature.
+
+### Changes
+
+- Modified `apps/mobile/app/(authenticated)/_layout.tsx`:
+  - Added `headerLeft` with settings gear button to the Shopping tab
+  - Added `headerLeft` with settings gear button to the Assistant tab
+  - Both buttons route to `/pantry/settings` (same as the existing Pantry tab settings button)
+  - All three tabs now have consistent settings access via the gear icon in the top-left corner
+
+### How it works
+
+The settings gear icon now appears in the top-left corner of all three main tab screens:
+- **Pantry**: Already had settings gear (unchanged)
+- **Shopping**: Now has settings gear in `headerLeft`
+- **Assistant**: Now has settings gear in `headerLeft`
+
+Tapping the settings gear from any tab opens the same settings modal, which presents over the current screen and can be dismissed by swiping down.
+
+The implementation reuses the existing settings screen and route at `/pantry/settings` - no changes were needed to the settings screen itself or its route structure. The settings button is defined inline in each tab's options to keep the code simple and co-located.
+
 ## 2026-01-18: Consistent list spacing across Shopping List and Pantry
 
 Implemented the "Consistent list spacing across Shopping List and Pantry" feature.

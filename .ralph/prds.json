@@ -87,7 +87,7 @@
   {
     "name": "Settings gear accessible from all main tab screens",
     "description": "Make the settings gear icon accessible from all main tab screens (Shopping List, Pantry, Assistant), not just the Pantry. The settings gear should appear in the top left corner of each main tab screen's header. Tapping it opens the same settings modal that currently exists. This may require reorganizing how settings is implemented - currently it lives within the Pantry routes, but it should become a shared component that any main tab screen can access. Sub-screens (like item detail views) should not show the settings gear.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Lightweight command parse endpoint",

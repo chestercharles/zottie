@@ -100,6 +100,16 @@ export default function AuthenticatedLayout() {
               color={color}
             />
           ),
+          headerLeft: ({ tintColor }) => (
+            <TouchableOpacity
+              onPress={() => router.push('/pantry/settings')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+            >
+              <Ionicons name="settings-outline" size={24} color={tintColor} />
+            </TouchableOpacity>
+          ),
           headerRight: ({ tintColor }) => (
             <TouchableOpacity
               hitSlop={8}
@@ -122,6 +132,16 @@ export default function AuthenticatedLayout() {
               size={size}
               color={color}
             />
+          ),
+          headerLeft: ({ tintColor }) => (
+            <TouchableOpacity
+              onPress={() => router.push('/pantry/settings')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+            >
+              <Ionicons name="settings-outline" size={24} color={tintColor} />
+            </TouchableOpacity>
           ),
         }}
       />
