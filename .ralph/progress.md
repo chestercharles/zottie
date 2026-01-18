@@ -1,5 +1,42 @@
 # zottie Development Progress
 
+## 2026-01-17: Enable voice input on Assistant tab
+
+**Feature:** Made the voice button on the Assistant tab functional with speech-to-text transcription display
+
+**Changes:**
+
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Replaced the placeholder voice button with the existing `VoiceInput` component
+  - Added state to track the transcribed text
+  - Added a transcript display card that shows "You said:" followed by the transcribed text
+  - Wrapped content in `ScrollView` to accommodate transcript display
+  - Configured contextual strings for speech recognition (pantry, shopping, meal, recipe, etc.)
+
+**Technical Details:**
+
+1. Integration with existing `VoiceInput` component:
+   - Reuses the fully-featured voice input component from `components/VoiceInput.tsx`
+   - Leverages `expo-speech-recognition` for on-device speech recognition
+   - Inherits animations (recording pulse, processing state) and haptic feedback
+
+2. Screen layout updates:
+   - Voice button remains at 120x120 size with status text below
+   - Transcript appears in a card below the status text when available
+   - Canned prompts section remains at the bottom
+   - Content wrapped in ScrollView for better layout when transcript is long
+
+3. UX details:
+   - Custom status text: "Tap to speak with your assistant" → "Listening..." → "Processing..."
+   - Transcript card uses `surface.grouped` background with `radius.lg` corners
+   - Shows "You said:" label above the transcribed text for clarity
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Add Assistant tab with voice button and canned prompts
 
 **Feature:** Added a new "Assistant" tab to the app with a prominent voice input button and canned prompt buttons

@@ -1,7 +1,9 @@
-import { View, StyleSheet, TouchableOpacity } from 'react-native'
+import { useState } from 'react'
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../lib/theme'
 import { Text } from '../../components/ui'
+import { VoiceInput } from '../../components/VoiceInput'
 
 const CANNED_PROMPTS = [
   {
@@ -28,9 +30,10 @@ const CANNED_PROMPTS = [
 
 export function AssistantScreen() {
   const { colors, spacing, radius } = useTheme()
+  const [transcript, setTranscript] = useState<string | null>(null)
 
-  const handleVoicePress = () => {
-    // Placeholder - voice input will be implemented in a future PRD
+  const handleTranscriptReceived = (text: string) => {
+    setTranscript(text)
   }
 
   const handlePromptPress = (_promptId: string) => {
@@ -39,32 +42,47 @@ export function AssistantScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
-      <View style={[styles.content, { padding: spacing.lg }]}>
-        <TouchableOpacity
-          style={[
-            styles.voiceButton,
-            {
-              backgroundColor: colors.action.primary,
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-            },
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.content, { padding: spacing.lg }]}
+      >
+        <VoiceInput
+          onTranscriptReceived={handleTranscriptReceived}
+          buttonSize={120}
+          showStatusText={true}
+          statusTextIdle="Tap to speak with your assistant"
+          statusTextRecording="Listening..."
+          statusTextProcessing="Processing..."
+          contextualStrings={[
+            'pantry',
+            'shopping',
+            'in stock',
+            'running low',
+            'out of stock',
+            'groceries',
+            'meal',
+            'recipe',
           ]}
-          onPress={handleVoicePress}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel="Start voice input"
-        >
-          <Ionicons name="mic" size={48} color={colors.text.inverse} />
-        </TouchableOpacity>
+        />
 
-        <Text
-          variant="body.secondary"
-          color="secondary"
-          style={{ marginTop: spacing.lg, textAlign: 'center' }}
-        >
-          Tap to speak with your assistant
-        </Text>
+        {transcript && (
+          <View
+            style={[
+              styles.transcriptContainer,
+              {
+                backgroundColor: colors.surface.grouped,
+                borderRadius: radius.lg,
+                padding: spacing.md,
+                marginTop: spacing.xl,
+              },
+            ]}
+          >
+            <Text variant="body.secondary" color="secondary" style={{ marginBottom: spacing.xs }}>
+              You said:
+            </Text>
+            <Text variant="body.primary">{transcript}</Text>
+          </View>
+        )}
 
         <View style={[styles.promptsContainer, { marginTop: spacing['2xl'] }]}>
           <Text
@@ -105,7 +123,7 @@ export function AssistantScreen() {
             ))}
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   )
 }
@@ -114,19 +132,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     alignItems: 'center',
     paddingTop: 60,
   },
-  voiceButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
+  transcriptContainer: {
+    width: '100%',
   },
   promptsContainer: {
     width: '100%',

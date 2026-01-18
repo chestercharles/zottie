@@ -38,7 +38,7 @@
   {
     "name": "(Assistant Epic) Enable voice input on Assistant tab",
     "description": "Make the voice button on the Assistant tab functional. User can tap the voice button, speak, and see their transcribed text appear on screen. This PRD is just about capturing and displaying voice input - no LLM response yet.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Connect Assistant to streaming LLM backend",
