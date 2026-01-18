@@ -81,9 +81,13 @@ function ShoppingItemRow({
 
   const handleSwipeAction = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    translateX.value = withTiming(-400, { duration: 200, easing: Easing.out(Easing.ease) }, () => {
-      runOnJS(onSwipeAction)()
-    })
+    translateX.value = withTiming(
+      -400,
+      { duration: 200, easing: Easing.out(Easing.ease) },
+      () => {
+        runOnJS(onSwipeAction)()
+      }
+    )
   }, [onSwipeAction, translateX])
 
   const handleRowPress = useCallback(() => {
@@ -107,7 +111,10 @@ function ShoppingItemRow({
       const finalX = startX + event.translationX
 
       if (finalX < -REVEAL_THRESHOLD) {
-        translateX.value = withSpring(-DELETE_BUTTON_WIDTH, { damping: 20, stiffness: 300 })
+        translateX.value = withSpring(-DELETE_BUTTON_WIDTH, {
+          damping: 20,
+          stiffness: 300,
+        })
         isOpen.value = true
       } else {
         translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
@@ -147,7 +154,11 @@ function ShoppingItemRow({
           accessibilityRole="button"
           accessibilityLabel="Item options"
         >
-          <Ionicons name="ellipsis-horizontal" size={24} color={colors.text.inverse} />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={24}
+            color={colors.text.inverse}
+          />
         </TouchableOpacity>
       </Reanimated.View>
 
@@ -172,7 +183,9 @@ function ShoppingItemRow({
               <Ionicons
                 name={isChecked ? 'checkbox' : 'square-outline'}
                 size={24}
-                color={isChecked ? colors.feedback.success : colors.text.tertiary}
+                color={
+                  isChecked ? colors.feedback.success : colors.text.tertiary
+                }
               />
             </View>
             <View style={styles.itemContent}>
@@ -238,7 +251,6 @@ export function ShoppingListScreen() {
     ),
     []
   )
-
 
   const loadCheckedItems = useCallback(async () => {
     const stored = await getCheckedItems()
@@ -322,31 +334,34 @@ export function ShoppingListScreen() {
     })
   }
 
-  const handleSwipeAction = useCallback((item: ShoppingItem) => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Already have it', "Don't want to buy it"],
-        cancelButtonIndex: 0,
-        title: item.name,
-        message: 'What would you like to do with this item?',
-      },
-      (buttonIndex) => {
-        if (buttonIndex === 1) {
-          // Already have it - mark as in_stock
-          updatePantryItem.mutate({ itemId: item.id, status: 'in_stock' })
-        } else if (buttonIndex === 2) {
-          // Don't want to buy it - mark as dormant
-          updatePantryItem.mutate({ itemId: item.id, status: 'dormant' })
+  const handleSwipeAction = useCallback(
+    (item: ShoppingItem) => {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Already have it', "Don't want to buy it"],
+          cancelButtonIndex: 0,
+          title: item.name,
+          message: 'What would you like to do with this item?',
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            // Already have it - mark as in_stock
+            updatePantryItem.mutate({ itemId: item.id, status: 'in_stock' })
+          } else if (buttonIndex === 2) {
+            // Don't want to buy it - mark as dormant
+            updatePantryItem.mutate({ itemId: item.id, status: 'dormant' })
+          }
         }
-      }
-    )
-  }, [updatePantryItem])
+      )
+    },
+    [updatePantryItem]
+  )
 
   const checkedCount = checkedIds.size
 
   const sortedItems = useMemo(() => {
-    const unchecked = items.filter(item => !checkedIds.has(item.id))
-    const checked = items.filter(item => checkedIds.has(item.id))
+    const unchecked = items.filter((item) => !checkedIds.has(item.id))
+    const checked = items.filter((item) => checkedIds.has(item.id))
     return [...unchecked, ...checked]
   }, [items, checkedIds])
 
@@ -368,9 +383,22 @@ export function ShoppingListScreen() {
                 <ActivityIndicator size="small" color={tintColor} />
               ) : (
                 <View style={styles.headerPurchaseButton}>
-                  <Ionicons name="cart" size={22} color={colors.feedback.success} />
-                  <View style={[styles.headerBadge, { backgroundColor: colors.feedback.success }]}>
-                    <Text variant="caption" color="inverse" style={styles.headerBadgeText}>
+                  <Ionicons
+                    name="cart"
+                    size={22}
+                    color={colors.feedback.success}
+                  />
+                  <View
+                    style={[
+                      styles.headerBadge,
+                      { backgroundColor: colors.feedback.success },
+                    ]}
+                  >
+                    <Text
+                      variant="caption"
+                      color="inverse"
+                      style={styles.headerBadgeText}
+                    >
                       {checkedCount}
                     </Text>
                   </View>
@@ -389,7 +417,15 @@ export function ShoppingListScreen() {
         </View>
       ),
     })
-  }, [navigation, openAddSheet, checkedCount, handleMarkAsPurchased, markAsPurchasedMutation.isPending, colors, spacing])
+  }, [
+    navigation,
+    openAddSheet,
+    checkedCount,
+    handleMarkAsPurchased,
+    markAsPurchasedMutation.isPending,
+    colors,
+    spacing,
+  ])
 
   if (isLoading) {
     return (
@@ -414,7 +450,11 @@ export function ShoppingListScreen() {
       >
         <Text
           variant="body.primary"
-          style={{ color: colors.feedback.error, textAlign: 'center', marginBottom: spacing.md }}
+          style={{
+            color: colors.feedback.error,
+            textAlign: 'center',
+            marginBottom: spacing.md,
+          }}
         >
           {error}
         </Text>
@@ -424,7 +464,9 @@ export function ShoppingListScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
       {items.length === 0 ? (
         <EmptyState
           title="You're all set!"
@@ -536,7 +578,11 @@ export function ShoppingListScreen() {
                 <Ionicons
                   name="checkmark"
                   size={28}
-                  color={newItemName.trim() ? colors.action.primary : colors.action.disabled}
+                  color={
+                    newItemName.trim()
+                      ? colors.action.primary
+                      : colors.action.disabled
+                  }
                 />
               )}
             </TouchableOpacity>

@@ -26,9 +26,7 @@ export function useOnboardingItemParsing() {
 
       // Construct a command that provides context about what the user is adding
       const contextualCommand =
-        context === 'pantry'
-          ? `I have: ${text}`
-          : `I need to buy: ${text}`
+        context === 'pantry' ? `I have: ${text}` : `I need to buy: ${text}`
 
       // Parse the command
       const parseResponse = await parseCommand(

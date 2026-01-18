@@ -23,7 +23,10 @@ export function OriginalOnboarding() {
   if (isLoading) {
     return (
       <View
-        style={[styles.loadingContainer, { backgroundColor: colors.surface.background }]}
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.surface.background },
+        ]}
       >
         <ActivityIndicator size="large" color={colors.action.primary} />
       </View>

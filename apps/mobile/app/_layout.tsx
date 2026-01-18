@@ -27,10 +27,7 @@ function RootNavigator() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="(authenticated)"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
       <Stack.Screen
         name="onboarding"
         options={{

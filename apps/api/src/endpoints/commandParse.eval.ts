@@ -7,7 +7,10 @@ interface CommandParseResponse {
   success: boolean
   result: {
     actions: Array<{
-      type: 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
+      type:
+        | 'add_to_pantry'
+        | 'update_pantry_status'
+        | 'remove_from_shopping_list'
       item: string
       status?: 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
     }>
@@ -15,7 +18,10 @@ interface CommandParseResponse {
   }
 }
 
-type ActionType = 'add_to_pantry' | 'update_pantry_status' | 'remove_from_shopping_list'
+type ActionType =
+  | 'add_to_pantry'
+  | 'update_pantry_status'
+  | 'remove_from_shopping_list'
 type ItemStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
 
 interface EvalCase {
@@ -35,12 +41,17 @@ function normalizeItem(item: string): string {
   return item.toLowerCase().replace(/s$/, '')
 }
 
-function itemsMatch(actual: string, expected: string, alternates?: string[]): boolean {
+function itemsMatch(
+  actual: string,
+  expected: string,
+  alternates?: string[]
+): boolean {
   const normalizedActual = normalizeItem(actual)
   const normalizedExpected = normalizeItem(expected)
 
   if (normalizedActual === normalizedExpected) return true
-  if (alternates?.some(alt => normalizeItem(alt) === normalizedActual)) return true
+  if (alternates?.some((alt) => normalizeItem(alt) === normalizedActual))
+    return true
 
   return false
 }
@@ -669,11 +680,20 @@ describe('Command Parse Endpoint Eval', () => {
       expect(Array.isArray(data.result.actions)).toBe(true)
 
       for (const action of data.result.actions) {
-        expect(['add_to_pantry', 'update_pantry_status', 'remove_from_shopping_list']).toContain(action.type)
+        expect([
+          'add_to_pantry',
+          'update_pantry_status',
+          'remove_from_shopping_list',
+        ]).toContain(action.type)
         expect(typeof action.item).toBe('string')
         expect(action.item.length).toBeGreaterThan(0)
         if (action.status) {
-          expect(['in_stock', 'running_low', 'out_of_stock', 'planned']).toContain(action.status)
+          expect([
+            'in_stock',
+            'running_low',
+            'out_of_stock',
+            'planned',
+          ]).toContain(action.status)
         }
       }
     })
@@ -698,20 +718,28 @@ describe('Command Parse Endpoint Eval', () => {
         expect(data.result.actions.length).toBe(evalCase.expectedActions.length)
 
         for (const expected of evalCase.expectedActions) {
-          const matchingAction = data.result.actions.find(
-            (a) => itemsMatch(a.item, expected.item, evalCase.allowAlternateItems)
+          const matchingAction = data.result.actions.find((a) =>
+            itemsMatch(a.item, expected.item, evalCase.allowAlternateItems)
           )
-          expect(matchingAction, `Expected to find action with item matching "${expected.item}" but got: ${JSON.stringify(data.result.actions)}`).toBeDefined()
+          expect(
+            matchingAction,
+            `Expected to find action with item matching "${expected.item}" but got: ${JSON.stringify(data.result.actions)}`
+          ).toBeDefined()
 
           if (evalCase.allowAlternateType) {
-            expect([expected.type, evalCase.allowAlternateType]).toContain(matchingAction?.type)
+            expect([expected.type, evalCase.allowAlternateType]).toContain(
+              matchingAction?.type
+            )
           } else {
             expect(matchingAction?.type).toBe(expected.type)
           }
 
           if (expected.status) {
             if (evalCase.allowAlternateStatus) {
-              expect([expected.status, evalCase.allowAlternateStatus]).toContain(matchingAction?.status)
+              expect([
+                expected.status,
+                evalCase.allowAlternateStatus,
+              ]).toContain(matchingAction?.status)
             } else {
               expect(matchingAction?.status).toBe(expected.status)
             }
@@ -805,10 +833,16 @@ describe('Command Parse Endpoint Eval', () => {
         expect(response.status).toBe(200)
         const data = (await response.json()) as CommandParseResponse
         expect(data.success).toBe(true)
-        expect(data.result.actions.length, `Expected actions for "${command}" but got none`).toBeGreaterThan(0)
+        expect(
+          data.result.actions.length,
+          `Expected actions for "${command}" but got none`
+        ).toBeGreaterThan(0)
         if (data.result.message) {
           const lowerMessage = data.result.message.toLowerCase()
-          expect(lowerMessage, `Message for "${command}" should not ask for confirmation`).not.toContain('would you like')
+          expect(
+            lowerMessage,
+            `Message for "${command}" should not ask for confirmation`
+          ).not.toContain('would you like')
           expect(lowerMessage).not.toContain('do you want')
           expect(lowerMessage).not.toContain('should i add')
         }
@@ -822,14 +856,18 @@ describe('Command Parse Endpoint Eval', () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ command: 'used the last of the coffee this morning' }),
+        body: JSON.stringify({
+          command: 'used the last of the coffee this morning',
+        }),
       })
 
       expect(response.status).toBe(200)
       const data = (await response.json()) as CommandParseResponse
       expect(data.success).toBe(true)
       expect(data.result.actions.length).toBeGreaterThan(0)
-      const coffeeAction = data.result.actions.find(a => a.item.includes('coffee'))
+      const coffeeAction = data.result.actions.find((a) =>
+        a.item.includes('coffee')
+      )
       expect(coffeeAction, 'Should have action for coffee').toBeDefined()
       expect(coffeeAction?.status).toBe('out_of_stock')
     })

@@ -12,12 +12,7 @@ interface TextInputProps extends RNTextInputProps {
   error?: string
 }
 
-export function TextInput({
-  label,
-  error,
-  style,
-  ...props
-}: TextInputProps) {
+export function TextInput({ label, error, style, ...props }: TextInputProps) {
   const { colors, radius, spacing } = useTheme()
 
   const borderColor = error ? colors.feedback.error : colors.border.subtle
@@ -44,7 +39,10 @@ export function TextInput({
         {...props}
       />
       {error && (
-        <Text variant="caption" style={[styles.error, { color: colors.feedback.error }]}>
+        <Text
+          variant="caption"
+          style={[styles.error, { color: colors.feedback.error }]}
+        >
           {error}
         </Text>
       )}

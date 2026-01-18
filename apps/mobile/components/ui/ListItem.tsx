@@ -1,4 +1,10 @@
-import { Pressable, PressableProps, View, StyleSheet, ViewStyle } from 'react-native'
+import {
+  Pressable,
+  PressableProps,
+  View,
+  StyleSheet,
+  ViewStyle,
+} from 'react-native'
 import { useTheme } from '../../lib/theme'
 
 interface ListItemProps extends Omit<PressableProps, 'style'> {
@@ -49,9 +55,7 @@ export function ListItem({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        pressed && { opacity: 0.7 },
-      ]}
+      style={({ pressed }) => [pressed && { opacity: 0.7 }]}
       {...props}
     >
       {content}

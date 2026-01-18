@@ -93,7 +93,9 @@ export function QuickAddInventoryScreen({
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
       <View
         style={[
           styles.header,
@@ -197,7 +199,12 @@ export function QuickAddInventoryScreen({
           },
         ]}
       >
-        <View style={{ alignItems: 'center', marginBottom: spacing.sm + spacing.xs }}>
+        <View
+          style={{
+            alignItems: 'center',
+            marginBottom: spacing.sm + spacing.xs,
+          }}
+        >
           <Text variant="body.secondary" color="secondary">
             {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''}{' '}
             selected
@@ -215,9 +222,10 @@ export function QuickAddInventoryScreen({
             style={[
               styles.addButton,
               {
-                backgroundColor: isAdding || selectedItems.size === 0
-                  ? colors.action.disabled
-                  : colors.action.primary,
+                backgroundColor:
+                  isAdding || selectedItems.size === 0
+                    ? colors.action.disabled
+                    : colors.action.primary,
                 borderRadius: radius.md,
                 paddingVertical: spacing.sm + spacing.xs,
               },
@@ -226,7 +234,9 @@ export function QuickAddInventoryScreen({
             disabled={isAdding || selectedItems.size === 0}
             accessibilityRole="button"
             accessibilityLabel={
-              selectedItems.size === 0 ? 'Continue' : `Add ${selectedItems.size} items to pantry`
+              selectedItems.size === 0
+                ? 'Continue'
+                : `Add ${selectedItems.size} items to pantry`
             }
           >
             {isAdding ? (

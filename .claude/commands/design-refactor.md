@@ -3,6 +3,7 @@ You are working on the design system reimplementation for the zottie mobile app.
 ## Context
 
 Read these files to understand the work:
+
 - `apps/mobile/DESIGN_SYSTEM.md` - The target design system specification
 - `apps/mobile/DESIGN_SYSTEM_REFACTOR_PLAN.md` - The phased implementation plan with checkboxes
 
@@ -48,12 +49,15 @@ The progress file (`apps/mobile/.design-refactor-progress.md`) should look like:
 ## Session: [date]
 
 ### Completed
+
 - [x] Task description
 
 ### Files Changed
+
 - path/to/file.tsx
 
 ### Notes
+
 Any relevant decisions, issues, or context for future sessions.
 
 ---

@@ -90,7 +90,10 @@ export function JoinScreen() {
   if (isAuthLoading) {
     return (
       <View
-        style={[styles.centerContainer, { backgroundColor: colors.surface.background }]}
+        style={[
+          styles.centerContainer,
+          { backgroundColor: colors.surface.background },
+        ]}
       >
         <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
@@ -110,7 +113,11 @@ export function JoinScreen() {
         ]}
       >
         <View style={[styles.content, { gap: spacing.sm }]}>
-          <Ionicons name="home-outline" size={64} color={colors.action.primary} />
+          <Ionicons
+            name="home-outline"
+            size={64}
+            color={colors.action.primary}
+          />
           <Text variant="title.medium" style={{ marginTop: spacing.md }}>
             Join a Household
           </Text>
@@ -159,7 +166,11 @@ export function JoinScreen() {
         ]}
       >
         <View style={[styles.content, { gap: spacing.sm }]}>
-          <Ionicons name="alert-circle-outline" size={64} color={colors.feedback.error} />
+          <Ionicons
+            name="alert-circle-outline"
+            size={64}
+            color={colors.feedback.error}
+          />
           <Text variant="title.medium" style={{ marginTop: spacing.md }}>
             Invalid Invite
           </Text>
@@ -190,7 +201,11 @@ export function JoinScreen() {
           ]}
         >
           <View style={[styles.content, { gap: spacing.sm }]}>
-            <Ionicons name="checkmark-circle" size={64} color={colors.feedback.success} />
+            <Ionicons
+              name="checkmark-circle"
+              size={64}
+              color={colors.feedback.success}
+            />
             <Text variant="title.medium" style={{ marginTop: spacing.md }}>
               You're Already a Member
             </Text>
@@ -229,7 +244,11 @@ export function JoinScreen() {
           ]}
         >
           <View style={[styles.content, { gap: spacing.sm }]}>
-            <Ionicons name="swap-horizontal" size={64} color={colors.feedback.warning} />
+            <Ionicons
+              name="swap-horizontal"
+              size={64}
+              color={colors.feedback.warning}
+            />
             <Text variant="title.medium" style={{ marginTop: spacing.md }}>
               Switch Households?
             </Text>
@@ -255,7 +274,11 @@ export function JoinScreen() {
               { gap: spacing.xs, paddingBottom: spacing.lg },
             ]}
           >
-            <Ionicons name="time-outline" size={16} color={colors.text.secondary} />
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={colors.text.secondary}
+            />
             <Text variant="body.secondary" color="secondary">
               Expires {new Date(invite.expiresAt).toLocaleDateString()}
             </Text>
@@ -300,10 +323,7 @@ export function JoinScreen() {
           <Text variant="title.medium" style={{ marginTop: spacing.md }}>
             You're Invited!
           </Text>
-          <Text
-            variant="title.large"
-            style={{ color: colors.action.primary }}
-          >
+          <Text variant="title.large" style={{ color: colors.action.primary }}>
             {invite.householdName}
           </Text>
           <Text
@@ -321,7 +341,11 @@ export function JoinScreen() {
             { gap: spacing.xs, paddingBottom: spacing.lg },
           ]}
         >
-          <Ionicons name="time-outline" size={16} color={colors.text.secondary} />
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={colors.text.secondary}
+          />
           <Text variant="body.secondary" color="secondary">
             Expires {new Date(invite.expiresAt).toLocaleDateString()}
           </Text>

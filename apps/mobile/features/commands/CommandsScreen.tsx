@@ -11,7 +11,8 @@ type ProcessingState = 'idle' | 'processing' | 'confirming' | 'executing'
 
 export function CommandsScreen() {
   const { colors, spacing, radius } = useTheme()
-  const [processingState, setProcessingState] = useState<ProcessingState>('idle')
+  const [processingState, setProcessingState] =
+    useState<ProcessingState>('idle')
   const [error, setError] = useState<string | null>(null)
   const [pendingActions, setPendingActions] = useState<CommandAction[]>([])
   const parseCommand = useParseCommand()
@@ -24,7 +25,9 @@ export function CommandsScreen() {
         const actions = response.result.actions
         const message = response.result.message
         if (actions.length === 0) {
-          setError(message || 'No actions found in your command. Please try again.')
+          setError(
+            message || 'No actions found in your command. Please try again.'
+          )
           setProcessingState('idle')
         } else {
           setPendingActions(actions)
@@ -33,7 +36,9 @@ export function CommandsScreen() {
       },
       onError: (err) => {
         setProcessingState('idle')
-        setError(err instanceof Error ? err.message : 'Failed to process command')
+        setError(
+          err instanceof Error ? err.message : 'Failed to process command'
+        )
       },
     })
   }
@@ -52,7 +57,9 @@ export function CommandsScreen() {
       },
       onError: (err) => {
         setProcessingState('confirming')
-        setError(err instanceof Error ? err.message : 'Failed to execute command')
+        setError(
+          err instanceof Error ? err.message : 'Failed to execute command'
+        )
       },
     })
   }
@@ -86,8 +93,15 @@ export function CommandsScreen() {
   ) {
     const isExecuting = processingState === 'executing'
     return (
-      <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
-        <ScrollView style={[styles.confirmationContainer, { padding: spacing.lg }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.surface.background },
+        ]}
+      >
+        <ScrollView
+          style={[styles.confirmationContainer, { padding: spacing.lg }]}
+        >
           <Text variant="title.medium" style={{ marginBottom: spacing.lg }}>
             Confirm Actions
           </Text>
@@ -105,8 +119,15 @@ export function CommandsScreen() {
                 },
               ]}
             >
-              <Ionicons name="checkmark-circle" size={24} color={colors.feedback.success} />
-              <Text variant="body.primary" style={{ marginLeft: spacing.sm, flex: 1 }}>
+              <Ionicons
+                name="checkmark-circle"
+                size={24}
+                color={colors.feedback.success}
+              />
+              <Text
+                variant="body.primary"
+                style={{ marginLeft: spacing.sm, flex: 1 }}
+              >
                 {formatAction(action)}
               </Text>
             </View>
@@ -130,7 +151,11 @@ export function CommandsScreen() {
                 color={colors.text.secondary}
                 style={{ marginRight: spacing.sm, marginTop: 2 }}
               />
-              <Text variant="body.secondary" color="secondary" style={{ flex: 1, lineHeight: 22 }}>
+              <Text
+                variant="body.secondary"
+                color="secondary"
+                style={{ flex: 1, lineHeight: 22 }}
+              >
                 {error}
               </Text>
             </View>
@@ -166,7 +191,9 @@ export function CommandsScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
       <View style={[styles.content, { paddingHorizontal: spacing.lg }]}>
         <VoiceInput
           onTranscriptReceived={handleTranscriptReceived}
@@ -193,20 +220,36 @@ export function CommandsScreen() {
               color={colors.text.secondary}
               style={{ marginRight: spacing.sm, marginTop: 2 }}
             />
-            <Text variant="body.secondary" color="secondary" style={{ flex: 1, lineHeight: 22 }}>
+            <Text
+              variant="body.secondary"
+              color="secondary"
+              style={{ flex: 1, lineHeight: 22 }}
+            >
               {error}
             </Text>
           </View>
         )}
 
         <View style={[styles.helpContainer, { marginTop: spacing['2xl'] }]}>
-          <Text variant="body.primary" color="secondary" style={{ marginBottom: spacing.sm, fontWeight: '600' }}>
+          <Text
+            variant="body.primary"
+            color="secondary"
+            style={{ marginBottom: spacing.sm, fontWeight: '600' }}
+          >
             Try saying:
           </Text>
-          <Text variant="body.secondary" color="tertiary" style={{ marginBottom: spacing.sm }}>
+          <Text
+            variant="body.secondary"
+            color="tertiary"
+            style={{ marginBottom: spacing.sm }}
+          >
             "Add apples to my pantry"
           </Text>
-          <Text variant="body.secondary" color="tertiary" style={{ marginBottom: spacing.sm }}>
+          <Text
+            variant="body.secondary"
+            color="tertiary"
+            style={{ marginBottom: spacing.sm }}
+          >
             "Mark milk as running low"
           </Text>
           <Text variant="body.secondary" color="tertiary">

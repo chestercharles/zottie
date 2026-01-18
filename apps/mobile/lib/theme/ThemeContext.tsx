@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react'
 import { useColorScheme } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -41,7 +47,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ preference, setPreference, resolvedColorScheme }}>
+    <ThemeContext.Provider
+      value={{ preference, setPreference, resolvedColorScheme }}
+    >
       {children}
     </ThemeContext.Provider>
   )

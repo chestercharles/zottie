@@ -58,9 +58,7 @@ describe('Command Execute Endpoint', () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        actions: [
-          { type: 'add_to_pantry', item: 'apple', status: 'in_stock' },
-        ],
+        actions: [{ type: 'add_to_pantry', item: 'apple', status: 'in_stock' }],
       }),
     })
 
@@ -76,7 +74,9 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    const appleItem = pantryData.result.pantryItems.find((i) => i.name === 'apple')
+    const appleItem = pantryData.result.pantryItems.find(
+      (i) => i.name === 'apple'
+    )
     expect(appleItem).toBeDefined()
     expect(appleItem?.status).toBe('in_stock')
   })
@@ -99,7 +99,11 @@ describe('Command Execute Endpoint', () => {
       },
       body: JSON.stringify({
         actions: [
-          { type: 'update_pantry_status', item: 'banana', status: 'running_low' },
+          {
+            type: 'update_pantry_status',
+            item: 'banana',
+            status: 'running_low',
+          },
         ],
       }),
     })
@@ -116,7 +120,9 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    const bananaItem = pantryData.result.pantryItems.find((i) => i.name === 'banana')
+    const bananaItem = pantryData.result.pantryItems.find(
+      (i) => i.name === 'banana'
+    )
     expect(bananaItem).toBeDefined()
     expect(bananaItem?.status).toBe('running_low')
   })
@@ -154,7 +160,9 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    const orangeItem = pantryData.result.pantryItems.find((i) => i.name === 'orange')
+    const orangeItem = pantryData.result.pantryItems.find(
+      (i) => i.name === 'orange'
+    )
     expect(orangeItem).toBeDefined()
     expect(orangeItem?.status).toBe('in_stock')
   })
@@ -187,9 +195,15 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    expect(pantryData.result.pantryItems.find((i) => i.name === 'milk')).toBeDefined()
-    expect(pantryData.result.pantryItems.find((i) => i.name === 'bread')).toBeDefined()
-    expect(pantryData.result.pantryItems.find((i) => i.name === 'cheese')).toBeDefined()
+    expect(
+      pantryData.result.pantryItems.find((i) => i.name === 'milk')
+    ).toBeDefined()
+    expect(
+      pantryData.result.pantryItems.find((i) => i.name === 'bread')
+    ).toBeDefined()
+    expect(
+      pantryData.result.pantryItems.find((i) => i.name === 'cheese')
+    ).toBeDefined()
   })
 
   it('should update existing item if add_to_pantry called on existing item', async () => {
@@ -226,7 +240,9 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    const butterItems = pantryData.result.pantryItems.filter((i) => i.name === 'butter')
+    const butterItems = pantryData.result.pantryItems.filter(
+      (i) => i.name === 'butter'
+    )
     expect(butterItems.length).toBe(1)
     expect(butterItems[0].status).toBe('in_stock')
   })
@@ -240,7 +256,11 @@ describe('Command Execute Endpoint', () => {
       },
       body: JSON.stringify({
         actions: [
-          { type: 'update_pantry_status', item: 'yogurt', status: 'running_low' },
+          {
+            type: 'update_pantry_status',
+            item: 'yogurt',
+            status: 'running_low',
+          },
         ],
       }),
     })
@@ -256,7 +276,9 @@ describe('Command Execute Endpoint', () => {
       },
     })
     const pantryData = (await pantryResponse.json()) as PantryListResponse
-    const yogurtItem = pantryData.result.pantryItems.find((i) => i.name === 'yogurt')
+    const yogurtItem = pantryData.result.pantryItems.find(
+      (i) => i.name === 'yogurt'
+    )
     expect(yogurtItem).toBeDefined()
     expect(yogurtItem?.status).toBe('running_low')
   })
@@ -269,9 +291,7 @@ describe('Command Execute Endpoint', () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        actions: [
-          { type: 'remove_from_shopping_list', item: 'nonexistent' },
-        ],
+        actions: [{ type: 'remove_from_shopping_list', item: 'nonexistent' }],
       }),
     })
 

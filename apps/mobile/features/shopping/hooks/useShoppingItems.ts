@@ -33,7 +33,9 @@ export function useShoppingItems() {
             item.status === 'out_of_stock' ||
             item.status === 'planned'
         )
-        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
   })
 
   const refetch = useCallback(async () => {

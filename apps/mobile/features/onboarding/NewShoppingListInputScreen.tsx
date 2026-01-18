@@ -31,7 +31,10 @@ export function NewShoppingListInputScreen({
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.surface.background, paddingHorizontal: spacing.lg },
+        {
+          backgroundColor: colors.surface.background,
+          paddingHorizontal: spacing.lg,
+        },
       ]}
     >
       <View style={[styles.content, { paddingTop: 60, gap: spacing.md }]}>
@@ -39,12 +42,18 @@ export function NewShoppingListInputScreen({
         <Text variant="title.large" style={{ marginTop: spacing.md }}>
           What do you need from the store?
         </Text>
-        <Text variant="body.primary" color="secondary" style={{ lineHeight: 24 }}>
+        <Text
+          variant="body.primary"
+          color="secondary"
+          style={{ lineHeight: 24 }}
+        >
           List anything you want to pick up on your next shopping trip. You can
           always add more or make changes later.
         </Text>
 
-        <View style={[styles.voiceInputContainer, { paddingVertical: spacing.xl }]}>
+        <View
+          style={[styles.voiceInputContainer, { paddingVertical: spacing.xl }]}
+        >
           <VoiceInput
             onTranscriptReceived={handleTranscriptReceived}
             statusTextIdle="Tap to speak"

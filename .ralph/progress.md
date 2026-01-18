@@ -5,13 +5,16 @@
 Implemented the "(Assistant Epic) Include last purchase date in Assistant context" feature.
 
 ### Changes
+
 - Modified `apps/api/src/endpoints/assistantChat.ts`:
   - Added `formatItemWithPurchaseDate()` helper function that formats items with human-readable purchase dates (e.g., "milk (purchased yesterday)", "eggs (purchased 2 weeks ago)")
   - Updated `buildPantryContext()` to include purchase dates for items that have been purchased (in_stock and running_low items)
   - Purchase date display uses friendly relative time: "today", "yesterday", "X days ago", "X weeks ago", "X months ago"
 
 ### How it works
+
 The AI Assistant now receives context like:
+
 ```
 Current pantry inventory:
 In stock (3): milk (purchased yesterday), eggs (purchased 3 days ago), bread

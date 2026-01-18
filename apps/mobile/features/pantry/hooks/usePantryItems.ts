@@ -47,7 +47,9 @@ export function usePantryItems(searchTerm: string = '') {
             item.itemType === 'staple' ||
             (item.itemType === 'planned' && item.status !== 'planned')
         )
-        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
     [filteredItems]
   )
 
@@ -57,7 +59,9 @@ export function usePantryItems(searchTerm: string = '') {
         .filter(
           (item) => item.itemType === 'planned' && item.status === 'planned'
         )
-        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
     [filteredItems]
   )
 

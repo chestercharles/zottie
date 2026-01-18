@@ -40,7 +40,13 @@ export function VoiceInput({
   statusTextIdle = 'Tap to speak',
   statusTextRecording = 'Tap to stop',
   statusTextProcessing = 'Processing...',
-  contextualStrings = ['pantry', 'shopping', 'in stock', 'running low', 'out of stock'],
+  contextualStrings = [
+    'pantry',
+    'shopping',
+    'in stock',
+    'running low',
+    'out of stock',
+  ],
   onError,
 }: VoiceInputProps) {
   const { colors, spacing, typography } = useTheme()
@@ -170,7 +176,8 @@ export function VoiceInput({
       try {
         ExpoSpeechRecognitionModule.stop()
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to stop recording'
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to stop recording'
         if (onError) {
           onError(errorMessage)
         }
@@ -183,7 +190,8 @@ export function VoiceInput({
     }
 
     try {
-      const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync()
+      const { granted } =
+        await ExpoSpeechRecognitionModule.requestPermissionsAsync()
       if (!granted) {
         if (onError) {
           onError('Microphone permission is required')
@@ -201,7 +209,8 @@ export function VoiceInput({
         contextualStrings,
       })
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to start recording'
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to start recording'
       if (onError) {
         onError(errorMessage)
       }

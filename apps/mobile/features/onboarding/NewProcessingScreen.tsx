@@ -82,7 +82,11 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
     >
       <View style={[styles.content, { gap: spacing.lg }]}>
         <Animated.View style={[{ marginBottom: spacing.sm }, animatedStyle]}>
-          <Ionicons name="checkmark-circle" size={80} color={colors.action.primary} />
+          <Ionicons
+            name="checkmark-circle"
+            size={80}
+            color={colors.action.primary}
+          />
         </Animated.View>
 
         <Text variant="title.medium" style={styles.message}>

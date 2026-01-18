@@ -71,7 +71,9 @@ export function streamAssistantChat(
     } else {
       try {
         const errorData = JSON.parse(xhr.responseText)
-        onError(new Error(errorData.error || 'Failed to get assistant response'))
+        onError(
+          new Error(errorData.error || 'Failed to get assistant response')
+        )
       } catch {
         onError(new Error('Failed to get assistant response'))
       }

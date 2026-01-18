@@ -9,7 +9,13 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native'
-import { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react'
+import {
+  useState,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+  useEffect,
+} from 'react'
 import { useRouter, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ReanimatedSwipeable, {
@@ -103,11 +109,7 @@ function SwipeActionButton({
         accessibilityLabel={label}
       >
         <Ionicons name={icon} size={22} color={textColor} />
-        <Text
-          variant="caption"
-          color="inverse"
-          style={{ fontWeight: '600' }}
-        >
+        <Text variant="caption" color="inverse" style={{ fontWeight: '600' }}>
           {label}
         </Text>
       </TouchableOpacity>
@@ -435,7 +437,11 @@ function SearchOverlay({
                     padding: 2,
                   }}
                 >
-                  <Ionicons name="close" size={14} color={colors.surface.grouped} />
+                  <Ionicons
+                    name="close"
+                    size={14}
+                    color={colors.surface.grouped}
+                  />
                 </View>
               </Pressable>
             )}
@@ -695,15 +701,16 @@ export function PantryListScreen() {
                 borderRadius: 10,
               }}
             >
-              <Text variant="caption" color="inverse" style={{ fontWeight: '600' }}>
+              <Text
+                variant="caption"
+                color="inverse"
+                style={{ fontWeight: '600' }}
+              >
                 {plannedItems.length}
               </Text>
             </View>
           </View>
-          <Text
-            variant="caption"
-            style={{ color: colors.feedback.info }}
-          >
+          <Text variant="caption" style={{ color: colors.feedback.info }}>
             {isPlannedExpanded ? '▼' : '▶'}
           </Text>
         </TouchableOpacity>
@@ -741,7 +748,14 @@ export function PantryListScreen() {
         )}
       </View>
     )
-  }, [plannedItems, isPlannedExpanded, updatePantryItem, colors, spacing, radius])
+  }, [
+    plannedItems,
+    isPlannedExpanded,
+    updatePantryItem,
+    colors,
+    spacing,
+    radius,
+  ])
 
   if (isLoading) {
     return (

@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
-import { useHouseholdMembership, useCreateHousehold } from '@/features/household'
+import {
+  useHouseholdMembership,
+  useCreateHousehold,
+} from '@/features/household'
 import { NewPantryInputScreen } from './NewPantryInputScreen'
 import { NewShoppingListInputScreen } from './NewShoppingListInputScreen'
 import { NewProcessingScreen } from './NewProcessingScreen'
@@ -22,7 +25,8 @@ interface ProcessingState {
 export function ConversationalOnboarding() {
   const router = useRouter()
   const { colors, spacing, radius } = useTheme()
-  const { hasHousehold, isLoading: isLoadingHousehold } = useHouseholdMembership()
+  const { hasHousehold, isLoading: isLoadingHousehold } =
+    useHouseholdMembership()
   const createHousehold = useCreateHousehold()
   const parseItems = useOnboardingItemParsing()
   const hasInitiatedCreation = useRef(false)
@@ -33,7 +37,11 @@ export function ConversationalOnboarding() {
   })
 
   useEffect(() => {
-    if (!hasHousehold && !createHousehold.isPending && !hasInitiatedCreation.current) {
+    if (
+      !hasHousehold &&
+      !createHousehold.isPending &&
+      !hasInitiatedCreation.current
+    ) {
       hasInitiatedCreation.current = true
       createHousehold.mutate(
         { name: 'My Household' },
@@ -137,7 +145,10 @@ export function ConversationalOnboarding() {
   if (isLoadingHousehold || createHousehold.isPending || !hasHousehold) {
     return (
       <View
-        style={[styles.loadingContainer, { backgroundColor: colors.surface.background }]}
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.surface.background },
+        ]}
       >
         <ActivityIndicator size="large" color={colors.action.primary} />
       </View>
@@ -178,7 +189,11 @@ export function ConversationalOnboarding() {
           <Text variant="title.medium" style={styles.errorTitle}>
             We had trouble processing your items
           </Text>
-          <Text variant="body.primary" color="secondary" style={styles.errorMessage}>
+          <Text
+            variant="body.primary"
+            color="secondary"
+            style={styles.errorMessage}
+          >
             {processingState.pantryError ||
               processingState.shoppingError ||
               'Something went wrong. Please try again.'}
@@ -188,7 +203,10 @@ export function ConversationalOnboarding() {
               <Button title="Retry pantry items" onPress={handleRetryPantry} />
             )}
             {processingState.shoppingError && (
-              <Button title="Retry shopping items" onPress={handleRetryShopping} />
+              <Button
+                title="Retry shopping items"
+                onPress={handleRetryShopping}
+              />
             )}
             <Button
               variant="secondary"

@@ -19,7 +19,11 @@ import {
   useLeaveHousehold,
 } from '@/features/household'
 import { queryClient } from '@/lib/query/client'
-import { useTheme, useThemePreference, type ThemePreference } from '../../lib/theme'
+import {
+  useTheme,
+  useThemePreference,
+  type ThemePreference,
+} from '../../lib/theme'
 import { Text, Button, DragHandle } from '../../components/ui'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
@@ -117,9 +121,20 @@ export function SettingsScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
       <DragHandle />
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.md }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.md,
+            paddingBottom: spacing.md,
+          },
+        ]}
+      >
         <Text variant="title.medium">Settings</Text>
       </View>
       <View style={[styles.content, { padding: spacing.lg, paddingTop: 0 }]}>
@@ -127,9 +142,7 @@ export function SettingsScreen() {
           <Text variant="caption" color="secondary" style={styles.sectionTitle}>
             ACCOUNT
           </Text>
-          {user?.email && (
-            <Text variant="body.primary">{user.email}</Text>
-          )}
+          {user?.email && <Text variant="body.primary">{user.email}</Text>}
         </View>
 
         <View style={[styles.appearanceSection, { marginBottom: spacing.xl }]}>
@@ -154,7 +167,9 @@ export function SettingsScreen() {
                   style={[
                     styles.segmentOption,
                     {
-                      backgroundColor: isSelected ? colors.surface.elevated : 'transparent',
+                      backgroundColor: isSelected
+                        ? colors.surface.elevated
+                        : 'transparent',
                       borderRadius: radius.sm - 2,
                       paddingVertical: spacing.sm,
                       paddingHorizontal: spacing.md,
@@ -168,7 +183,9 @@ export function SettingsScreen() {
                   <Text
                     variant="body.secondary"
                     style={{
-                      color: isSelected ? colors.text.primary : colors.text.secondary,
+                      color: isSelected
+                        ? colors.text.primary
+                        : colors.text.secondary,
                       fontWeight: isSelected ? '600' : '400',
                     }}
                   >
@@ -212,16 +229,22 @@ export function SettingsScreen() {
                   style={styles.flex1}
                 />
                 <Button
-                  title={updateHouseholdMutation.isPending ? 'Saving...' : 'Save'}
+                  title={
+                    updateHouseholdMutation.isPending ? 'Saving...' : 'Save'
+                  }
                   onPress={handleSaveName}
-                  disabled={updateHouseholdMutation.isPending || !editedName.trim()}
+                  disabled={
+                    updateHouseholdMutation.isPending || !editedName.trim()
+                  }
                   style={styles.flex1}
                 />
               </View>
             </View>
           ) : (
             <TouchableOpacity onPress={handleStartEditing}>
-              <Text variant="title.small">{household?.name ?? 'My Household'}</Text>
+              <Text variant="title.small">
+                {household?.name ?? 'My Household'}
+              </Text>
               <Text
                 variant="caption"
                 style={{ color: colors.action.primary, marginTop: spacing.xs }}
@@ -251,7 +274,10 @@ export function SettingsScreen() {
               color={colors.action.primary}
               style={{ marginRight: spacing.sm }}
             />
-            <Text variant="body.secondary" style={{ color: colors.action.primary, fontWeight: '600' }}>
+            <Text
+              variant="body.secondary"
+              style={{ color: colors.action.primary, fontWeight: '600' }}
+            >
               {createInviteMutation.isPending
                 ? 'Creating invite...'
                 : 'Invite to Household'}
@@ -260,7 +286,11 @@ export function SettingsScreen() {
 
           {members.length > 0 && (
             <View style={[styles.membersContainer, { marginTop: spacing.lg }]}>
-              <Text variant="caption" color="secondary" style={[styles.sectionTitle, { marginBottom: spacing.sm }]}>
+              <Text
+                variant="caption"
+                color="secondary"
+                style={[styles.sectionTitle, { marginBottom: spacing.sm }]}
+              >
                 MEMBERS
               </Text>
               {members.map((member) => {
@@ -287,7 +317,13 @@ export function SettingsScreen() {
                         {member.name || member.email}
                       </Text>
                       {isCurrentUser && (
-                        <Text variant="caption" style={{ color: colors.action.primary, fontWeight: '600' }}>
+                        <Text
+                          variant="caption"
+                          style={{
+                            color: colors.action.primary,
+                            fontWeight: '600',
+                          }}
+                        >
                           You
                         </Text>
                       )}
@@ -319,7 +355,10 @@ export function SettingsScreen() {
               color={colors.feedback.error}
               style={{ marginRight: spacing.sm }}
             />
-            <Text variant="body.secondary" style={{ color: colors.feedback.error, fontWeight: '600' }}>
+            <Text
+              variant="body.secondary"
+              style={{ color: colors.feedback.error, fontWeight: '600' }}
+            >
               {leaveHouseholdMutation.isPending
                 ? 'Leaving...'
                 : 'Leave Household'}
@@ -328,7 +367,12 @@ export function SettingsScreen() {
         </View>
       </View>
 
-      <View style={[styles.footer, { padding: spacing.lg, paddingBottom: spacing['2xl'] }]}>
+      <View
+        style={[
+          styles.footer,
+          { padding: spacing.lg, paddingBottom: spacing['2xl'] },
+        ]}
+      >
         <TouchableOpacity
           style={[
             styles.logoutButton,
@@ -343,7 +387,10 @@ export function SettingsScreen() {
           onPress={handleLogout}
           disabled={isLoggingOut}
         >
-          <Text variant="body.primary" style={{ color: colors.feedback.error, fontWeight: '600' }}>
+          <Text
+            variant="body.primary"
+            style={{ color: colors.feedback.error, fontWeight: '600' }}
+          >
             {isLoggingOut ? 'Logging out...' : 'Log Out'}
           </Text>
         </TouchableOpacity>

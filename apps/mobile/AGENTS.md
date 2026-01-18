@@ -123,7 +123,15 @@ useMutation({
 Import components and the theme hook:
 
 ```typescript
-import { Text, Button, Card, TextInput, StatusBadge, ListItem, EmptyState } from '@/components'
+import {
+  Text,
+  Button,
+  Card,
+  TextInput,
+  StatusBadge,
+  ListItem,
+  EmptyState,
+} from '@/components'
 import { useTheme } from '@/lib/theme'
 ```
 

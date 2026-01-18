@@ -140,7 +140,9 @@ export function PantryItemDetailScreen() {
   const [currentStatus, setCurrentStatus] = useState<PantryItemStatus>(
     params.status
   )
-  const [pendingStatus, setPendingStatus] = useState<PantryItemStatus | null>(null)
+  const [pendingStatus, setPendingStatus] = useState<PantryItemStatus | null>(
+    null
+  )
   const [currentName, setCurrentName] = useState(params.name)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState(params.name)
@@ -287,7 +289,9 @@ export function PantryItemDetailScreen() {
   ]
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.surface.background }]}
+    >
       <View style={styles.sheetHeader}>
         <View style={styles.headerSpacer} />
         <DragHandle />
@@ -296,85 +300,113 @@ export function PantryItemDetailScreen() {
           onPress={showOverflowMenu}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="ellipsis-horizontal" size={22} color={colors.text.secondary} />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={22}
+            color={colors.text.secondary}
+          />
         </TouchableOpacity>
       </View>
       <ScrollView>
         <View style={[styles.content, { padding: spacing.md }]}>
-          <View style={[styles.header, { marginBottom: spacing.lg, paddingHorizontal: spacing.md }]}>
+          <View
+            style={[
+              styles.header,
+              { marginBottom: spacing.lg, paddingHorizontal: spacing.md },
+            ]}
+          >
             {isEditingName ? (
-            <View style={[styles.editNameContainer, { marginBottom: spacing.sm }]}>
-              <RNTextInput
+              <View
+                style={[styles.editNameContainer, { marginBottom: spacing.sm }]}
+              >
+                <RNTextInput
+                  style={[
+                    styles.nameInput,
+                    {
+                      color: colors.text.primary,
+                      backgroundColor: colors.surface.grouped,
+                      borderRadius: radius.sm,
+                      padding: spacing.sm,
+                      marginBottom: spacing.sm,
+                    },
+                  ]}
+                  value={editedName}
+                  onChangeText={setEditedName}
+                  selectTextOnFocus
+                  onSubmitEditing={handleSaveName}
+                  returnKeyType="done"
+                  placeholderTextColor={colors.text.tertiary}
+                  autoFocus
+                />
+                <View style={[styles.editNameButtons, { gap: spacing.sm }]}>
+                  <Button
+                    variant="secondary"
+                    title="Cancel"
+                    onPress={handleCancelEdit}
+                    disabled={updateMutation.isPending}
+                    style={styles.editButton}
+                  />
+                  <Button
+                    title={updateMutation.isPending ? 'Saving...' : 'Save'}
+                    onPress={handleSaveName}
+                    disabled={updateMutation.isPending}
+                    style={styles.editButton}
+                  />
+                </View>
+              </View>
+            ) : (
+              <Text variant="title.large">{currentName}</Text>
+            )}
+          </View>
+
+          <Card style={[styles.section, { marginBottom: spacing.md }]}>
+            <Text variant="title.small" style={{ marginBottom: spacing.md }}>
+              Change Status
+            </Text>
+            <View style={[styles.statusButtons, { gap: spacing.sm }]}>
+              {statuses.map((status) => {
+                const isActive =
+                  currentStatus === status || pendingStatus === status
+                const isPulsing = pendingStatus === status
+                return (
+                  <StatusButton
+                    key={status}
+                    status={status}
+                    isActive={isActive}
+                    isPulsing={isPulsing}
+                    onPress={() => handleStatusChange(status)}
+                    disabled={isActive || pendingStatus !== null}
+                    colors={colors}
+                    spacing={spacing}
+                    radius={radius}
+                  />
+                )
+              })}
+            </View>
+          </Card>
+
+          <Card style={[styles.section, { marginBottom: spacing.md }]}>
+            <Text variant="title.small" style={{ marginBottom: spacing.md }}>
+              Details
+            </Text>
+
+            {purchasedAt && (
+              <View
                 style={[
-                  styles.nameInput,
+                  styles.detailRow,
                   {
-                    color: colors.text.primary,
-                    backgroundColor: colors.surface.grouped,
-                    borderRadius: radius.sm,
-                    padding: spacing.sm,
-                    marginBottom: spacing.sm,
+                    paddingVertical: spacing.sm,
+                    borderBottomColor: colors.border.subtle,
                   },
                 ]}
-                value={editedName}
-                onChangeText={setEditedName}
-                selectTextOnFocus
-                onSubmitEditing={handleSaveName}
-                returnKeyType="done"
-                placeholderTextColor={colors.text.tertiary}
-                autoFocus
-              />
-              <View style={[styles.editNameButtons, { gap: spacing.sm }]}>
-                <Button
-                  variant="secondary"
-                  title="Cancel"
-                  onPress={handleCancelEdit}
-                  disabled={updateMutation.isPending}
-                  style={styles.editButton}
-                />
-                <Button
-                  title={updateMutation.isPending ? 'Saving...' : 'Save'}
-                  onPress={handleSaveName}
-                  disabled={updateMutation.isPending}
-                  style={styles.editButton}
-                />
+              >
+                <Text variant="body.secondary" color="secondary">
+                  Last Purchased
+                </Text>
+                <Text variant="body.secondary">{formatDate(purchasedAt)}</Text>
               </View>
-            </View>
-          ) : (
-            <Text variant="title.large">{currentName}</Text>
-          )}
-        </View>
+            )}
 
-        <Card style={[styles.section, { marginBottom: spacing.md }]}>
-          <Text variant="title.small" style={{ marginBottom: spacing.md }}>
-            Change Status
-          </Text>
-          <View style={[styles.statusButtons, { gap: spacing.sm }]}>
-            {statuses.map((status) => {
-              const isActive = currentStatus === status || pendingStatus === status
-              const isPulsing = pendingStatus === status
-              return (
-                <StatusButton
-                  key={status}
-                  status={status}
-                  isActive={isActive}
-                  isPulsing={isPulsing}
-                  onPress={() => handleStatusChange(status)}
-                  disabled={isActive || pendingStatus !== null}
-                  colors={colors}
-                  spacing={spacing}
-                  radius={radius}
-                />
-              )
-            })}
-          </View>
-        </Card>
-
-        <Card style={[styles.section, { marginBottom: spacing.md }]}>
-          <Text variant="title.small" style={{ marginBottom: spacing.md }}>
-            Details
-          </Text>
-
-          {purchasedAt && (
             <View
               style={[
                 styles.detailRow,
@@ -385,42 +417,26 @@ export function PantryItemDetailScreen() {
               ]}
             >
               <Text variant="body.secondary" color="secondary">
-                Last Purchased
+                Created
               </Text>
-              <Text variant="body.secondary">{formatDate(purchasedAt)}</Text>
+              <Text variant="body.secondary">{formatDate(createdAt)}</Text>
             </View>
-          )}
 
-          <View
-            style={[
-              styles.detailRow,
-              {
-                paddingVertical: spacing.sm,
-                borderBottomColor: colors.border.subtle,
-              },
-            ]}
-          >
-            <Text variant="body.secondary" color="secondary">
-              Created
-            </Text>
-            <Text variant="body.secondary">{formatDate(createdAt)}</Text>
-          </View>
-
-          <View
-            style={[
-              styles.detailRow,
-              {
-                paddingVertical: spacing.sm,
-                borderBottomWidth: 0,
-              },
-            ]}
-          >
-            <Text variant="body.secondary" color="secondary">
-              Last Updated
-            </Text>
-            <Text variant="body.secondary">{formatDate(updatedAt)}</Text>
-          </View>
-        </Card>
+            <View
+              style={[
+                styles.detailRow,
+                {
+                  paddingVertical: spacing.sm,
+                  borderBottomWidth: 0,
+                },
+              ]}
+            >
+              <Text variant="body.secondary" color="secondary">
+                Last Updated
+              </Text>
+              <Text variant="body.secondary">{formatDate(updatedAt)}</Text>
+            </View>
+          </Card>
         </View>
       </ScrollView>
     </View>

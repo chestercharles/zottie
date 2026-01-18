@@ -2,7 +2,12 @@ import { View, StyleSheet } from 'react-native'
 import { useTheme } from '../../lib/theme'
 import { Text } from './Text'
 
-type PantryStatus = 'in_stock' | 'running_low' | 'out_of_stock' | 'planned' | 'dormant'
+type PantryStatus =
+  | 'in_stock'
+  | 'running_low'
+  | 'out_of_stock'
+  | 'planned'
+  | 'dormant'
 
 interface StatusBadgeProps {
   status: PantryStatus

@@ -5,12 +5,14 @@ export function DragHandle() {
   const { colors, spacing } = useTheme()
 
   return (
-    <View style={[styles.container, { paddingTop: spacing.sm, paddingBottom: spacing.xs }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: spacing.sm, paddingBottom: spacing.xs },
+      ]}
+    >
       <View
-        style={[
-          styles.handle,
-          { backgroundColor: colors.border.strong },
-        ]}
+        style={[styles.handle, { backgroundColor: colors.border.strong }]}
       />
     </View>
   )

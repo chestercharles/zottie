@@ -88,7 +88,11 @@ export function CreateHouseholdScreen({
       <View
         style={[
           styles.content,
-          { gap: spacing.sm, marginBottom: spacing.xl, marginTop: spacing['2xl'] },
+          {
+            gap: spacing.sm,
+            marginBottom: spacing.xl,
+            marginTop: spacing['2xl'],
+          },
         ]}
       >
         <Ionicons name="home" size={64} color={colors.action.primary} />
@@ -145,7 +149,10 @@ export function CreateHouseholdScreen({
 
         <View style={[styles.divider, { marginVertical: spacing.sm }]}>
           <View
-            style={[styles.dividerLine, { backgroundColor: colors.border.subtle }]}
+            style={[
+              styles.dividerLine,
+              { backgroundColor: colors.border.subtle },
+            ]}
           />
           <Text
             variant="body.secondary"
@@ -155,7 +162,10 @@ export function CreateHouseholdScreen({
             or
           </Text>
           <View
-            style={[styles.dividerLine, { backgroundColor: colors.border.subtle }]}
+            style={[
+              styles.dividerLine,
+              { backgroundColor: colors.border.subtle },
+            ]}
           />
         </View>
 

@@ -25,7 +25,9 @@ export function EmptyState({ title, message, action }: EmptyStateProps) {
           {message}
         </Text>
       )}
-      {action && <View style={[styles.action, { marginTop: spacing.lg }]}>{action}</View>}
+      {action && (
+        <View style={[styles.action, { marginTop: spacing.lg }]}>{action}</View>
+      )}
     </View>
   )
 }
