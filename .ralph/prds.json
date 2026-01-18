@@ -92,7 +92,7 @@
   {
     "name": "Remove Edit Item header title and fix Settings header spacing",
     "description": "Two header adjustments for bottom sheet modals: (1) On the edit item screen, remove the 'Edit Item' title entirely - it's redundant since the item name is already visible and serves as the contextual header. (2) On the settings screen, keep the 'Settings' title but add more vertical space between the drag handle at the top of the modal and the 'Settings' text below it.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add confirmation before marking items as purchased",

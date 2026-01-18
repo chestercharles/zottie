@@ -1,5 +1,32 @@
 # zottie Development Progress
 
+## 2026-01-17: Remove Edit Item header title and fix Settings header spacing
+
+**Feature:** Two header adjustments for bottom sheet modals to improve visual consistency
+
+**Changes:**
+
+- Removed the "Edit Item" title from `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`
+- Added more vertical space between the drag handle and "Settings" title in `apps/mobile/features/settings/SettingsScreen.tsx`
+- Removed unused `sheetHeader` style from PantryItemDetailScreen
+
+**Technical Details:**
+
+1. Edit Item Screen:
+   - The "Edit Item" title was redundant since the item name is already prominently displayed and serves as contextual header
+   - Removed the `sheetHeader` View that wrapped the title text
+   - The screen now shows: DragHandle → Item Name (editable) → Status section → Details section
+
+2. Settings Screen:
+   - Added `paddingTop: spacing.md` to the header View to increase spacing between the drag handle and "Settings" title
+   - This creates better visual separation and follows iOS sheet conventions
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Simplify details section on edit item screen
 
 **Feature:** Removed redundant item name and status from the Details section on the edit item screen

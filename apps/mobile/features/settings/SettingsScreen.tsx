@@ -119,7 +119,7 @@ export function SettingsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
       <DragHandle />
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingBottom: spacing.md }]}>
+      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.md }]}>
         <Text variant="title.medium">Settings</Text>
       </View>
       <View style={[styles.content, { padding: spacing.lg, paddingTop: 0 }]}>
