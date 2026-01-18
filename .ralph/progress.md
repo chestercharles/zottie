@@ -1,5 +1,28 @@
 # zottie Development Progress
 
+## 2026-01-17: Remove item type label from shopping list
+
+**Feature:** Removed the "Staple" / "Planned" item type label from shopping list items to keep the interface clean and focused
+
+**Changes:**
+
+- Updated `apps/mobile/features/shopping/ShoppingListScreen.tsx`:
+  - Removed the Text component displaying the item type label below each item name
+  - Removed the unused `itemTypeLabels` constant
+  - Removed unused `ItemType` and `PantryItemStatus` type imports
+
+**Technical Details:**
+
+The shopping list was showing "Staple" or "Planned" as a label underneath each item name. This internal classification isn't useful to users while actively shopping - what matters is the item name and its status (running low, out of stock, etc.). The status badge on the right side of each row already provides the actionable information users need.
+
+Removing this label reduces visual clutter and keeps users focused on what they need to buy rather than internal categorization details.
+
+**Verification:**
+
+- Linting passed
+- TypeScript type checking passed
+- Tests passed
+
 ## 2026-01-17: Improve tab bar selected state visibility
 
 **Feature:** Made the selected tab state more visually distinct by using filled icons for selected tabs and outline icons for unselected tabs

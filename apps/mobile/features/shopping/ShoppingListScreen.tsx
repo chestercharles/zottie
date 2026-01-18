@@ -45,14 +45,9 @@ import {
   useCreatePlannedItem,
 } from './hooks'
 import { useUpdatePantryItem } from '@/features/pantry/hooks'
-import type { ShoppingItem, PantryItemStatus, ItemType } from './types'
+import type { ShoppingItem } from './types'
 import { useTheme } from '../../lib/theme'
 import { Text, Button, StatusBadge, EmptyState } from '../../components/ui'
-
-const itemTypeLabels: Record<ItemType, string> = {
-  staple: 'Staple',
-  planned: 'Planned',
-}
 
 const SHEET_SNAP_POINTS = ['90%']
 
@@ -193,9 +188,6 @@ function ShoppingItemRow({
                   ]}
                 >
                   {item.name}
-                </Text>
-                <Text variant="caption" color="secondary" style={{ marginTop: 2 }}>
-                  {itemTypeLabels[item.itemType]}
                 </Text>
               </View>
               <View style={{ marginLeft: spacing.sm }}>

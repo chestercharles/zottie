@@ -123,7 +123,7 @@
   {
     "name": "Remove item type label from shopping list",
     "description": "The shopping list currently shows 'Staple' or 'Planned' as a label underneath each item name. This is unnecessary UI clutter - users don't need to see this internal classification while they're actively shopping. Remove the item type label from shopping list items to keep the interface clean and focused on what matters: the item name and its status.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",
