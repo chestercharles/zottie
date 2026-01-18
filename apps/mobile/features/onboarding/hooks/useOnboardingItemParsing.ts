@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { queryKeys } from '@/lib/query'
-import { parseCommand, executeCommand } from '@/features/commands/api'
+import { parseCommand, executeCommand } from '../api'
 
 interface ParseAndExecuteParams {
   text: string

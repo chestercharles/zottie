@@ -100,14 +100,3 @@ export const CommandAction = z.object({
   item: Str({ example: 'apples' }),
   status: PantryItemStatusEnum.optional(),
 })
-
-export const CommandParseRequest = z.object({
-  command: Str({
-    example: 'add apples to the pantry and mark milk as running low',
-  }),
-})
-
-export const CommandParseResponse = z.object({
-  actions: z.array(CommandAction),
-  message: Str({ example: 'I added apples to your pantry!' }).optional(),
-})

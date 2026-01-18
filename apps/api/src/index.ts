@@ -13,7 +13,6 @@ import { PantryItemCreateEndpoint } from './endpoints/pantryItemCreate'
 import { PantryItemDeleteEndpoint } from './endpoints/pantryItemDelete'
 import { PantryItemListEndpoint } from './endpoints/pantryItemList'
 import { PantryItemUpdateEndpoint } from './endpoints/pantryItemUpdate'
-import { CommandParseEndpoint } from './endpoints/commandParse'
 import { CommandExecuteEndpoint } from './endpoints/commandExecute'
 import { AssistantChatEndpoint } from './endpoints/assistantChat'
 
@@ -45,7 +44,6 @@ openapi.patch('/api/pantry-items/:id', PantryItemUpdateEndpoint)
 openapi.delete('/api/pantry-items/:id', PantryItemDeleteEndpoint)
 
 // Command endpoints
-openapi.post('/api/commands/parse', CommandParseEndpoint)
 openapi.post('/api/commands/execute', CommandExecuteEndpoint)
 
 // Assistant endpoints

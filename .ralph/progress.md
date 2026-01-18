@@ -1,5 +1,69 @@
 # zottie Development Progress
 
+## 2026-01-17: Remove Commands tab and related code
+
+Implemented the "Remove Commands tab and related code" feature.
+
+### Changes
+
+#### Mobile App
+
+- Deleted `apps/mobile/app/(authenticated)/commands.tsx`:
+  - Removed the Commands route file
+
+- Deleted `apps/mobile/features/commands/` directory:
+  - Removed `CommandsScreen.tsx` - the main Commands UI component
+  - Removed `api.ts` - API client functions for parse/execute
+  - Removed `types.ts` - TypeScript types for commands
+  - Removed `hooks/useCommandMutations.ts` - React Query mutation hooks
+  - Removed `hooks/index.ts` and `index.ts` - barrel exports
+
+- Modified `apps/mobile/app/(authenticated)/_layout.tsx`:
+  - Removed the Commands tab from the Tabs navigator
+  - App now has three main tabs: Pantry, Shopping, and Assistant
+
+- Modified `apps/mobile/features/onboarding/api.ts`:
+  - Added `parseCommand` and `executeCommand` functions (moved from commands feature)
+  - Onboarding now has its own API client for these functions
+
+- Modified `apps/mobile/features/onboarding/types.ts`:
+  - Added command-related types needed by onboarding's item parsing
+
+- Modified `apps/mobile/features/onboarding/hooks/useOnboardingItemParsing.ts`:
+  - Updated import to use local `../api` instead of `@/features/commands/api`
+
+#### Backend API
+
+- Deleted `apps/api/src/endpoints/commandParse.ts`:
+  - Removed the parse endpoint that converted natural language to structured commands
+
+- Deleted `apps/api/src/endpoints/commandParse.eval.ts`:
+  - Removed the 70+ test cases for command parsing
+
+- Modified `apps/api/src/index.ts`:
+  - Removed import of `CommandParseEndpoint`
+  - Removed route registration for `/api/commands/parse`
+  - Kept `/api/commands/execute` (used by Assistant feature)
+
+- Modified `apps/api/src/types.ts`:
+  - Removed `CommandParseRequest` and `CommandParseResponse` exports
+  - Kept `CommandActionType` and `CommandAction` (used by execute endpoint)
+
+### What was preserved
+
+- `/api/commands/execute` endpoint - still used by Assistant feature to execute proposed actions
+- `commandExecute.ts` and `commandExecute.test.ts` - the execute endpoint and its tests
+- `CommandActionType` and `CommandAction` types - needed by execute endpoint
+
+### How it works
+
+The Commands tab has been fully removed from the app. The Assistant feature now serves as the primary voice/text interface for interacting with zottie. Users can still:
+- Add items to their pantry via the Assistant
+- Update item statuses via the Assistant
+- Manage their shopping list via the Assistant
+
+The onboarding flow continues to work because the `parseCommand` and `executeCommand` functions were moved into the onboarding feature module. This keeps the onboarding's natural language parsing working while removing the Commands feature entirely.
+
 ## 2026-01-17: Pantry contextual onboarding card
 
 Implemented the "(Onboarding Epic) Pantry contextual onboarding card" feature.

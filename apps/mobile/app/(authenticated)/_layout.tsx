@@ -112,20 +112,6 @@ export default function AuthenticatedLayout() {
         }}
       />
       <Tabs.Screen
-        name="commands"
-        options={{
-          title: 'Commands',
-          headerShown: true,
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'mic' : 'mic-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="assistant"
         options={{
           title: 'Assistant',
