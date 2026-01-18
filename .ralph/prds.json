@@ -48,7 +48,7 @@
   {
     "name": "(Assistant Epic) Enable canned prompt buttons on Assistant tab",
     "description": "Make the canned prompt buttons functional. When user taps a button like 'Update pantry items' or 'Help me plan meals', it sends that prompt to the LLM and starts a guided conversation focused on that task.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Add human-in-the-loop tool calling to Assistant",

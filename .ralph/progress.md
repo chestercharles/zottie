@@ -1,5 +1,36 @@
 # zottie Development Progress
 
+## 2026-01-17: Enable canned prompt buttons on Assistant tab
+
+**Feature:** Made the canned prompt buttons functional so they trigger LLM conversations
+
+**Changes:**
+
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Modified `handlePromptPress` to find the prompt by ID and initiate a conversation
+  - When tapped, the prompt label is set as the user message (transcript) and sent to the LLM
+  - Reuses existing `streamMessage` function from the streaming hook
+
+**Technical Details:**
+
+1. The implementation is straightforward because the infrastructure was already in place:
+   - The streaming hook (`useStreamAssistant`) handles LLM communication
+   - The conversation UI already displays user messages and streaming responses
+   - The canned prompt buttons just needed to trigger the same flow as voice input
+
+2. Flow when user taps a canned prompt:
+   - Look up the prompt by ID in the `CANNED_PROMPTS` array
+   - Set the prompt label as the `transcript` state (displayed as user message bubble)
+   - Call `streamMessage` with the prompt label to send it to the LLM
+   - The streaming response appears in the assistant message bubble
+   - User can continue the conversation with voice input or start a new conversation
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Connect Assistant to streaming LLM backend
 
 **Feature:** Added streaming LLM integration to the Assistant tab, allowing users to speak and receive real-time AI responses with context about their pantry inventory

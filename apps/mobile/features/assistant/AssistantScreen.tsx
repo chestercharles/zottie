@@ -47,8 +47,12 @@ export function AssistantScreen() {
     streamMessage(text)
   }
 
-  const handlePromptPress = (_promptId: string) => {
-    // Placeholder - prompt handling will be implemented in a future PRD
+  const handlePromptPress = (promptId: string) => {
+    const prompt = CANNED_PROMPTS.find((p) => p.id === promptId)
+    if (!prompt) return
+
+    setTranscript(prompt.label)
+    streamMessage(prompt.label)
   }
 
   const handleNewConversation = () => {
