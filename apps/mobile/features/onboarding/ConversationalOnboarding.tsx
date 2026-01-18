@@ -30,6 +30,9 @@ export function ConversationalOnboarding() {
   const createHousehold = useCreateHousehold()
   const parseItems = useOnboardingItemParsing()
   const hasInitiatedCreation = useRef(false)
+  const [householdCreationError, setHouseholdCreationError] = useState<
+    string | null
+  >(null)
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('pantry')
   const [processingState, setProcessingState] = useState<ProcessingState>({
     pantryText: '',
@@ -40,7 +43,8 @@ export function ConversationalOnboarding() {
     if (
       !hasHousehold &&
       !createHousehold.isPending &&
-      !hasInitiatedCreation.current
+      !hasInitiatedCreation.current &&
+      !householdCreationError
     ) {
       hasInitiatedCreation.current = true
       createHousehold.mutate(
@@ -48,12 +52,19 @@ export function ConversationalOnboarding() {
         {
           onError: (error) => {
             console.error('Failed to auto-create household:', error)
-            hasInitiatedCreation.current = false
+            setHouseholdCreationError(
+              error instanceof Error ? error.message : 'Failed to set up your account'
+            )
           },
         }
       )
     }
-  }, [hasHousehold, createHousehold.isPending])
+  }, [hasHousehold, createHousehold.isPending, householdCreationError])
+
+  const handleRetryHouseholdCreation = () => {
+    setHouseholdCreationError(null)
+    hasInitiatedCreation.current = false
+  }
 
   const handlePantrySubmit = (text: string) => {
     setProcessingState((prev) => ({ ...prev, pantryText: text }))
@@ -140,6 +151,36 @@ export function ConversationalOnboarding() {
   const handleRetryShopping = () => {
     setProcessingState((prev) => ({ ...prev, shoppingError: undefined }))
     setCurrentStep('shopping')
+  }
+
+  if (householdCreationError) {
+    return (
+      <View
+        style={[
+          styles.errorContainer,
+          {
+            backgroundColor: colors.surface.background,
+            paddingHorizontal: spacing.lg,
+            gap: spacing.md,
+          },
+        ]}
+      >
+        <Text variant="title.medium" style={styles.errorTitle}>
+          We couldn't get things set up
+        </Text>
+        <Text
+          variant="body.primary"
+          color="secondary"
+          style={styles.errorMessage}
+        >
+          There was a problem connecting to our servers. Check your internet
+          connection and try again.
+        </Text>
+        <View style={{ marginTop: spacing.lg }}>
+          <Button title="Try again" onPress={handleRetryHouseholdCreation} />
+        </View>
+      </View>
+    )
   }
 
   if (isLoadingHousehold || createHousehold.isPending || !hasHousehold) {
