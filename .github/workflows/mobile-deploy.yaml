@@ -131,6 +131,11 @@ jobs:
 
       - name: 🚀 Create OTA update
         if: steps.version-check.outputs.bumped == 'false'
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          EXPO_PUBLIC_API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
         run: |
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
           eas update -p ios --channel production --non-interactive --message "Main - $COMMIT_MSG (commit: ${{ github.sha }})"
