@@ -1,134 +1,18 @@
 [
   {
-    "name": "Clear search filter when dismissing search box",
-    "description": "When users tap the dismiss button (the large X outside the search input) on the pantry search interface, the search box should both hide AND clear the active search filter. Currently there are two X buttons: a small X inside the text input that clears the search text, and a large X outside that dismisses the search box. The issue is that dismissing the search box leaves the filter active, so users see filtered results without the search box visible, which is confusing. The fix: when the dismiss button is tapped, clear the search term and remove the filter so all items are shown again.",
-    "completed": true
+    "name": "(Onboarding Epic) Simplify onboarding to shopping list only",
+    "description": "Streamline the onboarding flow to focus solely on the shopping list, removing both the pantry input step and the household invitation step. The new flow: user is asked 'What do you need from the store?', speaks their shopping list items via voice input, sees a brief processing screen, then lands directly in the app. This gets users to value faster - they can immediately use their shopping list without the upfront friction of documenting their entire pantry. The pantry setup becomes a separate, contextual experience (see companion PRD). The household invite feature remains accessible from settings for users who want to share lists later.",
+    "completed": false
   },
   {
-    "name": "Swipe gesture to dismiss pantry search",
-    "description": "Add an upward swipe gesture to dismiss the pantry search interface. Users are accustomed to dismissing modal interfaces with swipe gestures in iOS apps. When the user swipes up on the search box, it should dismiss (and follow the same behavior as tapping the dismiss X button - both hiding the search and clearing the filter).",
-    "completed": true
-  },
-  {
-    "name": "Fix edit item sheet handle position",
-    "description": "On the edit item bottom sheet, the handle (drag indicator) is currently positioned below the 'Edit Item' title. This is inconsistent with the settings page, where the handle is correctly positioned above the page title. The edit item sheet should match this pattern with the handle above the title. This likely requires using a custom header similar to how the settings page is structured.",
-    "completed": true
-  },
-  {
-    "name": "Remove redundant status display on edit item page",
-    "description": "The edit item page currently shows the item's status twice: once as a read-only display right below the item name, and again in the status picker below that (where the current status is highlighted). This is redundant. Remove the first status display so that only the status picker is shown, with the current status already highlighted within it.",
-    "completed": true
-  },
-  {
-    "name": "Move checked shopping list items to bottom",
-    "description": "When users are actively shopping and check items off their shopping list, those checked items should automatically move to the bottom of the list. This mirrors the behavior of iOS Notes app checklists. The use case is that while shopping in-store, users check items as they put them in their cart, but don't immediately mark them as purchased. Moving checked items to the bottom keeps the unchecked (still-needed) items at the top where they're most visible and actionable. Checked items remain visible at the bottom of the list in their checked state until the user explicitly marks them as purchased (which is a separate action).",
-    "completed": true
-  },
-  {
-    "name": "Intelligent pluralization for voice commands",
-    "description": "When users add items via voice commands, the backend command parser should be resilient to imperfect voice-to-text input by intelligently pluralizing common grocery items. Voice-to-text happens on-device and may not perfectly capture what the user said (e.g., missing the 's' at the end of words). The parser should recognize that people typically buy 'eggs' not 'egg', 'tomatoes' not 'tomato', 'grapes' not 'grape', etc. When processing voice commands (not typed commands), if the parsed item name is a common grocery item that's typically purchased in plural form, the parser should automatically adjust it to the plural form before adding it to the user's list. This makes the voice command experience more natural and robust against environmental factors beyond our control.",
-    "completed": true,
-    "skipped": true
-  },
-  {
-    "name": "(Assistant Epic) Add Assistant tab with voice button and canned prompts",
-    "description": "Add a new 'Assistant' tab to the app alongside existing tabs (does NOT replace the Commands tab). When opened, the tab shows a prominent voice input button at the top, followed by 3-4 canned prompt buttons for common actions like 'Update pantry items', 'Help me plan meals', and 'Add to shopping list'. Nothing needs to be functional yet - the voice button and prompt buttons are just UI placeholders. This PRD is only about getting the tab in place with the visual elements.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Enable voice input on Assistant tab",
-    "description": "Make the voice button on the Assistant tab functional. User can tap the voice button, speak, and see their transcribed text appear on screen. This PRD is just about capturing and displaying voice input - no LLM response yet.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Connect Assistant to streaming LLM backend",
-    "description": "Send the user's voice input (or canned prompt) to an LLM backend and display the streaming response. Responses should appear word-by-word as they're generated. The LLM should have context of the user's pantry and shopping list data so it can answer questions about their groceries. This is read-only - the assistant can answer questions but cannot take actions yet.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Enable canned prompt buttons on Assistant tab",
-    "description": "Make the canned prompt buttons functional. When user taps a button like 'Update pantry items' or 'Help me plan meals', it sends that prompt to the LLM and starts a guided conversation focused on that task.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Add human-in-the-loop tool calling to Assistant",
-    "description": "Allow the Assistant to propose actions like adding items, marking things out of stock, or updating the shopping list. When the assistant wants to take an action, it shows the user what it plans to do and asks for confirmation before executing. User can approve or reject the proposed actions.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Add text input option to Assistant tab",
-    "description": "Add a secondary text input field to the Assistant tab for when voice isn't convenient. Voice remains the primary interaction method, but users can also type their requests.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Add conversation history to Assistant tab",
-    "description": "Display conversation history in the Assistant tab so users can have multi-turn conversations. History persists during the app session (survives tab switches) but clears when the app restarts or user taps New conversation. Fresh pantry context is included with each request so the assistant sees any changes made mid-conversation.",
-    "completed": true
-  },
-  {
-    "name": "Move Mark as Purchased action to header",
-    "description": "The 'Mark as Purchased' button currently appears at the bottom of the shopping list as soon as any item is checked, and it's too prominent and in-the-way while actively shopping. Move this action to the header/navigation area so it's accessible but doesn't obstruct scrolling through the list.",
-    "completed": true
-  },
-  {
-    "name": "Add choice when removing item from shopping list",
-    "description": "When a user swipes to remove an item from the shopping list, show two options: 'Already have it' and 'Don't want to buy it'. If they choose 'Already have it', the item is marked as in-stock in the pantry. If they choose 'Don't want to buy it', the item is removed from the shopping list without changing its pantry status - it goes into a dormant state so it won't keep reappearing on the shopping list. This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.",
-    "completed": true
-  },
-  {
-    "name": "Pulsing loading state for status change buttons",
-    "description": "When the user changes an item's status on the edit item screen, the current behavior replaces all status buttons with a loader, causing a jarring flash. Instead, keep all buttons visible and show a subtle pulsing/breathing animation on the selected button until the API confirms the change. This provides feedback that the action is in progress without hiding the interface or causing visual disruption.",
-    "completed": true
-  },
-  {
-    "name": "Fix item name alignment on edit item screen",
-    "description": "On the edit item screen, the item name at the top is misaligned - it sits too far to the left compared to the other sections below it (details, change status). The item name should align horizontally with the content in the sections below it for visual consistency.",
-    "completed": true
-  },
-  {
-    "name": "Simplify details section on edit item screen",
-    "description": "The details section on the edit item screen currently shows redundant information: the item name (already displayed prominently at the top) and the status (already shown in the status picker above). Remove the item name and status from the details section, keeping only the useful information like last purchased date.",
-    "completed": true
-  },
-  {
-    "name": "Remove Edit Item header title and fix Settings header spacing",
-    "description": "Two header adjustments for bottom sheet modals: (1) On the edit item screen, remove the 'Edit Item' title entirely - it's redundant since the item name is already visible and serves as the contextual header. (2) On the settings screen, keep the 'Settings' title but add more vertical space between the drag handle at the top of the modal and the 'Settings' text below it.",
-    "completed": true
-  },
-  {
-    "name": "Add confirmation before marking items as purchased",
-    "description": "When the user taps the checkout button in the shopping list header, the app currently marks all checked items as purchased immediately. This is risky - an accidental tap can mark items as purchased before the user is ready. Add a confirmation step that asks the user to confirm before completing the action. The implementer should research iOS Human Interface Guidelines to determine the appropriate confirmation pattern (alert vs action sheet vs other) for this type of important action.",
-    "completed": true
-  },
-  {
-    "name": "Move delete action to overflow menu on item detail",
-    "description": "The item detail bottom sheet currently has a large red delete button at the bottom that's visually prominent and takes up significant space. This is unnecessary visual weight since users don't need to see the delete option every time they view item details. Move the delete action into an overflow menu accessible from a button in the header area of the bottom sheet. The implementer should follow iOS Human Interface Guidelines to determine the appropriate icon and placement for the overflow menu (commonly an ellipsis icon in the top-right). The delete action should still show a confirmation before executing.",
-    "completed": true
-  },
-  {
-    "name": "Move edit name action to overflow menu on item detail",
-    "description": "Currently users tap directly on the item name to edit it, which isn't very discoverable. Add an 'Edit Name' option to the overflow menu in the item detail header (same menu where delete lives). The implementer should determine the best UX for what happens when the user taps 'Edit Name' - options include: inline editing where the name becomes editable in place, a separate modal/sheet with a text input, or another pattern that follows iOS conventions. The goal is a clear, intentional way to edit the item name.",
-    "completed": true
-  },
-  {
-    "name": "Improve tab bar selected state visibility",
-    "description": "The current tab bar's selected state is too subtle - the color difference between active and inactive tabs isn't noticeable enough for users to quickly see which tab they're on. Improve the visual distinction between selected and unselected tabs. The implementer should consider iOS-standard approaches such as using filled icons for the selected tab and outline icons for unselected tabs, adjusting the color contrast, or adding other visual indicators that make the selected state immediately obvious.",
-    "completed": true
-  },
-  {
-    "name": "(Assistant Epic) Make Assistant responses brief and plain-text",
-    "description": "The Assistant on the Assistant tab is currently too verbose and uses markdown formatting that renders as raw text in the chat UI. Update the Assistant's response style to be brief (just a few sentences at most) and use only plain text without any markdown formatting. The tone should remain the same - supportive and empathetic per the app's UX principles - just more concise. Responses should feel conversational and quick, not like reading documentation. This applies to all Assistant responses including answers to questions, confirmations of actions, and guided conversations from canned prompts.",
-    "completed": true
-  },
-  {
-    "name": "Remove item type label from shopping list",
-    "description": "The shopping list currently shows 'Staple' or 'Planned' as a label underneath each item name. This is unnecessary UI clutter - users don't need to see this internal classification while they're actively shopping. Remove the item type label from shopping list items to keep the interface clean and focused on what matters: the item name and its status.",
-    "completed": true
+    "name": "(Onboarding Epic) Pantry contextual onboarding card",
+    "description": "Add an onboarding card to the Pantry tab that appears when the user has no in-stock items. This card pitches the value of filling out their pantry: 'Tell me what's in your pantry and I can help you figure out what to make for dinner, remind you when you're running low, and keep your shopping list updated automatically.' The card includes a prominent voice input button (reusing the voice input pattern from onboarding) so users can speak their pantry items naturally. The card persists until the user has added at least one in-stock item - there is no manual dismiss option. This creates a gentle but consistent nudge toward the pantry setup while letting users engage with it when they're ready, rather than forcing it during initial onboarding. If the pantry has planned items (from the shopping list) but no in-stock items, those planned items should still be visible below the onboarding card.",
+    "completed": false
   },
   {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",
     "description": "Give the AI Assistant access to the last purchase date for items it reasons about. This helps the assistant understand item freshness when answering questions or making suggestions. For example, if a user asks 'should I buy more milk?', the assistant can factor in that they last purchased milk 2 weeks ago. The last purchase date should be included in the context for any items the assistant is reasoning about - whether they're currently in the pantry, on the shopping list, or just mentioned in the conversation. This is backend-only; the last purchase date doesn't need to be displayed in the app UI.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Anchor input at bottom of chat",

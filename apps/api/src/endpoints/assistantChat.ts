@@ -253,10 +253,38 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
   }
 }
 
+function formatItemWithPurchaseDate(item: {
+  name: string
+  purchasedAt: Date | null
+}): string {
+  if (!item.purchasedAt) {
+    return item.name
+  }
+  const daysAgo = Math.floor(
+    (Date.now() - item.purchasedAt.getTime()) / (1000 * 60 * 60 * 24)
+  )
+  if (daysAgo === 0) {
+    return `${item.name} (purchased today)`
+  } else if (daysAgo === 1) {
+    return `${item.name} (purchased yesterday)`
+  } else if (daysAgo < 7) {
+    return `${item.name} (purchased ${daysAgo} days ago)`
+  } else if (daysAgo < 14) {
+    return `${item.name} (purchased 1 week ago)`
+  } else if (daysAgo < 30) {
+    const weeks = Math.floor(daysAgo / 7)
+    return `${item.name} (purchased ${weeks} weeks ago)`
+  } else {
+    const months = Math.floor(daysAgo / 30)
+    return `${item.name} (purchased ${months} month${months > 1 ? 's' : ''} ago)`
+  }
+}
+
 function buildPantryContext(
   items: Array<{
     name: string
     status: string
+    purchasedAt: Date | null
   }>
 ): string {
   if (items.length === 0) {
@@ -272,12 +300,12 @@ function buildPantryContext(
 
   if (inStock.length > 0) {
     sections.push(
-      `In stock (${inStock.length}): ${inStock.map((i) => i.name).join(', ')}`
+      `In stock (${inStock.length}): ${inStock.map((i) => formatItemWithPurchaseDate(i)).join(', ')}`
     )
   }
   if (runningLow.length > 0) {
     sections.push(
-      `Running low (${runningLow.length}): ${runningLow.map((i) => i.name).join(', ')}`
+      `Running low (${runningLow.length}): ${runningLow.map((i) => formatItemWithPurchaseDate(i)).join(', ')}`
     )
   }
   if (outOfStock.length > 0) {
