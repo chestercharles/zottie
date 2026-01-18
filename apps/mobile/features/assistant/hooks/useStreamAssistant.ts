@@ -14,11 +14,22 @@ export type ProposedActions = {
   summary: string
 }
 
-export type Message = {
+export type TextMessage = {
   id: string
   role: 'user' | 'assistant'
   content: string
 }
+
+export type ActionResultMessage = {
+  id: string
+  role: 'action_result'
+  actions: ProposedAction[]
+  summary: string
+  outcome: 'confirmed' | 'cancelled' | 'error'
+  resultMessage?: string
+}
+
+export type Message = TextMessage | ActionResultMessage
 
 const PROPOSED_ACTIONS_MARKER = '[PROPOSED_ACTIONS]'
 
@@ -91,10 +102,12 @@ export function useStreamAssistant() {
           throw new Error('No access token available')
         }
 
-        const history: HistoryMessage[] = messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        }))
+        const history: HistoryMessage[] = messages
+          .filter((msg): msg is TextMessage => msg.role !== 'action_result')
+          .map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          }))
 
         let fullResponse = ''
         abortRef.current = streamAssistantChat(
@@ -115,13 +128,15 @@ export function useStreamAssistant() {
             const { textResponse, proposedActions: parsed } =
               parseStreamResponse(fullResponse)
 
-            const assistantMessage: Message = {
-              id: `assistant-${Date.now()}`,
-              role: 'assistant',
-              content: textResponse,
+            if (textResponse) {
+              const assistantMessage: Message = {
+                id: `assistant-${Date.now()}`,
+                role: 'assistant',
+                content: textResponse,
+              }
+              setMessages((prev) => [...prev, assistantMessage])
             }
 
-            setMessages((prev) => [...prev, assistantMessage])
             setStreamingResponse('')
             setProposedActions(parsed)
             setIsStreaming(false)
@@ -151,6 +166,27 @@ export function useStreamAssistant() {
     setProposedActions(null)
   }, [])
 
+  const addActionResult = useCallback(
+    (
+      actions: ProposedAction[],
+      summary: string,
+      outcome: 'confirmed' | 'cancelled' | 'error',
+      resultMessage?: string
+    ) => {
+      const actionResultMessage: ActionResultMessage = {
+        id: `action-result-${Date.now()}`,
+        role: 'action_result',
+        actions,
+        summary,
+        outcome,
+        resultMessage,
+      }
+      setMessages((prev) => [...prev, actionResultMessage])
+      setProposedActions(null)
+    },
+    []
+  )
+
   return {
     messages,
     streamingResponse: displayText,
@@ -160,5 +196,6 @@ export function useStreamAssistant() {
     streamMessage,
     reset,
     clearProposedActions,
+    addActionResult,
   }
 }

@@ -1,12 +1,37 @@
 [
   {
-    "name": "Separate restocking intent from stock status",
+    "name": "[Deferred - Major Refactor] Separate restocking intent from stock status",
     "description": "Refactor the data model to separate 'how much do I have' from 'do I want to buy more'. Currently, 'dormant' is a status that overwrites stock level (in_stock, running_low, out_of_stock), which conflates two different concepts. The fix: add a 'restocking' boolean field (default true) to pantry items, and remove 'dormant' from the status enum. Data model changes: Add 'restocking' boolean column to pantryItems table (default true). Remove 'dormant' from pantryItemStatus enum. Migration: existing dormant items become restocking=false with status='out_of_stock'. API changes: pantryItemUpdate accepts 'restocking' parameter, pantryItemList returns 'restocking' field, update type definitions in both API and mobile apps. UI changes: Rename 'Dormant Items' section to 'Bought Before' - this section shows items where restocking=false. Filter logic changes from status==='dormant' to restocking===false. Swipe action 'Dormant' becomes 'Set aside' and sets restocking=false (keeps current stock status). Swipe action 'Activate' sets restocking=true. Shopping list 'Don't want to buy it' sets restocking=false (keeps stock status intact). Remove 'dormant' from status picker on detail screen. Add restocking toggle to detail screen (separate from status picker). This change can be deployed all at once since there's only one user in production. The key benefit: a 'running low' item that the user doesn't want to restock stays visible in the main pantry (still running low) rather than disappearing into a separate section.",
     "completed": false
   },
   {
     "name": "Show completed action details in assistant chat",
     "description": "Fix the assistant chat so that confirmation prompts remain visible after the user responds. Currently, when the assistant asks for confirmation (e.g., 'Add black beans and cumin to your shopping list?') and the user taps Yes or No, the message bubble becomes blank. Instead, the bubble should show: (1) The full details of what the assistant proposed (e.g., 'Add black beans and cumin to shopping list'), and (2) A clear indicator of what the user chose and what happened. If confirmed: show that the action was executed (e.g., 'Added black beans and cumin to shopping list ✓' or similar confirmed state). If cancelled: show that the user declined (e.g., 'Add black beans and cumin to shopping list - Cancelled'). This gives users a clear history of what actions were proposed, what they decided, and what actually happened in their conversation with the assistant.",
+    "completed": true
+  },
+  {
+    "name": "(Shopping List Bugs) Fix swipe action to follow iOS delete pattern",
+    "description": "The swipe-left action on shopping list items currently shows a three-dot ellipsis icon with the primary color background, which looks like a generic context menu rather than a remove action. Change this to follow the standard iOS swipe-to-delete pattern: show a trash icon with a danger/red background color. This clearly communicates that the action will remove the item from the shopping list. The existing behavior when tapping the action should remain unchanged - it should still show the action sheet asking 'Already have it' or 'Don't want to buy it'. Only the visual appearance of the revealed swipe action needs to change. Additionally, document this swipe-to-remove pattern in the UX guidelines so future swipe-to-remove interactions across the app stay consistent with iOS conventions.",
+    "completed": false
+  },
+  {
+    "name": "(Shopping List Bugs) Reset row state when action sheet is dismissed",
+    "description": "When a user swipes left on a shopping list item and taps the action button, an action sheet appears with options like 'Already have it' or 'Don't want to buy it'. If the user dismisses this action sheet (by tapping Cancel or tapping outside), the row gets stuck in the swiped-left position and becomes unresponsive. The row should animate back to its normal closed position when the action sheet is dismissed without taking action. This follows standard iOS patterns where cancelling an action returns the UI to its previous state. The Cancel option in the action sheet should be styled as a non-destructive dismiss action (not a primary or danger color) to clearly communicate it won't change anything.",
+    "completed": false
+  },
+  {
+    "name": "Move item detail context menu trigger inline with item name",
+    "description": "On the pantry item detail sheet (PantryItemDetailScreen), the ellipsis (⋯) button that opens the context menu is positioned in the top-right corner of the sheet header, next to the drag handle. This placement is visually awkward - it creates an unbalanced header and the button feels disconnected from the content it affects. Move the context menu trigger (ellipsis button) to be inline with the item name, positioned on the right side of the title row. This keeps the actions contextually close to what they operate on and removes the awkward empty header space. The header should only contain the drag handle, centered. The ellipsis button appearance and the action sheet it triggers (Edit Name, Delete Item) should remain unchanged - only the button's position is moving.",
+    "completed": false
+  },
+  {
+    "name": "Remove empty assistant message bubble when proposing actions",
+    "description": "In the assistant chat, when the assistant responds with proposed actions (like 'add milk to pantry'), an empty gray message bubble appears before the action confirmation card. This happens because the assistant's response sometimes contains only the [PROPOSED_ACTIONS] marker with no text before it, but the code still adds an assistant message with empty content. The fix: only add an assistant message to the conversation history if the text response (the content before the [PROPOSED_ACTIONS] marker) is non-empty after trimming. If the assistant only returns proposed actions with no accompanying text, skip creating the empty assistant message bubble entirely - just show the action confirmation card.",
+    "completed": true
+  },
+  {
+    "name": "Fix prettier hook for JSON files",
+    "description": "The Claude Code prettier hook is failing when editing JSON files in the .ralph directory. The error shows: '[warn] Ignored unknown option { tabs: true }. [error] No parser and no file path given, couldn't infer a parser.' The hook command uses $CLAUDE_FILE_PATH but prettier is not receiving the file path correctly. Investigate the hook configuration and fix the prettier command to properly format JSON files (and other file types) when Claude edits them.",
     "completed": false
   }
 ]

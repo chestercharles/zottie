@@ -28,6 +28,8 @@ import {
   type ProposedActions,
   type ProposedAction,
   type Message,
+  type TextMessage,
+  type ActionResultMessage,
 } from './hooks'
 import { executeAssistantActions } from './api'
 import { useAuth } from '../auth'
@@ -185,7 +187,7 @@ function MessageBubble({
   spacing,
   radius,
 }: {
-  message: Message
+  message: TextMessage
   colors: ReturnType<typeof useTheme>['colors']
   spacing: ReturnType<typeof useTheme>['spacing']
   radius: ReturnType<typeof useTheme>['radius']
@@ -217,15 +219,144 @@ function MessageBubble({
   )
 }
 
+function ActionResultBubble({
+  message,
+  colors,
+  spacing,
+  radius,
+}: {
+  message: ActionResultMessage
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
+}) {
+  const { outcome } = message
+  const isConfirmed = outcome === 'confirmed'
+  const isError = outcome === 'error'
+  const isCancelled = outcome === 'cancelled'
+
+  const headerIcon = isConfirmed
+    ? 'checkmark-circle'
+    : isError
+      ? 'alert-circle'
+      : 'close-circle'
+
+  const headerColor = isConfirmed
+    ? colors.feedback.success
+    : isError
+      ? colors.feedback.error
+      : colors.text.tertiary
+
+  return (
+    <View
+      style={[
+        styles.actionResultCard,
+        {
+          backgroundColor: colors.surface.grouped,
+          borderRadius: radius.lg,
+          padding: spacing.md,
+          marginBottom: spacing.md,
+        },
+      ]}
+    >
+      <View style={[styles.actionResultHeader, { marginBottom: spacing.sm }]}>
+        <Ionicons
+          name={headerIcon}
+          size={18}
+          color={headerColor}
+          style={{ marginRight: spacing.sm }}
+        />
+        <Text
+          variant="body.primary"
+          style={{
+            fontWeight: '600',
+            flex: 1,
+            color: isConfirmed ? colors.text.primary : colors.text.secondary,
+          }}
+        >
+          {message.summary}
+        </Text>
+      </View>
+
+      <View style={[styles.actionsList, { gap: spacing.xs }]}>
+        {message.actions.map((action, index) => (
+          <View
+            key={`${action.item}-${index}`}
+            style={[styles.actionItem, { gap: spacing.sm }]}
+          >
+            <Ionicons
+              name={
+                action.status === 'out_of_stock' || action.status === 'planned'
+                  ? 'cart-outline'
+                  : 'checkmark-circle-outline'
+              }
+              size={16}
+              color={colors.text.tertiary}
+            />
+            <Text
+              variant="body.secondary"
+              color="tertiary"
+              style={
+                !isConfirmed
+                  ? { textDecorationLine: 'line-through' }
+                  : undefined
+              }
+            >
+              {formatActionDescription(action)}
+            </Text>
+          </View>
+        ))}
+      </View>
+
+      {message.resultMessage && (
+        <View
+          style={[
+            styles.actionResultStatus,
+            {
+              marginTop: spacing.sm,
+              paddingTop: spacing.sm,
+              borderTopWidth: StyleSheet.hairlineWidth,
+              borderTopColor: colors.border.subtle,
+            },
+          ]}
+        >
+          <Text
+            variant="caption"
+            style={{
+              color: isError ? colors.feedback.error : colors.feedback.success,
+            }}
+          >
+            {message.resultMessage}
+          </Text>
+        </View>
+      )}
+
+      {isCancelled && (
+        <View
+          style={[
+            styles.actionResultStatus,
+            {
+              marginTop: spacing.sm,
+              paddingTop: spacing.sm,
+              borderTopWidth: StyleSheet.hairlineWidth,
+              borderTopColor: colors.border.subtle,
+            },
+          ]}
+        >
+          <Text variant="caption" color="tertiary">
+            Skipped
+          </Text>
+        </View>
+      )}
+    </View>
+  )
+}
+
 export function AssistantScreen() {
   const { colors, spacing, radius } = useTheme()
   const insets = useSafeAreaInsets()
   const navigation = useNavigation()
   const [isExecuting, setIsExecuting] = useState(false)
-  const [executionResult, setExecutionResult] = useState<{
-    success: boolean
-    message: string
-  } | null>(null)
   const [textInputValue, setTextInputValue] = useState('')
   const {
     messages,
@@ -235,7 +366,7 @@ export function AssistantScreen() {
     proposedActions,
     streamMessage,
     reset,
-    clearProposedActions,
+    addActionResult,
   } = useStreamAssistant()
   const scrollViewRef = useRef<ScrollView>(null)
   const { user } = useAuth()
@@ -244,7 +375,6 @@ export function AssistantScreen() {
 
   const handleTranscriptReceived = useCallback(
     (text: string) => {
-      setExecutionResult(null)
       streamMessage(text)
     },
     [streamMessage]
@@ -254,7 +384,6 @@ export function AssistantScreen() {
     const prompt = CANNED_PROMPTS.find((p) => p.id === promptId)
     if (!prompt) return
 
-    setExecutionResult(null)
     streamMessage(prompt.label)
   }
 
@@ -264,12 +393,10 @@ export function AssistantScreen() {
 
     Keyboard.dismiss()
     setTextInputValue('')
-    setExecutionResult(null)
     streamMessage(text)
   }, [textInputValue, streamMessage])
 
   const handleNewConversation = useCallback(() => {
-    setExecutionResult(null)
     reset()
   }, [reset])
 
@@ -300,7 +427,6 @@ export function AssistantScreen() {
     if (!proposedActions || !user?.id) return
 
     setIsExecuting(true)
-    setExecutionResult(null)
 
     try {
       const credentials = await getCredentials()
@@ -321,35 +447,42 @@ export function AssistantScreen() {
       })
 
       const itemCount = result.executed
-      setExecutionResult({
-        success: true,
-        message:
-          itemCount === 1
-            ? 'Done! 1 item updated.'
-            : `Done! ${itemCount} items updated.`,
-      })
-      clearProposedActions()
+      const resultMessage =
+        itemCount === 1
+          ? 'Done! 1 item updated.'
+          : `Done! ${itemCount} items updated.`
+
+      addActionResult(
+        proposedActions.actions,
+        proposedActions.summary,
+        'confirmed',
+        resultMessage
+      )
     } catch (err) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      setExecutionResult({
-        success: false,
-        message: err instanceof Error ? err.message : 'Something went wrong',
-      })
+      const errorMessage =
+        err instanceof Error ? err.message : 'Something went wrong'
+      addActionResult(
+        proposedActions.actions,
+        proposedActions.summary,
+        'error',
+        errorMessage
+      )
     } finally {
       setIsExecuting(false)
     }
-  }, [
-    proposedActions,
-    user?.id,
-    getCredentials,
-    queryClient,
-    clearProposedActions,
-  ])
+  }, [proposedActions, user?.id, getCredentials, queryClient, addActionResult])
 
   const handleRejectActions = useCallback(() => {
+    if (!proposedActions) return
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    clearProposedActions()
-  }, [clearProposedActions])
+    addActionResult(
+      proposedActions.actions,
+      proposedActions.summary,
+      'cancelled'
+    )
+  }, [proposedActions, addActionResult])
 
   useEffect(() => {
     if (messages.length > 0 || streamingResponse || proposedActions) {
@@ -442,15 +575,25 @@ export function AssistantScreen() {
 
         {showConversation && (
           <View style={styles.conversationContainer}>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                colors={colors}
-                spacing={spacing}
-                radius={radius}
-              />
-            ))}
+            {messages.map((message) =>
+              message.role === 'action_result' ? (
+                <ActionResultBubble
+                  key={message.id}
+                  message={message}
+                  colors={colors}
+                  spacing={spacing}
+                  radius={radius}
+                />
+              ) : (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  colors={colors}
+                  spacing={spacing}
+                  radius={radius}
+                />
+              )
+            )}
 
             {isStreaming && (
               <View
@@ -608,47 +751,6 @@ export function AssistantScreen() {
               </View>
             )}
 
-            {executionResult && (
-              <View
-                style={[
-                  styles.resultContainer,
-                  {
-                    backgroundColor: executionResult.success
-                      ? colors.feedback.success + '15'
-                      : colors.feedback.error + '15',
-                    borderRadius: radius.md,
-                    padding: spacing.md,
-                    marginTop: spacing.md,
-                  },
-                ]}
-              >
-                <Ionicons
-                  name={
-                    executionResult.success
-                      ? 'checkmark-circle-outline'
-                      : 'alert-circle-outline'
-                  }
-                  size={18}
-                  color={
-                    executionResult.success
-                      ? colors.feedback.success
-                      : colors.feedback.error
-                  }
-                  style={{ marginRight: spacing.sm }}
-                />
-                <Text
-                  variant="body.secondary"
-                  style={{
-                    color: executionResult.success
-                      ? colors.feedback.success
-                      : colors.feedback.error,
-                    flex: 1,
-                  }}
-                >
-                  {executionResult.message}
-                </Text>
-              </View>
-            )}
           </View>
         )}
       </ScrollView>
@@ -789,11 +891,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  resultContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  actionResultCard: {
     width: '100%',
   },
+  actionResultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionResultStatus: {},
   inputBar: {
     borderTopWidth: StyleSheet.hairlineWidth,
   },

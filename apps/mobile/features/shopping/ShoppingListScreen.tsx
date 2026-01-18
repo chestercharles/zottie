@@ -66,7 +66,7 @@ function ShoppingItemRow({
   item: ShoppingItem
   isChecked: boolean
   onToggleCheck: () => void
-  onSwipeAction: () => void
+  onSwipeAction: (onComplete: () => void) => void
   colors: ReturnType<typeof useTheme>['colors']
   spacing: ReturnType<typeof useTheme>['spacing']
   radius: ReturnType<typeof useTheme>['radius']
@@ -81,14 +81,11 @@ function ShoppingItemRow({
 
   const handleSwipeAction = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    translateX.value = withTiming(
-      -400,
-      { duration: 200, easing: Easing.out(Easing.ease) },
-      () => {
-        runOnJS(onSwipeAction)()
-      }
-    )
-  }, [onSwipeAction, translateX])
+    onSwipeAction(() => {
+      translateX.value = withSpring(0, { damping: 20, stiffness: 300 })
+      isOpen.value = false
+    })
+  }, [onSwipeAction, translateX, isOpen])
 
   const handleRowPress = useCallback(() => {
     if (isOpen.value) {
@@ -143,7 +140,7 @@ function ShoppingItemRow({
       <Reanimated.View
         style={[
           styles.swipeActionContainer,
-          { backgroundColor: colors.action.primary, borderRadius: radius.lg },
+          { backgroundColor: colors.feedback.error, borderRadius: radius.lg },
           deleteButtonStyle,
         ]}
       >
@@ -152,10 +149,10 @@ function ShoppingItemRow({
           onPress={handleSwipeAction}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Item options"
+          accessibilityLabel="Remove from list"
         >
           <Ionicons
-            name="ellipsis-horizontal"
+            name="trash"
             size={24}
             color={colors.text.inverse}
           />
@@ -335,7 +332,7 @@ export function ShoppingListScreen() {
   }
 
   const handleSwipeAction = useCallback(
-    (item: ShoppingItem) => {
+    (item: ShoppingItem, onComplete: () => void) => {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options: ['Cancel', 'Already have it', "Don't want to buy it"],
@@ -351,6 +348,8 @@ export function ShoppingListScreen() {
             // Don't want to buy it - mark as dormant
             updatePantryItem.mutate({ itemId: item.id, status: 'dormant' })
           }
+          // Always close the row after action sheet dismisses
+          onComplete()
         }
       )
     },
@@ -482,7 +481,7 @@ export function ShoppingListScreen() {
               item={item}
               isChecked={checkedIds.has(item.id)}
               onToggleCheck={() => handleToggleCheck(item.id)}
-              onSwipeAction={() => handleSwipeAction(item)}
+              onSwipeAction={(onComplete) => handleSwipeAction(item, onComplete)}
               colors={colors}
               spacing={spacing}
               radius={radius}
