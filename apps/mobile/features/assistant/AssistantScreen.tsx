@@ -344,7 +344,7 @@ export function AssistantScreen() {
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={[
-          styles.content,
+          showConversation ? styles.conversationContent : styles.content,
           {
             padding: spacing.lg,
             paddingBottom: spacing.md,
@@ -709,6 +709,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 60,
     flexGrow: 1,
+  },
+  conversationContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
   },
   promptsContainer: {
     width: '100%',

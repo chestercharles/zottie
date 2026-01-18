@@ -1,5 +1,26 @@
 # zottie Development Progress
 
+## 2026-01-17: Standard chat scroll behavior
+
+Implemented the "(Assistant Epic) Standard chat scroll behavior" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Added `conversationContent` style that uses `flexGrow: 1` and `justifyContent: 'flex-end'` to push messages to the bottom
+  - ScrollView now switches between `content` style (initial state with centered voice button) and `conversationContent` style (conversation mode with bottom-anchored messages)
+  - New messages appear at the bottom, older messages scroll upward
+  - Auto-scroll to bottom continues to work during streaming (already handled by existing useEffect)
+
+### How it works
+
+The Assistant chat now follows standard chat app conventions:
+- Messages appear at the bottom of the screen
+- New messages push older messages upward
+- View stays anchored to the bottom so users always see the latest messages
+- As the assistant streams its response, the view auto-scrolls to keep new content visible
+- Initial state (with voice button and canned prompts) remains centered at top
+
 ## 2026-01-17: Anchor input at bottom of chat
 
 Implemented the "(Assistant Epic) Anchor input at bottom of chat" feature.

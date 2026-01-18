@@ -22,7 +22,7 @@
   {
     "name": "(Assistant Epic) Standard chat scroll behavior",
     "description": "Update the Assistant chat to use standard chat scroll behavior where new messages appear at the bottom and older messages scroll upward. The view should stay anchored to the bottom so users always see the latest messages. As the assistant streams its response, the view should auto-scroll to keep the new content visible.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Add new conversation button to header",
