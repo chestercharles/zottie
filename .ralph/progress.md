@@ -1,5 +1,29 @@
 # zottie Development Progress
 
+## 2026-01-17: Add new conversation button to header
+
+Implemented the "(Assistant Epic) Add new conversation button to header" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Added `useNavigation` import from expo-router and `useLayoutEffect` from React
+  - Added `useLayoutEffect` hook that dynamically sets the header right button
+  - Button only appears when there's an active conversation (`messages.length > 0 || isStreaming`)
+  - Button uses the `add-circle-outline` icon in the primary action color
+  - Tapping the button clears the conversation and returns to the initial state
+  - Converted `handleNewConversation` to use `useCallback` for proper dependency tracking
+
+### How it works
+
+The Assistant tab header now shows a "new conversation" button (circle with plus icon) in the top-right corner when a conversation is active. Tapping this button:
+- Clears all messages from the current conversation
+- Clears any proposed actions
+- Clears any execution results
+- Returns the user to the initial state with the large voice button and canned prompts
+
+When no conversation is active (initial state), the header button is hidden to keep the UI clean.
+
 ## 2026-01-17: Standard chat scroll behavior
 
 Implemented the "(Assistant Epic) Standard chat scroll behavior" feature.

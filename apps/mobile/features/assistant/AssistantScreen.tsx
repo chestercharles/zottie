@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
 import {
   View,
   StyleSheet,
@@ -19,6 +19,7 @@ import {
   ExpoSpeechRecognitionModule,
 } from 'expo-speech-recognition'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useNavigation } from 'expo-router'
 import { useTheme } from '../../lib/theme'
 import { Text } from '../../components/ui'
 import { VoiceInput } from '../../components/VoiceInput'
@@ -219,6 +220,7 @@ function MessageBubble({
 export function AssistantScreen() {
   const { colors, spacing, radius } = useTheme()
   const insets = useSafeAreaInsets()
+  const navigation = useNavigation()
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionResult, setExecutionResult] = useState<{
     success: boolean
@@ -266,10 +268,33 @@ export function AssistantScreen() {
     streamMessage(text)
   }, [textInputValue, streamMessage])
 
-  const handleNewConversation = () => {
+  const handleNewConversation = useCallback(() => {
     setExecutionResult(null)
     reset()
-  }
+  }, [reset])
+
+  const showConversation = messages.length > 0 || isStreaming
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: showConversation
+        ? () => (
+            <TouchableOpacity
+              onPress={handleNewConversation}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="New conversation"
+            >
+              <Ionicons
+                name="add-circle-outline"
+                size={24}
+                color={colors.action.primary}
+              />
+            </TouchableOpacity>
+          )
+        : undefined,
+    })
+  }, [navigation, showConversation, handleNewConversation, colors.action.primary])
 
   const handleApproveActions = useCallback(async () => {
     if (!proposedActions || !user?.id) return
@@ -331,8 +356,6 @@ export function AssistantScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: true })
     }
   }, [messages, streamingResponse, proposedActions])
-
-  const showConversation = messages.length > 0 || isStreaming
 
   return (
     <KeyboardAvoidingView
