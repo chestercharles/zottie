@@ -114,5 +114,10 @@
     "name": "Improve tab bar selected state visibility",
     "description": "The current tab bar's selected state is too subtle - the color difference between active and inactive tabs isn't noticeable enough for users to quickly see which tab they're on. Improve the visual distinction between selected and unselected tabs. The implementer should consider iOS-standard approaches such as using filled icons for the selected tab and outline icons for unselected tabs, adjusting the color contrast, or adding other visual indicators that make the selected state immediately obvious.",
     "completed": false
+  },
+  {
+    "name": "(Assistant Epic) Make Assistant responses brief and plain-text",
+    "description": "The Assistant on the Assistant tab is currently too verbose and uses markdown formatting that renders as raw text in the chat UI. Update the Assistant's response style to be brief (just a few sentences at most) and use only plain text without any markdown formatting. The tone should remain the same - supportive and empathetic per the app's UX principles - just more concise. Responses should feel conversational and quick, not like reading documentation. This applies to all Assistant responses including answers to questions, confirmations of actions, and guided conversations from canned prompts.",
+    "completed": false
   }
 ]
