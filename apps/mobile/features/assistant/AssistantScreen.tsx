@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  TextInput,
+  Keyboard,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useQueryClient } from '@tanstack/react-query'
@@ -67,6 +69,9 @@ export function AssistantScreen() {
     success: boolean
     message: string
   } | null>(null)
+  const [textInputValue, setTextInputValue] = useState('')
+  const [showTextInput, setShowTextInput] = useState(false)
+  const textInputRef = useRef<TextInput>(null)
   const {
     response,
     isStreaming,
@@ -95,6 +100,24 @@ export function AssistantScreen() {
     setExecutionResult(null)
     streamMessage(prompt.label)
   }
+
+  const handleTextSubmit = useCallback(() => {
+    const text = textInputValue.trim()
+    if (!text) return
+
+    Keyboard.dismiss()
+    setTranscript(text)
+    setTextInputValue('')
+    setExecutionResult(null)
+    streamMessage(text)
+  }, [textInputValue, streamMessage])
+
+  const handleShowTextInput = useCallback(() => {
+    setShowTextInput(true)
+    setTimeout(() => {
+      textInputRef.current?.focus()
+    }, 100)
+  }, [])
 
   const handleNewConversation = () => {
     setTranscript(null)
@@ -169,24 +192,100 @@ export function AssistantScreen() {
       >
         {!showConversation && (
           <>
-            <VoiceInput
-              onTranscriptReceived={handleTranscriptReceived}
-              buttonSize={120}
-              showStatusText={true}
-              statusTextIdle="Tap to speak with your assistant"
-              statusTextRecording="Listening..."
-              statusTextProcessing="Processing..."
-              contextualStrings={[
-                'pantry',
-                'shopping',
-                'in stock',
-                'running low',
-                'out of stock',
-                'groceries',
-                'meal',
-                'recipe',
-              ]}
-            />
+            {!showTextInput ? (
+              <>
+                <VoiceInput
+                  onTranscriptReceived={handleTranscriptReceived}
+                  buttonSize={120}
+                  showStatusText={true}
+                  statusTextIdle="Tap to speak with your assistant"
+                  statusTextRecording="Listening..."
+                  statusTextProcessing="Processing..."
+                  contextualStrings={[
+                    'pantry',
+                    'shopping',
+                    'in stock',
+                    'running low',
+                    'out of stock',
+                    'groceries',
+                    'meal',
+                    'recipe',
+                  ]}
+                />
+
+                <TouchableOpacity
+                  onPress={handleShowTextInput}
+                  style={{ marginTop: spacing.md }}
+                  activeOpacity={0.7}
+                >
+                  <Text variant="body.secondary" color="secondary">
+                    or type instead
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View style={[styles.textInputContainer, { gap: spacing.md }]}>
+                <View
+                  style={[
+                    styles.textInputRow,
+                    {
+                      backgroundColor: colors.surface.grouped,
+                      borderRadius: radius.lg,
+                      paddingHorizontal: spacing.md,
+                      paddingVertical: spacing.sm,
+                    },
+                  ]}
+                >
+                  <TextInput
+                    ref={textInputRef}
+                    style={[
+                      styles.textInput,
+                      {
+                        color: colors.text.primary,
+                        fontSize: 16,
+                      },
+                    ]}
+                    placeholder="Type your message..."
+                    placeholderTextColor={colors.text.tertiary}
+                    value={textInputValue}
+                    onChangeText={setTextInputValue}
+                    onSubmitEditing={handleTextSubmit}
+                    returnKeyType="send"
+                    multiline={false}
+                  />
+                  <TouchableOpacity
+                    onPress={handleTextSubmit}
+                    disabled={!textInputValue.trim()}
+                    style={[
+                      styles.sendButton,
+                      {
+                        backgroundColor: textInputValue.trim()
+                          ? colors.action.primary
+                          : colors.action.disabled,
+                        borderRadius: radius.md,
+                        padding: spacing.sm,
+                      },
+                    ]}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="arrow-up"
+                      size={20}
+                      color={colors.text.inverse}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => setShowTextInput(false)}
+                  activeOpacity={0.7}
+                >
+                  <Text variant="body.secondary" color="secondary">
+                    or use voice instead
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <View style={[styles.promptsContainer, { marginTop: spacing['2xl'] }]}>
               <Text
@@ -442,42 +541,94 @@ export function AssistantScreen() {
             {!isStreaming &&
               !proposedActions &&
               (response || error || executionResult) && (
-                <View style={[styles.actionsContainer, { marginTop: spacing.xl }]}>
-                  <TouchableOpacity
+                <View style={[styles.conversationActionsContainer, { marginTop: spacing.xl, gap: spacing.md }]}>
+                  <View
                     style={[
-                      styles.actionButton,
+                      styles.textInputRow,
                       {
                         backgroundColor: colors.surface.grouped,
-                        padding: spacing.md,
-                        borderRadius: radius.md,
+                        borderRadius: radius.lg,
+                        paddingHorizontal: spacing.md,
+                        paddingVertical: spacing.sm,
                       },
                     ]}
-                    onPress={handleNewConversation}
-                    activeOpacity={0.7}
                   >
-                    <Ionicons
-                      name="add-circle-outline"
-                      size={20}
-                      color={colors.action.primary}
-                      style={{ marginRight: spacing.sm }}
+                    <TextInput
+                      style={[
+                        styles.textInput,
+                        {
+                          color: colors.text.primary,
+                          fontSize: 16,
+                        },
+                      ]}
+                      placeholder="Type a follow-up..."
+                      placeholderTextColor={colors.text.tertiary}
+                      value={textInputValue}
+                      onChangeText={setTextInputValue}
+                      onSubmitEditing={handleTextSubmit}
+                      returnKeyType="send"
+                      multiline={false}
                     />
-                    <Text variant="body.primary" color="primary">
-                      New conversation
-                    </Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleTextSubmit}
+                      disabled={!textInputValue.trim()}
+                      style={[
+                        styles.sendButton,
+                        {
+                          backgroundColor: textInputValue.trim()
+                            ? colors.action.primary
+                            : colors.action.disabled,
+                          borderRadius: radius.md,
+                          padding: spacing.sm,
+                        },
+                      ]}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name="arrow-up"
+                        size={20}
+                        color={colors.text.inverse}
+                      />
+                    </TouchableOpacity>
+                  </View>
 
-                  <VoiceInput
-                    onTranscriptReceived={handleTranscriptReceived}
-                    buttonSize={56}
-                    showStatusText={false}
-                    contextualStrings={[
-                      'pantry',
-                      'shopping',
-                      'in stock',
-                      'running low',
-                      'out of stock',
-                    ]}
-                  />
+                  <View style={styles.actionsContainer}>
+                    <TouchableOpacity
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: colors.surface.grouped,
+                          padding: spacing.md,
+                          borderRadius: radius.md,
+                        },
+                      ]}
+                      onPress={handleNewConversation}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name="add-circle-outline"
+                        size={20}
+                        color={colors.action.primary}
+                        style={{ marginRight: spacing.sm }}
+                      />
+                      <Text variant="body.primary" color="primary">
+                        New conversation
+                      </Text>
+                    </TouchableOpacity>
+
+                    <VoiceInput
+                      onTranscriptReceived={handleTranscriptReceived}
+                      buttonSize={56}
+                      showStatusText={false}
+                      contextualStrings={[
+                        'pantry',
+                        'shopping',
+                        'in stock',
+                        'running low',
+                        'out of stock',
+                      ]}
+                    />
+                  </View>
                 </View>
               )}
           </View>
@@ -565,6 +716,25 @@ const styles = StyleSheet.create({
   resultContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
+  },
+  textInputContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  textInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  textInput: {
+    flex: 1,
+    minHeight: 44,
+  },
+  sendButton: {
+    marginLeft: 8,
+  },
+  conversationActionsContainer: {
     width: '100%',
   },
 })

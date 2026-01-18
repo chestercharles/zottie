@@ -1,5 +1,44 @@
 # zottie Development Progress
 
+## 2026-01-17: Add text input option to Assistant tab
+
+**Feature:** Added a secondary text input field to the Assistant tab for when voice isn't convenient
+
+**Changes:**
+
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Added state for text input value and visibility toggle
+  - Initial state: Added "or type instead" link below voice button that reveals text input
+  - Text input mode: Shows input field with send button and "or use voice instead" link to toggle back
+  - Conversation state: Added text input row above the "New conversation" button and voice button
+  - Text input styled with grouped surface background and send button with arrow icon
+  - Send button disabled state when input is empty
+  - Keyboard dismisses on submit
+  - Auto-focuses text input when toggling to text mode
+
+**Technical Details:**
+
+1. Two input modes in initial state:
+   - Voice mode (default): Large voice button with "or type instead" link below
+   - Text mode: Input field with send button, "or use voice instead" link to switch back
+
+2. Conversation state improvements:
+   - Text input always visible at the bottom with placeholder "Type a follow-up..."
+   - Voice button available alongside text input for users who prefer voice
+   - Layout: text input row → "New conversation" button + voice button row
+
+3. UX considerations:
+   - Voice remains the primary interaction (shown first, larger button)
+   - Text input is secondary but easily accessible
+   - Both options available in conversation view for user preference
+   - Consistent styling with the rest of the app's design system
+
+**Verification:**
+
+- ✅ Mobile linting passed
+- ✅ Mobile TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Make Assistant responses brief and plain-text
 
 **Feature:** Updated the Assistant's response style to be brief and use only plain text without markdown formatting

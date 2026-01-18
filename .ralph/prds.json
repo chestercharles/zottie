@@ -58,7 +58,7 @@
   {
     "name": "(Assistant Epic) Add text input option to Assistant tab",
     "description": "Add a secondary text input field to the Assistant tab for when voice isn't convenient. Voice remains the primary interaction method, but users can also type their requests.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Add conversation persistence to Assistant tab",
