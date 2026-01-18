@@ -1,5 +1,43 @@
 # zottie Development Progress
 
+## 2026-01-17: Pantry contextual onboarding card
+
+Implemented the "(Onboarding Epic) Pantry contextual onboarding card" feature.
+
+### Changes
+
+- Created `apps/mobile/features/pantry/PantryOnboardingCard.tsx`:
+  - New component that displays an onboarding card pitching the value of filling out the pantry
+  - Includes the VoiceInput component for voice-based item entry
+  - Uses the existing `useOnboardingItemParsing` hook with `context: 'pantry'` to parse and add items
+  - Handles three states: input (default), processing (while adding items), and error (with retry option)
+  - Styled as a Card component following the design system
+
+- Modified `apps/mobile/features/pantry/hooks/usePantryItems.ts`:
+  - Added `hasInStockItems` computed value that checks if the user has any items with `in_stock` or `running_low` status
+  - This value is used to determine when to show/hide the onboarding card
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Imported and integrated the `PantryOnboardingCard` component
+  - Updated `renderListHeader` to show the onboarding card when `hasInStockItems` is false and not in search mode
+  - The card appears above the planned items section (if any)
+  - Removed the EmptyState for no items - the onboarding card now serves this purpose
+  - Search mode still shows "No results found" empty state when appropriate
+
+### How it works
+
+The onboarding card appears on the Pantry tab when the user has no in-stock items (items with `in_stock` or `running_low` status). The card:
+
+1. Displays a value proposition: "Tell me what's in your pantry - I can help you figure out what to make for dinner, remind you when you're running low, and keep your shopping list updated automatically."
+2. Provides a voice input button (100px, smaller than onboarding) for natural item entry
+3. Includes helper text with example input
+4. Shows a processing state while items are being added
+5. Handles errors gracefully with a retry option
+
+The card persists until the user adds at least one in-stock item - there is no manual dismiss option. If the user has planned items (from the shopping list) but no in-stock items, those planned items remain visible below the onboarding card in the collapsible "Planned Items" section.
+
+This completes the Onboarding Epic by providing a contextual way to set up the pantry after the streamlined shopping-list-only initial onboarding.
+
 ## 2026-01-17: Simplify onboarding to shopping list only
 
 Implemented the "(Onboarding Epic) Simplify onboarding to shopping list only" feature.

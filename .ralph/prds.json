@@ -7,7 +7,7 @@
   {
     "name": "(Onboarding Epic) Pantry contextual onboarding card",
     "description": "Add an onboarding card to the Pantry tab that appears when the user has no in-stock items. This card pitches the value of filling out their pantry: 'Tell me what's in your pantry and I can help you figure out what to make for dinner, remind you when you're running low, and keep your shopping list updated automatically.' The card includes a prominent voice input button (reusing the voice input pattern from onboarding) so users can speak their pantry items naturally. The card persists until the user has added at least one in-stock item - there is no manual dismiss option. This creates a gentle but consistent nudge toward the pantry setup while letting users engage with it when they're ready, rather than forcing it during initial onboarding. If the pantry has planned items (from the shopping list) but no in-stock items, those planned items should still be visible below the onboarding card.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Include last purchase date in Assistant context",

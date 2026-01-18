@@ -65,6 +65,14 @@ export function usePantryItems(searchTerm: string = '') {
     [filteredItems]
   )
 
+  const hasInStockItems = useMemo(
+    () =>
+      (query.data ?? []).some(
+        (item) => item.status === 'in_stock' || item.status === 'running_low'
+      ),
+    [query.data]
+  )
+
   const refetch = useCallback(async () => {
     setIsRefreshing(true)
     try {
@@ -78,6 +86,7 @@ export function usePantryItems(searchTerm: string = '') {
     items: query.data ?? [],
     mainListItems,
     plannedItems,
+    hasInStockItems,
     isLoading: query.isLoading && !query.isPlaceholderData,
     isRefreshing,
     error: query.error?.message ?? null,

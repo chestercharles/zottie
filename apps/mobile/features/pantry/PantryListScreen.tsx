@@ -41,6 +41,7 @@ import {
   useUpdatePantryItem,
   useCreatePantryItem,
 } from './hooks'
+import { PantryOnboardingCard } from './PantryOnboardingCard'
 import type { PantryItem, PantryItemStatus } from './types'
 import { Text, Button, StatusBadge, EmptyState } from '@/components'
 import { useTheme } from '@/lib/theme'
@@ -476,6 +477,7 @@ export function PantryListScreen() {
     items,
     mainListItems,
     plannedItems,
+    hasInStockItems,
     isLoading,
     isRefreshing,
     error,
@@ -658,92 +660,99 @@ export function PantryListScreen() {
   )
 
   const renderListHeader = useCallback(() => {
-    if (plannedItems.length === 0) return null
+    const showOnboardingCard = !hasInStockItems && !isSearchMode
+
+    if (!showOnboardingCard && plannedItems.length === 0) return null
 
     return (
-      <View
-        style={{
-          marginBottom: spacing.md,
-          backgroundColor: colors.surface.grouped,
-          borderRadius: radius.lg,
-          overflow: 'hidden',
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: spacing.md,
-          }}
-          onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
-          accessibilityRole="button"
-          accessibilityLabel={`Planned Items. ${plannedItems.length} items. ${isPlannedExpanded ? 'Collapse' : 'Expand'}`}
-        >
+      <View>
+        {showOnboardingCard && <PantryOnboardingCard />}
+        {plannedItems.length > 0 && (
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: spacing.sm,
+              marginBottom: spacing.md,
+              backgroundColor: colors.surface.grouped,
+              borderRadius: radius.lg,
+              overflow: 'hidden',
             }}
           >
-            <Text
-              variant="body.primary"
-              style={{ fontWeight: '600', color: colors.feedback.info }}
-            >
-              Planned Items
-            </Text>
-            <View
+            <TouchableOpacity
               style={{
-                backgroundColor: colors.feedback.info,
-                paddingVertical: 2,
-                paddingHorizontal: spacing.sm,
-                borderRadius: 10,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: spacing.md,
               }}
+              onPress={() => setIsPlannedExpanded(!isPlannedExpanded)}
+              accessibilityRole="button"
+              accessibilityLabel={`Planned Items. ${plannedItems.length} items. ${isPlannedExpanded ? 'Collapse' : 'Expand'}`}
             >
-              <Text
-                variant="caption"
-                color="inverse"
-                style={{ fontWeight: '600' }}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: spacing.sm,
+                }}
               >
-                {plannedItems.length}
+                <Text
+                  variant="body.primary"
+                  style={{ fontWeight: '600', color: colors.feedback.info }}
+                >
+                  Planned Items
+                </Text>
+                <View
+                  style={{
+                    backgroundColor: colors.feedback.info,
+                    paddingVertical: 2,
+                    paddingHorizontal: spacing.sm,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text
+                    variant="caption"
+                    color="inverse"
+                    style={{ fontWeight: '600' }}
+                  >
+                    {plannedItems.length}
+                  </Text>
+                </View>
+              </View>
+              <Text variant="caption" style={{ color: colors.feedback.info }}>
+                {isPlannedExpanded ? '▼' : '▶'}
               </Text>
-            </View>
-          </View>
-          <Text variant="caption" style={{ color: colors.feedback.info }}>
-            {isPlannedExpanded ? '▼' : '▶'}
-          </Text>
-        </TouchableOpacity>
-        {isPlannedExpanded && (
-          <View
-            style={{
-              paddingHorizontal: spacing.sm + 4,
-              paddingBottom: spacing.sm + 4,
-            }}
-          >
-            {plannedItems.map((item) => (
-              <PantryItemRow
-                key={item.id}
-                item={item}
-                onPress={() => navigateToItem(item)}
-                onMarkLow={() =>
-                  updatePantryItem.mutate({
-                    itemId: item.id,
-                    status: 'running_low',
-                  })
-                }
-                onMarkOut={() =>
-                  updatePantryItem.mutate({
-                    itemId: item.id,
-                    status: 'out_of_stock',
-                  })
-                }
-                onMore={() => showPlannedActionSheet(item)}
-                colors={colors}
-                spacing={spacing}
-                radius={radius}
-              />
-            ))}
+            </TouchableOpacity>
+            {isPlannedExpanded && (
+              <View
+                style={{
+                  paddingHorizontal: spacing.sm + 4,
+                  paddingBottom: spacing.sm + 4,
+                }}
+              >
+                {plannedItems.map((item) => (
+                  <PantryItemRow
+                    key={item.id}
+                    item={item}
+                    onPress={() => navigateToItem(item)}
+                    onMarkLow={() =>
+                      updatePantryItem.mutate({
+                        itemId: item.id,
+                        status: 'running_low',
+                      })
+                    }
+                    onMarkOut={() =>
+                      updatePantryItem.mutate({
+                        itemId: item.id,
+                        status: 'out_of_stock',
+                      })
+                    }
+                    onMore={() => showPlannedActionSheet(item)}
+                    colors={colors}
+                    spacing={spacing}
+                    radius={radius}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -755,6 +764,8 @@ export function PantryListScreen() {
     colors,
     spacing,
     radius,
+    hasInStockItems,
+    isSearchMode,
   ])
 
   if (isLoading) {
@@ -811,27 +822,28 @@ export function PantryListScreen() {
         radius={radius}
         typography={typography}
       />
-      {items.length === 0 ? (
-        <EmptyState
-          title="No pantry items yet"
-          message="Add your first item to start tracking your pantry"
-          action={<Button title="Add Item" onPress={openAddSheet} />}
-        />
-      ) : (
-        <FlatList
-          data={mainListItems}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          ListHeaderComponent={renderListHeader}
-          contentContainerStyle={{
-            padding: spacing.md,
-            paddingTop: isSearchMode ? 60 : spacing.sm,
-          }}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
-          }
-        />
-      )}
+      <FlatList
+        data={mainListItems}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={
+          hasInStockItems || !isSearchMode ? null : (
+            <EmptyState
+              title="No results found"
+              message="Try a different search term"
+            />
+          )
+        }
+        contentContainerStyle={{
+          padding: spacing.md,
+          paddingTop: isSearchMode ? 60 : spacing.sm,
+          flexGrow: 1,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+        }
+      />
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
