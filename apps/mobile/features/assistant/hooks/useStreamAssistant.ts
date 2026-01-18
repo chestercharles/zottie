@@ -3,8 +3,6 @@ import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { streamAssistantChat, type HistoryMessage } from '../api'
 
-type StreamState = 'idle' | 'streaming' | 'error'
-
 export type ProposedAction = {
   type: 'add_to_pantry' | 'update_pantry_status'
   item: string
@@ -20,7 +18,6 @@ export type Message = {
   id: string
   role: 'user' | 'assistant'
   content: string
-  proposedActions: ProposedActions | null
 }
 
 const PROPOSED_ACTIONS_MARKER = '[PROPOSED_ACTIONS]'
@@ -44,7 +41,7 @@ function parseStreamResponse(fullResponse: string): {
     const proposedActions = JSON.parse(actionsJson) as ProposedActions
     return { textResponse, proposedActions }
   } catch {
-    return { textResponse: fullResponse, proposedActions: null }
+    return { textResponse, proposedActions: null }
   }
 }
 
@@ -53,7 +50,7 @@ export function useStreamAssistant() {
   const { getCredentials } = useAuth0()
   const [messages, setMessages] = useState<Message[]>([])
   const [streamingResponse, setStreamingResponse] = useState('')
-  const [streamState, setStreamState] = useState<StreamState>('idle')
+  const [isStreaming, setIsStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [proposedActions, setProposedActions] =
     useState<ProposedActions | null>(null)
@@ -65,31 +62,25 @@ export function useStreamAssistant() {
     }
   }, [])
 
-  const { textResponse: currentStreamText } =
-    parseStreamResponse(streamingResponse)
+  const displayText = parseStreamResponse(streamingResponse).textResponse
 
   const streamMessage = useCallback(
     async (message: string) => {
       if (!user?.id) {
         setError('User not authenticated')
-        setStreamState('error')
         return
       }
 
       abortRef.current?.()
 
-      const userMessageId = `user-${Date.now()}`
       const userMessage: Message = {
-        id: userMessageId,
+        id: `user-${Date.now()}`,
         role: 'user',
         content: message,
-        proposedActions: null,
       }
 
-      const updatedMessages = [...messages, userMessage]
-      setMessages(updatedMessages)
-
-      setStreamState('streaming')
+      setMessages((prev) => [...prev, userMessage])
+      setIsStreaming(true)
       setStreamingResponse('')
       setError(null)
       setProposedActions(null)
@@ -105,61 +96,53 @@ export function useStreamAssistant() {
           content: msg.content,
         }))
 
+        let fullResponse = ''
         abortRef.current = streamAssistantChat(
           message,
           credentials.accessToken,
           user.id,
           history,
           (chunk) => {
-            setStreamingResponse((prev) => prev + chunk)
+            fullResponse += chunk
+            setStreamingResponse(fullResponse)
           },
           (err) => {
             setError(err.message)
-            setStreamState('error')
+            setIsStreaming(false)
             abortRef.current = null
           },
           () => {
-            setStreamState('idle')
+            const { textResponse, proposedActions: parsed } =
+              parseStreamResponse(fullResponse)
+
+            const assistantMessage: Message = {
+              id: `assistant-${Date.now()}`,
+              role: 'assistant',
+              content: textResponse,
+            }
+
+            setMessages((prev) => [...prev, assistantMessage])
+            setStreamingResponse('')
+            setProposedActions(parsed)
+            setIsStreaming(false)
             abortRef.current = null
           }
         )
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Something went wrong'
-        setError(errorMessage)
-        setStreamState('error')
+        setError(err instanceof Error ? err.message : 'Something went wrong')
+        setIsStreaming(false)
       }
     },
     [user?.id, getCredentials, messages]
   )
 
-  useEffect(() => {
-    if (streamState === 'idle' && streamingResponse) {
-      const { textResponse, proposedActions: parsed } =
-        parseStreamResponse(streamingResponse)
-
-      const assistantMessageId = `assistant-${Date.now()}`
-      const assistantMessage: Message = {
-        id: assistantMessageId,
-        role: 'assistant',
-        content: textResponse,
-        proposedActions: parsed,
-      }
-      setMessages((prev) => [...prev, assistantMessage])
-      setStreamingResponse('')
-
-      if (parsed) {
-        setProposedActions(parsed)
-      }
-    }
-  }, [streamState, streamingResponse])
 
   const reset = useCallback(() => {
     abortRef.current?.()
     abortRef.current = null
     setMessages([])
     setStreamingResponse('')
-    setStreamState('idle')
+    setIsStreaming(false)
     setError(null)
     setProposedActions(null)
   }, [])
@@ -170,8 +153,8 @@ export function useStreamAssistant() {
 
   return {
     messages,
-    streamingResponse: currentStreamText,
-    isStreaming: streamState === 'streaming',
+    streamingResponse: displayText,
+    isStreaming,
     error,
     proposedActions,
     streamMessage,

@@ -86,6 +86,13 @@ export function GotoCreateScreen() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
           router.back()
         },
+        onError: (error) => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+          Alert.alert(
+            'Could not save',
+            error.message || 'Something went wrong. Please try again.'
+          )
+        },
       }
     )
   }, [canSave, createGoto, name, needs, router])

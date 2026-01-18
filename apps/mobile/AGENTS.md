@@ -37,6 +37,33 @@ Before hand-rolling gesture-driven UI (bottom sheets, drawers, pickers), check i
 - Writing gesture handlers that a library would provide
 - Animating backdrop + content + gestures separately when they should move together
 
+### Global event listeners and shared resources
+
+Some libraries use global event listeners that fire for ALL registered handlers (e.g., `expo-speech-recognition`'s `useSpeechRecognitionEvent`). When multiple components or hooks register listeners for the same global events, they will ALL respond when events fire, causing conflicts.
+
+**The rule: One component owns the capability, completely.**
+
+If a component uses speech recognition, camera, or any other shared global resource:
+- That component is the single owner of that capability in its context
+- Do NOT create separate hooks that register the same global listeners elsewhere
+- Do NOT add "convenience" buttons in headers/footers that duplicate the capability with their own listeners
+
+**Example of what NOT to do:**
+```typescript
+// BAD: PantryOnboardingCard uses VoiceInput (registers speech listeners)
+// AND PantryListScreen header has a mic button using useVoiceAddItems (also registers speech listeners)
+// Result: Both fire when speech events occur, causing conflicts
+```
+
+**Correct approach:**
+```typescript
+// GOOD: VoiceInput component is self-contained and is the only speech handler
+// When onboarding card is visible, it owns voice input
+// When onboarding card is gone, voice input capability is gone too
+```
+
+If you need voice input in multiple contexts, use the same VoiceInput component in each context - don't create parallel implementations with their own event registrations.
+
 ## Code organization
 
 We like to colocate cohesive code. Instead of organization things in to folders by type (eg. /components, /hooks, /queries), we like to organization things by feature (eg. /onboarding, /profile, /grocery-list, /grocery-item).

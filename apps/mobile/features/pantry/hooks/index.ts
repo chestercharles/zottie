@@ -5,4 +5,3 @@ export {
   useDeletePantryItem,
 } from './usePantryMutations'
 export { useStatusChangeEducation } from './useStatusChangeEducation'
-export { useVoiceAddItems } from './useVoiceAddItems'

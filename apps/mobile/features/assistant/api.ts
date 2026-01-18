@@ -47,6 +47,7 @@ export function streamAssistantChat(
 ): () => void {
   const xhr = new XMLHttpRequest()
   let lastIndex = 0
+  let isComplete = false
 
   xhr.open('POST', `${API_BASE_URL}/api/assistant/chat`)
   xhr.setRequestHeader('Content-Type', 'application/json')
@@ -54,6 +55,7 @@ export function streamAssistantChat(
   xhr.setRequestHeader('X-User-Id', userId)
 
   xhr.onprogress = () => {
+    if (isComplete) return
     const newText = xhr.responseText.slice(lastIndex)
     lastIndex = xhr.responseText.length
     if (newText) {
@@ -62,6 +64,8 @@ export function streamAssistantChat(
   }
 
   xhr.onload = () => {
+    if (isComplete) return
+    isComplete = true
     if (xhr.status >= 200 && xhr.status < 300) {
       const remaining = xhr.responseText.slice(lastIndex)
       if (remaining) {
@@ -81,10 +85,15 @@ export function streamAssistantChat(
   }
 
   xhr.onerror = () => {
+    if (isComplete) return
+    isComplete = true
     onError(new Error('Network error'))
   }
 
   xhr.send(JSON.stringify({ message, history }))
 
-  return () => xhr.abort()
+  return () => {
+    isComplete = true
+    xhr.abort()
+  }
 }

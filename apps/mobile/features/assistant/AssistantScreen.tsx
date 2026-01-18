@@ -709,12 +709,12 @@ export function AssistantScreen() {
             >
               <Ionicons name="arrow-up" size={20} color={colors.text.inverse} />
             </TouchableOpacity>
-          ) : (
+          ) : showConversation ? (
             <MicButton
               onTranscriptReceived={handleTranscriptReceived}
               size={36}
             />
-          )}
+          ) : null}
         </View>
       </View>
     </KeyboardAvoidingView>
