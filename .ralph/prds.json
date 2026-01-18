@@ -57,7 +57,7 @@
   {
     "name": "Display dormant items in separate section at bottom of pantry",
     "description": "On the pantry list screen, items with 'dormant' status should be visually separated from active pantry items and displayed at the bottom of the list in their own section. This keeps the main pantry view focused on items the user is actively tracking while still giving visibility to dormant items (things they own but don't intend to repurchase). The dormant section should be clearly labeled so users understand why these items are separated. Dormant items remain tappable to view/edit details. Note: dormancy is independent of stock status - an item can be 'running low' AND dormant (user has some left but doesn't plan to buy more).",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Swipe to toggle dormancy on pantry items",

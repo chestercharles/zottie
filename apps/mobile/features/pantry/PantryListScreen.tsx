@@ -478,6 +478,7 @@ export function PantryListScreen() {
   const {
     items,
     mainListItems,
+    dormantItems,
     plannedItems,
     hasInStockItems,
     isLoading,
@@ -486,6 +487,7 @@ export function PantryListScreen() {
     refetch,
   } = usePantryItems(searchTerm)
   const [isPlannedExpanded, setIsPlannedExpanded] = useState(false)
+  const [isDormantExpanded, setIsDormantExpanded] = useState(false)
   const updatePantryItem = useUpdatePantryItem()
   const createPantryItem = useCreatePantryItem()
   const { showEducation, triggerEducation, dismissEducation } =
@@ -776,6 +778,100 @@ export function PantryListScreen() {
     isSearchMode,
   ])
 
+  const renderListFooter = useCallback(() => {
+    if (dormantItems.length === 0) return null
+
+    return (
+      <View
+        style={{
+          marginTop: spacing.md,
+          backgroundColor: colors.surface.grouped,
+          borderRadius: radius.lg,
+          overflow: 'hidden',
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: spacing.md,
+          }}
+          onPress={() => setIsDormantExpanded(!isDormantExpanded)}
+          accessibilityRole="button"
+          accessibilityLabel={`Dormant Items. ${dormantItems.length} items. ${isDormantExpanded ? 'Collapse' : 'Expand'}`}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: spacing.sm,
+            }}
+          >
+            <Text
+              variant="body.primary"
+              style={{ fontWeight: '600', color: colors.text.tertiary }}
+            >
+              Dormant Items
+            </Text>
+            <View
+              style={{
+                backgroundColor: colors.text.tertiary,
+                paddingVertical: 2,
+                paddingHorizontal: spacing.sm,
+                borderRadius: 10,
+              }}
+            >
+              <Text
+                variant="caption"
+                color="inverse"
+                style={{ fontWeight: '600' }}
+              >
+                {dormantItems.length}
+              </Text>
+            </View>
+          </View>
+          <Text variant="caption" style={{ color: colors.text.tertiary }}>
+            {isDormantExpanded ? '▼' : '▶'}
+          </Text>
+        </TouchableOpacity>
+        {isDormantExpanded && (
+          <View
+            style={{
+              paddingHorizontal: spacing.sm + 4,
+              paddingBottom: spacing.sm + 4,
+            }}
+          >
+            {dormantItems.map((item) => (
+              <PantryItemRow
+                key={item.id}
+                item={item}
+                onPress={() => navigateToItem(item)}
+                onMarkLow={() => handleStatusChange(item.id, 'running_low')}
+                onMarkOut={() => handleStatusChange(item.id, 'out_of_stock')}
+                onMore={() =>
+                  item.itemType === 'planned'
+                    ? showPlannedActionSheet(item)
+                    : showStapleActionSheet(item)
+                }
+                colors={colors}
+                spacing={spacing}
+                radius={radius}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+    )
+  }, [
+    dormantItems,
+    isDormantExpanded,
+    handleStatusChange,
+    colors,
+    spacing,
+    radius,
+  ])
+
   if (isLoading) {
     return (
       <View
@@ -835,6 +931,7 @@ export function PantryListScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListHeaderComponent={renderListHeader}
+        ListFooterComponent={renderListFooter}
         ListEmptyComponent={
           hasInStockItems || !isSearchMode ? null : (
             <EmptyState

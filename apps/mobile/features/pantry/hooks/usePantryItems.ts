@@ -44,9 +44,20 @@ export function usePantryItems(searchTerm: string = '') {
       filteredItems
         .filter(
           (item) =>
-            item.itemType === 'staple' ||
-            (item.itemType === 'planned' && item.status !== 'planned')
+            item.status !== 'dormant' &&
+            (item.itemType === 'staple' ||
+              (item.itemType === 'planned' && item.status !== 'planned'))
         )
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
+    [filteredItems]
+  )
+
+  const dormantItems = useMemo(
+    () =>
+      filteredItems
+        .filter((item) => item.status === 'dormant')
         .sort((a, b) =>
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         ),
@@ -85,6 +96,7 @@ export function usePantryItems(searchTerm: string = '') {
   return {
     items: query.data ?? [],
     mainListItems,
+    dormantItems,
     plannedItems,
     hasInStockItems,
     isLoading: query.isLoading && !query.isPlaceholderData,

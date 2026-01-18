@@ -1,5 +1,37 @@
 # zottie Development Progress
 
+## 2026-01-17: Display dormant items in separate section at bottom of pantry
+
+Implemented the "Display dormant items in separate section at bottom of pantry" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/pantry/hooks/usePantryItems.ts`:
+  - Added `dormantItems` memoized array that filters items with `status === 'dormant'`
+  - Updated `mainListItems` to exclude dormant items (filter by `status !== 'dormant'`)
+  - Added `dormantItems` to the returned object from the hook
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Added `isDormantExpanded` state for controlling section expansion
+  - Destructured `dormantItems` from the `usePantryItems` hook
+  - Added `renderListFooter` callback that renders the dormant items section
+  - Connected the footer to FlatList via `ListFooterComponent`
+  - Dormant section uses `colors.text.tertiary` to match the dormant status badge styling
+  - Section follows the same collapsible pattern as Planned Items section
+
+### How it works
+
+Dormant items (items the user owns but doesn't intend to repurchase) are now visually separated from active pantry items:
+
+1. Dormant items no longer appear in the main pantry list
+2. A collapsible "Dormant Items" section appears at the bottom of the list
+3. The section shows a count badge and expand/collapse chevron
+4. When expanded, dormant items are displayed in rows (tappable to view/edit details)
+5. The section uses a muted tertiary color to indicate these items are less actively tracked
+6. Dormant items remain fully interactive - users can tap to view details
+
+This keeps the main pantry view focused on items the user is actively tracking while still giving visibility to dormant items.
+
 ## 2026-01-17: Instructional shopping list empty state
 
 Implemented the "(Education Epic) Instructional shopping list empty state" feature.
