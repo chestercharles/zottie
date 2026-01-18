@@ -61,8 +61,8 @@
     "completed": true
   },
   {
-    "name": "(Assistant Epic) Add conversation persistence to Assistant tab",
-    "description": "Save conversation history so users can return to previous conversations. Conversations should automatically clear after being inactive for a day.",
+    "name": "(Assistant Epic) Add conversation history to Assistant tab",
+    "description": "Display conversation history in the Assistant tab so users can have multi-turn conversations. History persists during the app session (survives tab switches) but clears when the app restarts or user taps New conversation. Fresh pantry context is included with each request so the assistant sees any changes made mid-conversation.",
     "completed": true
   },
   {

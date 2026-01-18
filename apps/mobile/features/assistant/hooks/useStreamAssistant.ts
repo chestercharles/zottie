@@ -1,14 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
-import {
-  streamAssistantChat,
-  getAssistantConversation,
-  deleteAssistantConversation,
-  type ConversationMessage,
-} from '../api'
+import { streamAssistantChat, type HistoryMessage } from '../api'
 
-type StreamState = 'idle' | 'streaming' | 'error' | 'loading'
+type StreamState = 'idle' | 'streaming' | 'error'
 
 export type ProposedAction = {
   type: 'add_to_pantry' | 'update_pantry_status'
@@ -56,7 +51,6 @@ function parseStreamResponse(fullResponse: string): {
 export function useStreamAssistant() {
   const { user } = useAuth()
   const { getCredentials } = useAuth0()
-  const [conversationId, setConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [streamingResponse, setStreamingResponse] = useState('')
   const [streamState, setStreamState] = useState<StreamState>('idle')
@@ -64,7 +58,6 @@ export function useStreamAssistant() {
   const [proposedActions, setProposedActions] =
     useState<ProposedActions | null>(null)
   const abortRef = useRef<(() => void) | null>(null)
-  const hasLoadedRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -72,46 +65,7 @@ export function useStreamAssistant() {
     }
   }, [])
 
-  const loadConversation = useCallback(async () => {
-    if (!user?.id || hasLoadedRef.current) return
-
-    hasLoadedRef.current = true
-    setStreamState('loading')
-
-    try {
-      const credentials = await getCredentials()
-      if (!credentials?.accessToken) {
-        setStreamState('idle')
-        return
-      }
-
-      const conversation = await getAssistantConversation(
-        credentials.accessToken,
-        user.id
-      )
-
-      if (conversation) {
-        setConversationId(conversation.id)
-        setMessages(
-          conversation.messages.map((msg) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            proposedActions: msg.proposedActions,
-          }))
-        )
-      }
-      setStreamState('idle')
-    } catch {
-      setStreamState('idle')
-    }
-  }, [user?.id, getCredentials])
-
-  useEffect(() => {
-    loadConversation()
-  }, [loadConversation])
-
-  const { textResponse: currentStreamText, proposedActions: streamProposedActions } =
+  const { textResponse: currentStreamText } =
     parseStreamResponse(streamingResponse)
 
   const streamMessage = useCallback(
@@ -131,7 +85,9 @@ export function useStreamAssistant() {
         content: message,
         proposedActions: null,
       }
-      setMessages((prev) => [...prev, userMessage])
+
+      const updatedMessages = [...messages, userMessage]
+      setMessages(updatedMessages)
 
       setStreamState('streaming')
       setStreamingResponse('')
@@ -144,16 +100,18 @@ export function useStreamAssistant() {
           throw new Error('No access token available')
         }
 
+        const history: HistoryMessage[] = messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }))
+
         abortRef.current = streamAssistantChat(
           message,
           credentials.accessToken,
           user.id,
-          conversationId,
+          history,
           (chunk) => {
             setStreamingResponse((prev) => prev + chunk)
-          },
-          (newConversationId) => {
-            setConversationId(newConversationId)
           },
           (err) => {
             setError(err.message)
@@ -172,7 +130,7 @@ export function useStreamAssistant() {
         setStreamState('error')
       }
     },
-    [user?.id, getCredentials, conversationId]
+    [user?.id, getCredentials, messages]
   )
 
   useEffect(() => {
@@ -196,28 +154,15 @@ export function useStreamAssistant() {
     }
   }, [streamState, streamingResponse])
 
-  const reset = useCallback(async () => {
+  const reset = useCallback(() => {
     abortRef.current?.()
     abortRef.current = null
-
-    if (conversationId && user?.id) {
-      try {
-        const credentials = await getCredentials()
-        if (credentials?.accessToken) {
-          await deleteAssistantConversation(credentials.accessToken, user.id)
-        }
-      } catch {
-        // Ignore errors during deletion
-      }
-    }
-
-    setConversationId(null)
     setMessages([])
     setStreamingResponse('')
     setStreamState('idle')
     setError(null)
     setProposedActions(null)
-  }, [conversationId, user?.id, getCredentials])
+  }, [])
 
   const clearProposedActions = useCallback(() => {
     setProposedActions(null)
@@ -227,10 +172,8 @@ export function useStreamAssistant() {
     messages,
     streamingResponse: currentStreamText,
     isStreaming: streamState === 'streaming',
-    isLoading: streamState === 'loading',
     error,
     proposedActions,
-    conversationId,
     streamMessage,
     reset,
     clearProposedActions,

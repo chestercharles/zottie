@@ -118,7 +118,6 @@ export function AssistantScreen() {
     messages,
     streamingResponse,
     isStreaming,
-    isLoading,
     error,
     proposedActions,
     streamMessage,
@@ -220,20 +219,6 @@ export function AssistantScreen() {
   }, [messages, streamingResponse, proposedActions])
 
   const showConversation = messages.length > 0 || isStreaming
-
-  if (isLoading) {
-    return (
-      <View
-        style={[
-          styles.container,
-          styles.loadingContainer,
-          { backgroundColor: colors.surface.background },
-        ]}
-      >
-        <ActivityIndicator size="large" color={colors.text.secondary} />
-      </View>
-    )
-  }
 
   return (
     <View
@@ -687,10 +672,6 @@ export function AssistantScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

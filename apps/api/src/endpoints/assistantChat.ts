@@ -1,17 +1,9 @@
 import { Bool, OpenAPIRoute } from 'chanfana'
-import { and, eq, gt, desc, asc } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import OpenAI from 'openai'
 import { z } from 'zod'
 import { type AppContext, PantryItemStatusEnum } from '../types'
-import {
-  getDb,
-  pantryItems,
-  getHouseholdId,
-  assistantConversations,
-  assistantMessages,
-} from '../db'
-
-const CONVERSATION_TTL_MS = 24 * 60 * 60 * 1000
+import { getDb, pantryItems, getHouseholdId } from '../db'
 
 const systemPrompt = `You are a friendly kitchen assistant for zottie.
 
@@ -81,9 +73,14 @@ const ToolCallResult = z.object({
   summary: z.string(),
 })
 
+const MessageSchema = z.object({
+  role: z.enum(['user', 'assistant']),
+  content: z.string(),
+})
+
 const AssistantChatRequest = z.object({
   message: z.string().min(1),
-  conversationId: z.string().optional(),
+  history: z.array(MessageSchema).optional(),
 })
 
 export class AssistantChatEndpoint extends OpenAPIRoute {
@@ -159,7 +156,7 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
     }
 
     const data = await this.getValidatedData<typeof this.schema>()
-    const { message, conversationId: providedConversationId } = data.body
+    const { message, history = [] } = data.body
 
     const items = await db
       .select()
@@ -177,76 +174,25 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
       )
     }
 
-    const now = new Date()
-    const cutoffTime = new Date(Date.now() - CONVERSATION_TTL_MS)
-    let conversationId = providedConversationId
+    const openaiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+      [
+        {
+          role: 'system',
+          content: `${systemPrompt}\n\n${pantryContext}`,
+        },
+      ]
 
-    if (conversationId) {
-      const [existingConversation] = await db
-        .select()
-        .from(assistantConversations)
-        .where(
-          and(
-            eq(assistantConversations.id, conversationId),
-            eq(assistantConversations.householdId, householdId),
-            eq(assistantConversations.userId, userId),
-            gt(assistantConversations.updatedAt, cutoffTime)
-          )
-        )
-        .limit(1)
-
-      if (!existingConversation) {
-        conversationId = undefined
-      }
-    }
-
-    if (!conversationId) {
-      conversationId = crypto.randomUUID()
-      await db.insert(assistantConversations).values({
-        id: conversationId,
-        householdId,
-        userId,
-        createdAt: now,
-        updatedAt: now,
+    for (const msg of history) {
+      openaiMessages.push({
+        role: msg.role,
+        content: msg.content,
       })
     }
 
-    const userMessageId = crypto.randomUUID()
-    await db.insert(assistantMessages).values({
-      id: userMessageId,
-      conversationId,
-      householdId,
+    openaiMessages.push({
       role: 'user',
       content: message,
-      createdAt: now,
     })
-
-    const existingMessages = await db
-      .select()
-      .from(assistantMessages)
-      .where(eq(assistantMessages.conversationId, conversationId))
-      .orderBy(asc(assistantMessages.createdAt))
-
-    const openaiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
-      [{ role: 'system', content: systemPrompt }]
-
-    for (let i = 0; i < existingMessages.length; i++) {
-      const msg = existingMessages[i]
-      if (msg.role === 'user') {
-        const isFirstUserMessage = i === 0
-        openaiMessages.push({
-          role: 'user',
-          content: isFirstUserMessage
-            ? `${pantryContext}\n\nUser message: "${msg.content}"`
-            : msg.content,
-        })
-      } else {
-        openaiMessages.push({
-          role: 'assistant',
-          content: msg.content,
-        })
-      }
-    }
 
     const openai = new OpenAI({ apiKey: openaiApiKey })
 
@@ -257,19 +203,11 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
       stream: true,
     })
 
-    const finalConversationId = conversationId
-
     return new Response(
       new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder()
           let toolCallBuffer = ''
-          let textBuffer = ''
-          let proposedActionsJson: string | null = null
-
-          controller.enqueue(
-            encoder.encode(`[CONVERSATION_ID]${finalConversationId}\n`)
-          )
 
           try {
             for await (const chunk of stream) {
@@ -281,7 +219,6 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
                   toolCallBuffer += toolCall.function.arguments
                 }
               } else if (choice?.delta?.content) {
-                textBuffer += choice.delta.content
                 controller.enqueue(encoder.encode(choice.delta.content))
               }
 
@@ -289,32 +226,16 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
                 try {
                   const parsed = JSON.parse(toolCallBuffer)
                   const validated = ToolCallResult.parse(parsed)
-                  proposedActionsJson = JSON.stringify(validated)
                   controller.enqueue(
-                    encoder.encode(`\n[PROPOSED_ACTIONS]${proposedActionsJson}`)
+                    encoder.encode(
+                      `\n[PROPOSED_ACTIONS]${JSON.stringify(validated)}`
+                    )
                   )
                 } catch {
                   // If parsing fails, just ignore the tool call
                 }
               }
             }
-
-            const assistantMessageId = crypto.randomUUID()
-            await db.insert(assistantMessages).values({
-              id: assistantMessageId,
-              conversationId: finalConversationId,
-              householdId,
-              role: 'assistant',
-              content: textBuffer,
-              proposedActions: proposedActionsJson,
-              createdAt: new Date(),
-            })
-
-            await db
-              .update(assistantConversations)
-              .set({ updatedAt: new Date() })
-              .where(eq(assistantConversations.id, finalConversationId))
-
             controller.close()
           } catch (error) {
             controller.error(error)

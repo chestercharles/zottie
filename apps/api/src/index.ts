@@ -16,10 +16,6 @@ import { PantryItemUpdateEndpoint } from './endpoints/pantryItemUpdate'
 import { CommandParseEndpoint } from './endpoints/commandParse'
 import { CommandExecuteEndpoint } from './endpoints/commandExecute'
 import { AssistantChatEndpoint } from './endpoints/assistantChat'
-import {
-  AssistantConversationGetEndpoint,
-  AssistantConversationDeleteEndpoint,
-} from './endpoints/assistantConversation'
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env; Variables: AuthVariables }>()
@@ -53,8 +49,6 @@ openapi.post('/api/commands/parse', CommandParseEndpoint)
 openapi.post('/api/commands/execute', CommandExecuteEndpoint)
 
 // Assistant endpoints
-openapi.get('/api/assistant/conversation', AssistantConversationGetEndpoint)
-openapi.delete('/api/assistant/conversation', AssistantConversationDeleteEndpoint)
 openapi.post('/api/assistant/chat', AssistantChatEndpoint)
 
 // You may also register routes for non OpenAPI directly on Hono

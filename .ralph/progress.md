@@ -1,83 +1,58 @@
 # zottie Development Progress
 
-## 2026-01-17: Add conversation persistence to Assistant tab
+## 2026-01-17: Add in-memory conversation history to Assistant tab
 
-**Feature:** Save conversation history so users can return to previous conversations. Conversations automatically clear after being inactive for a day.
+**Feature:** Display conversation history in the Assistant tab. Conversations persist during the app session (surviving tab switches) but clear when the app is closed/restarted.
 
 **Changes:**
 
 Backend (apps/api):
-- Added database tables in `apps/api/src/db/schema.ts`:
-  - `assistantConversations` table with id, householdId, userId, createdAt, updatedAt
-  - `assistantMessages` table with id, conversationId, householdId, role, content, proposedActions, createdAt
-- Created migration `0001_secret_wolverine.sql` for the new tables
-- Created `apps/api/src/endpoints/assistantConversation.ts`:
-  - `GET /api/assistant/conversation` - Get current active conversation for the user (if exists and < 24 hours old)
-  - `DELETE /api/assistant/conversation` - Delete current conversation (for "New conversation" button)
 - Updated `apps/api/src/endpoints/assistantChat.ts`:
-  - Accepts optional `conversationId` in request body
-  - Creates new conversation if none provided or expired
-  - Stores user message before sending to OpenAI
-  - Stores assistant response after streaming completes
-  - Builds message history from conversation for OpenAI context
-  - Sends `[CONVERSATION_ID]` marker at the start of the stream
-  - 24-hour TTL check for conversation validity
-- Updated `apps/api/src/index.ts` to register new endpoints
+  - Accepts optional `history` array in request body (previous messages)
+  - Pantry context is now included in the system prompt (fetched fresh each request)
+  - Builds OpenAI message history from: system prompt + pantry context + history + new message
+  - Simplified: no database persistence, no conversation IDs
 
 Mobile (apps/mobile):
 - Updated `apps/mobile/features/assistant/api.ts`:
-  - Added `getAssistantConversation` function
-  - Added `deleteAssistantConversation` function
-  - Updated `streamAssistantChat` to accept `conversationId` and parse `[CONVERSATION_ID]` marker
-  - Added `Conversation` and `ConversationMessage` types
+  - `streamAssistantChat` now accepts `history` array of previous messages
+  - Added `HistoryMessage` type
 - Updated `apps/mobile/features/assistant/hooks/useStreamAssistant.ts`:
-  - Tracks `conversationId` state
-  - Stores full message history in `messages` array
-  - Loads existing conversation on mount (if < 24 hours old)
+  - Stores full message history in `messages` array (React state)
   - Adds user message to local state immediately when sending
+  - Sends message history to backend with each request
   - Appends assistant message to history when stream completes
-  - Deletes conversation when "New conversation" is tapped
+  - `reset()` clears the local messages array
   - Added `Message` type export
 - Updated `apps/mobile/features/assistant/hooks/index.ts`:
   - Exported `Message` type
 - Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
   - Displays all messages from conversation history using `MessageBubble` component
-  - Shows loading state while fetching existing conversation
   - Removed single `transcript`/`response` state in favor of `messages` array
-  - Conversation persists when navigating away and returning
+  - Conversation survives tab switches (screen stays mounted in Expo Router tabs)
 
 **Technical Details:**
 
-1. Conversation persistence flow:
-   - On mount, hook calls `GET /api/assistant/conversation` to load any recent conversation
-   - If conversation exists and is < 24 hours old, messages are displayed
-   - New messages are sent with `conversationId` to continue the conversation
-   - Backend stores both user and assistant messages in the database
-   - OpenAI receives full conversation history for context-aware responses
+1. In-memory conversation flow:
+   - Messages stored in React state within `useStreamAssistant` hook
+   - Each API call sends the full history to the backend
+   - Backend injects fresh pantry context into system prompt on every request
+   - If pantry changes mid-conversation, next message sees updated state
 
-2. Privacy and multi-user support:
-   - Conversations are scoped to both `householdId` AND `userId`
-   - Each user in a household has their own private conversations
-   - Conversations don't mix between household members
+2. Session lifecycle:
+   - Conversation persists: switching tabs within the app
+   - Conversation clears: closing/restarting the app, tapping "New conversation"
 
-3. Auto-clear mechanism:
-   - 24-hour TTL implemented via `CONVERSATION_TTL_MS` constant
-   - Both GET endpoint and chat endpoint check `updatedAt > cutoff`
-   - Old conversations are simply ignored (not physically deleted)
-   - When user taps "New conversation", the conversation is deleted from the database
-
-4. Message history in OpenAI context:
-   - System prompt is sent first
-   - Pantry context is included only with the first user message
-   - Full conversation history is passed to maintain context
-   - LLM can reference previous messages in the conversation
+3. Simplified architecture:
+   - No database tables for conversations
+   - No conversation ID tracking
+   - Client is the source of truth for conversation history
 
 **Verification:**
 
 - ✅ API TypeScript type checking passed
 - ✅ Mobile linting passed
 - ✅ Mobile TypeScript type checking passed
-- ✅ Tests passed
 
 ## 2026-01-17: Add text input option to Assistant tab
 
