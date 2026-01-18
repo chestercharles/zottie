@@ -4,6 +4,17 @@ The user has provided this initial idea: $ARGUMENTS
 
 Your job is to gather enough information to write a clear, actionable PRD that another agent can implement without needing implementation details.
 
+## Epics
+
+When a user provides multiple related features or a larger initiative that should be split into separate PRDs, group them under an **epic**. An epic is just a lightweight label in parentheses at the start of the PRD name, like `(Onboarding Epic) Simplify onboarding to shopping list only`.
+
+- If the user's request naturally breaks into multiple PRDs that are part of the same initiative, ask what they'd like to call the epic (or suggest one)
+- Use the format: `(Epic Name) Short descriptive title`
+- Keep epic names short (2-3 words typically)
+- Not every PRD needs an epic - standalone features can skip it
+
+## Gathering Information
+
 Ask clarifying questions ONE AT A TIME using the AskUserQuestion tool. Focus on:
 
 1. **Who and why** - Who is this feature for? What problem does it solve for them? (Clarify when the motivation isn't obvious from the initial idea)
