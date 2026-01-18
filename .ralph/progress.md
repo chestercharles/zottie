@@ -1,5 +1,41 @@
 # zottie Development Progress
 
+## 2026-01-17: Move edit name action to overflow menu on item detail
+
+**Feature:** Added "Edit Name" option to the overflow menu and removed direct tap-to-edit behavior from the item name
+
+**Changes:**
+
+- Updated `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added "Edit Name" option to the `ActionSheetIOS` overflow menu
+  - Removed the `TouchableOpacity` wrapper and pencil icon from the item name display
+  - Item name now displays as plain text when not editing
+  - Added `autoFocus` to the text input so the keyboard appears immediately when editing
+  - Removed unused `nameContainer` style
+
+**Technical Details:**
+
+1. Problem: Users could edit the item name by tapping directly on it (shown with a pencil icon), but this interaction wasn't very discoverable. Users might not realize the name is tappable.
+
+2. Solution:
+   - Added "Edit Name" as the first option in the existing overflow menu (after Cancel)
+   - Tapping "Edit Name" triggers `setIsEditingName(true)` which shows the inline edit UI
+   - The inline editing experience (text input with Cancel/Save buttons) remains unchanged
+   - Added `autoFocus` to the text input so the keyboard appears immediately when entering edit mode
+   - Removed the pencil icon and tap behavior from the name display for a cleaner look
+
+3. UX improvements:
+   - Edit action is now discoverable via the overflow menu
+   - Consistent with the delete action also being in the overflow menu
+   - Makes the edit action intentional rather than accidental
+   - Cleaner item detail screen without the pencil icon
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Move delete action to overflow menu on item detail
 
 **Feature:** Moved the delete action from a prominent red button at the bottom of the edit item screen to an overflow menu in the header

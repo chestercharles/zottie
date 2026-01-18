@@ -27,7 +27,8 @@
   {
     "name": "Intelligent pluralization for voice commands",
     "description": "When users add items via voice commands, the backend command parser should be resilient to imperfect voice-to-text input by intelligently pluralizing common grocery items. Voice-to-text happens on-device and may not perfectly capture what the user said (e.g., missing the 's' at the end of words). The parser should recognize that people typically buy 'eggs' not 'egg', 'tomatoes' not 'tomato', 'grapes' not 'grape', etc. When processing voice commands (not typed commands), if the parsed item name is a common grocery item that's typically purchased in plural form, the parser should automatically adjust it to the plural form before adding it to the user's list. This makes the voice command experience more natural and robust against environmental factors beyond our control.",
-    "completed": false
+    "completed": true,
+    "skipped": true
   },
   {
     "name": "(Assistant Epic) Add Assistant tab with voice button and canned prompts",
@@ -107,6 +108,6 @@
   {
     "name": "Move edit name action to overflow menu on item detail",
     "description": "Currently users tap directly on the item name to edit it, which isn't very discoverable. Add an 'Edit Name' option to the overflow menu in the item detail header (same menu where delete lives). The implementer should determine the best UX for what happens when the user taps 'Edit Name' - options include: inline editing where the name becomes editable in place, a separate modal/sheet with a text input, or another pattern that follows iOS conventions. The goal is a clear, intentional way to edit the item name.",
-    "completed": false
+    "completed": true
   }
 ]

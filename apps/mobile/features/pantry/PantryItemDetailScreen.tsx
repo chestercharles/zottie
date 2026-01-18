@@ -264,12 +264,14 @@ export function PantryItemDetailScreen() {
   const showOverflowMenu = () => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['Cancel', 'Delete Item'],
+        options: ['Cancel', 'Edit Name', 'Delete Item'],
         cancelButtonIndex: 0,
-        destructiveButtonIndex: 1,
+        destructiveButtonIndex: 2,
       },
       (buttonIndex) => {
         if (buttonIndex === 1) {
+          setIsEditingName(true)
+        } else if (buttonIndex === 2) {
           handleDelete()
         }
       }
@@ -317,6 +319,7 @@ export function PantryItemDetailScreen() {
                 onSubmitEditing={handleSaveName}
                 returnKeyType="done"
                 placeholderTextColor={colors.text.tertiary}
+                autoFocus
               />
               <View style={[styles.editNameButtons, { gap: spacing.sm }]}>
                 <Button
@@ -335,13 +338,7 @@ export function PantryItemDetailScreen() {
               </View>
             </View>
           ) : (
-            <TouchableOpacity
-              style={[styles.nameContainer, { gap: spacing.sm }]}
-              onPress={() => setIsEditingName(true)}
-            >
-              <Text variant="title.large">{currentName}</Text>
-              <Ionicons name="pencil" size={20} color={colors.text.tertiary} />
-            </TouchableOpacity>
+            <Text variant="title.large">{currentName}</Text>
           )}
         </View>
 
@@ -448,10 +445,6 @@ const styles = StyleSheet.create({
   },
   content: {},
   header: {},
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   editNameContainer: {},
   nameInput: {
     fontSize: 28,
