@@ -100,3 +100,23 @@ export const CommandAction = z.object({
   item: Str({ example: 'apples' }),
   status: PantryItemStatusEnum.optional(),
 })
+
+export const GotoCreate = z.object({
+  name: Str({ example: 'Pork and Beans' }),
+  needs: Str({ example: 'salt pork, pinto beans, lots of butter' }),
+})
+
+export const GotoUpdate = z.object({
+  name: Str({ example: 'Pork and Beans' }).optional(),
+  needs: Str({ example: 'salt pork, pinto beans, lots of butter' }).optional(),
+})
+
+export const Goto = z.object({
+  id: Str({ example: '550e8400-e29b-41d4-a716-446655440000' }),
+  householdId: Str({ example: '550e8400-e29b-41d4-a716-446655440001' }),
+  createdBy: Str({ example: 'auth0|123456789' }),
+  name: Str({ example: 'Pork and Beans' }),
+  needs: Str({ example: 'salt pork, pinto beans, lots of butter' }),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+})

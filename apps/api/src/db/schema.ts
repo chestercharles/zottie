@@ -70,3 +70,18 @@ export const pantryItems = sqliteTable('pantry_items', {
 
 export type PantryItem = typeof pantryItems.$inferSelect
 export type NewPantryItem = typeof pantryItems.$inferInsert
+
+export const gotos = sqliteTable('gotos', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
+  createdBy: text('created_by').notNull(),
+  name: text('name').notNull(),
+  needs: text('needs').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type Goto = typeof gotos.$inferSelect
+export type NewGoto = typeof gotos.$inferInsert

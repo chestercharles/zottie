@@ -122,6 +122,30 @@ export default function AuthenticatedLayout() {
         }}
       />
       <Tabs.Screen
+        name="gotos"
+        options={{
+          title: 'Go-tos',
+          headerShown: true,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'bookmark' : 'bookmark-outline'}
+              size={size}
+              color={color}
+            />
+          ),
+          headerLeft: ({ tintColor }) => (
+            <TouchableOpacity
+              onPress={() => router.push('/pantry/settings')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+            >
+              <Ionicons name="settings-outline" size={24} color={tintColor} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="assistant"
         options={{
           title: 'Assistant',

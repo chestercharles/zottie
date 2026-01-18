@@ -2,7 +2,7 @@
   {
     "name": "(Go-tos Epic) Go-tos management UI",
     "description": "Add a new 'Go-tos' tab where users can save and manage go-to meals - dishes they know how to make and want quick access to. Go-tos are shared at the household level: all household members see the same go-tos and can create, edit, or delete any of them. Each go-to has a name, a freeform text field describing what's needed to make it (ingredients, amounts, notes), and tracks who created it. The data structure: name string, 'needs' text string, and createdBy user reference. The list screen shows cards with the go-to name, a truncated preview of the needs text, and subtle attribution showing who created it (e.g., 'by Chester' or a small avatar). Tapping a card opens the edit screen. The create/edit screen has two fields: a name input at the top, then a 'needs' label followed by a multiline text area. This creates a natural sentence structure: '[Name] needs [ingredients text]'. The text input includes a microphone button for voice input - users can tap to record and speak their ingredients naturally, which transcribes into the text field. A delete option appears at the bottom of the edit screen. The plus button in the header creates a new go-to (attributed to the current user). This tab serves as the foundation for go-tos - users can create and manage them here, and later the Assistant will gain the ability to use this data when helping with shopping lists.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Go-tos Epic) Assistant integration for go-tos",

@@ -5,4 +5,5 @@ export const queryKeys = {
     ['householdMembership', userId] as const,
   householdInvite: (code: string) => ['householdInvite', code] as const,
   onboardingFlag: (userId: string) => ['onboardingFlag', userId] as const,
+  gotos: (userId: string) => ['gotos', userId] as const,
 }
