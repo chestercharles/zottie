@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native'
-import { forwardRef, useCallback } from 'react'
+import { forwardRef, useCallback, useRef } from 'react'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -17,6 +18,25 @@ export const StatusChangeEducationSheet = forwardRef<
   StatusChangeEducationSheetProps
 >(function StatusChangeEducationSheet({ onDismiss }, ref) {
   const { colors, spacing, radius } = useTheme()
+  const insets = useSafeAreaInsets()
+  const internalRef = useRef<BottomSheet>(null)
+
+  const setRefs = useCallback(
+    (node: BottomSheet | null) => {
+      internalRef.current = node
+      if (typeof ref === 'function') {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    },
+    [ref]
+  )
+
+  const handleDismiss = useCallback(() => {
+    internalRef.current?.close()
+    onDismiss()
+  }, [onDismiss])
 
   const renderBackdrop = useCallback(
     (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
@@ -32,16 +52,18 @@ export const StatusChangeEducationSheet = forwardRef<
 
   return (
     <BottomSheet
-      ref={ref}
+      ref={setRefs}
       index={-1}
-      snapPoints={['35%']}
+      snapPoints={['40%']}
       enablePanDownToClose
       backdropComponent={renderBackdrop}
       onClose={onDismiss}
       backgroundStyle={{ backgroundColor: colors.surface.elevated }}
       handleIndicatorStyle={{ backgroundColor: colors.border.strong }}
     >
-      <BottomSheetView style={styles.content}>
+      <BottomSheetView
+        style={[styles.content, { paddingBottom: insets.bottom + spacing.lg }]}
+      >
         <View
           style={[
             styles.iconContainer,
@@ -79,7 +101,7 @@ export const StatusChangeEducationSheet = forwardRef<
           your shopping list. When you restock, just update the status.
         </Text>
 
-        <Button title="Got it" onPress={onDismiss} style={styles.button} />
+        <Button title="Got it" onPress={handleDismiss} style={styles.button} />
       </BottomSheetView>
     </BottomSheet>
   )
