@@ -1,5 +1,31 @@
 # zottie Development Progress
 
+## 2026-01-17: Improve tab bar selected state visibility
+
+**Feature:** Made the selected tab state more visually distinct by using filled icons for selected tabs and outline icons for unselected tabs
+
+**Changes:**
+
+- Updated `apps/mobile/app/(authenticated)/_layout.tsx`:
+  - Pantry tab: uses `home` when focused, `home-outline` when not
+  - Shopping tab: uses `cart` when focused, `cart-outline` when not
+  - Commands tab: uses `mic` when focused, `mic-outline` when not
+  - Assistant tab: uses `chatbubble` when focused, `chatbubble-outline` when not
+
+**Technical Details:**
+
+1. Problem: The previous implementation only differentiated selected/unselected tabs by color (`action.primary` vs `text.secondary`). In both light and dark modes, these colors are too similar for users to quickly identify which tab is active.
+
+2. Solution: Following standard iOS conventions, the tab bar now uses filled icons for the selected tab and outline icons for unselected tabs. This pattern is used throughout iOS (App Store, Music, Settings, etc.) and provides immediate visual recognition of the active tab regardless of color contrast.
+
+3. Implementation: Each tab's `tabBarIcon` now receives the `focused` prop and conditionally renders either the filled or outline variant of the Ionicons icon.
+
+**Verification:**
+
+- Linting passed
+- TypeScript type checking passed
+- Tests passed
+
 ## 2026-01-17: Add choice when removing item from shopping list
 
 **Feature:** When swiping to remove an item from the shopping list, users now see two options: "Already have it" and "Don't want to buy it". This addresses the case where someone buys salmon occasionally but doesn't want it automatically added to their shopping list every time they run out.

@@ -113,7 +113,7 @@
   {
     "name": "Improve tab bar selected state visibility",
     "description": "The current tab bar's selected state is too subtle - the color difference between active and inactive tabs isn't noticeable enough for users to quickly see which tab they're on. Improve the visual distinction between selected and unselected tabs. The implementer should consider iOS-standard approaches such as using filled icons for the selected tab and outline icons for unselected tabs, adjusting the color contrast, or adding other visual indicators that make the selected state immediately obvious.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Make Assistant responses brief and plain-text",
@@ -148,6 +148,21 @@
   {
     "name": "Remove Commands tab and related code",
     "description": "Remove the Commands tab entirely from the app, along with all related code and backend endpoints. The Assistant feature has replaced the Commands functionality. This includes: removing the Commands tab from navigation, deleting the Commands UI components, removing any backend endpoints that were exclusively used by the Commands feature, and cleaning up any related state management or hooks. Before deleting, verify that no code is shared with the Assistant feature - the implementer should check for any dependencies between Commands and Assistant to ensure nothing breaks. If shared utilities or components are found, they should be preserved and only the Commands-specific code removed.",
+    "completed": false
+  },
+  {
+    "name": "Display dormant items in separate section at bottom of pantry",
+    "description": "On the pantry list screen, items with 'dormant' status should be visually separated from active pantry items and displayed at the bottom of the list in their own section. This keeps the main pantry view focused on items the user is actively tracking while still giving visibility to dormant items (things they own but don't intend to repurchase). The dormant section should be clearly labeled so users understand why these items are separated. Dormant items remain tappable to view/edit details. Note: dormancy is independent of stock status - an item can be 'running low' AND dormant (user has some left but doesn't plan to buy more).",
+    "completed": false
+  },
+  {
+    "name": "Swipe to toggle dormancy on pantry items",
+    "description": "Add a swipe gesture on pantry list items to toggle dormancy. When swiping on a non-dormant item, the action should mark it as dormant. When swiping on a dormant item (in the dormant section), the action should reactivate it (remove dormancy). This provides a quick way to manage dormancy without opening the item detail screen. The swipe action should be visually distinct from any existing swipe actions and clearly communicate what will happen.",
+    "completed": false
+  },
+  {
+    "name": "Add dormancy toggle to item detail screen",
+    "description": "Add a way to toggle an item's dormancy from the item detail bottom sheet. This should be separate from the status picker (in-stock, running low, out of stock) since dormancy is an independent attribute - an item can be both 'running low' AND dormant. Users should be able to mark any item as dormant regardless of its current stock status, and should be able to reactivate dormant items from this screen as well.",
     "completed": false
   }
 ]

@@ -49,8 +49,12 @@ export default function AuthenticatedLayout() {
         options={{
           title: 'Pantry',
           headerShown: true,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={size}
+              color={color}
+            />
           ),
           headerLeft: ({ tintColor }) => (
             <TouchableOpacity
@@ -89,8 +93,12 @@ export default function AuthenticatedLayout() {
         options={{
           title: 'Shopping',
           headerShown: true,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'cart' : 'cart-outline'}
+              size={size}
+              color={color}
+            />
           ),
           headerRight: ({ tintColor }) => (
             <TouchableOpacity
@@ -108,8 +116,12 @@ export default function AuthenticatedLayout() {
         options={{
           title: 'Commands',
           headerShown: true,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="mic-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'mic' : 'mic-outline'}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -118,8 +130,12 @@ export default function AuthenticatedLayout() {
         options={{
           title: 'Assistant',
           headerShown: true,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'chatbubble' : 'chatbubble-outline'}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
