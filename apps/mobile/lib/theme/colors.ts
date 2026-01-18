@@ -1,3 +1,9 @@
+// Brand palette:
+// Lilac Ash: #B0A1BA — secondary accents, selected states, tags
+// Cool Steel: #A5B5BF — borders, dividers
+// Ash Grey: #ABC8C7 — surface tints
+// Celadon: #B8E2C8 / #BFF0D4 — success states
+
 export const colors = {
   light: {
     text: {
@@ -8,23 +14,23 @@ export const colors = {
     },
     surface: {
       background: '#FFFFFF',
-      grouped: '#F2F2F7',
+      grouped: '#F5F7F7',
       elevated: '#FFFFFF',
       overlay: 'rgba(0, 0, 0, 0.4)',
     },
     border: {
-      subtle: '#E5E5EA',
-      strong: '#C7C7CC',
+      subtle: '#D4DEE0',
+      strong: '#A5B5BF',
     },
     feedback: {
-      success: '#14B8A6',
-      warning: '#FF9500',
-      error: '#FF3B30',
-      info: '#5856D6',
+      success: '#5A9B7A',
+      warning: '#D4952A',
+      error: '#C44D4D',
+      info: '#6B5A75',
     },
     action: {
-      primary: '#5856D6',
-      primaryPressed: '#4B49B6',
+      primary: '#6B5A75',
+      primaryPressed: '#5A4A63',
       secondary: 'transparent',
       disabled: '#D1D1D6',
     },
@@ -43,18 +49,18 @@ export const colors = {
       overlay: 'rgba(0, 0, 0, 0.6)',
     },
     border: {
-      subtle: '#38383A',
-      strong: '#545456',
+      subtle: '#3D4548',
+      strong: '#5A6A70',
     },
     feedback: {
-      success: '#2DD4BF',
-      warning: '#FF9F0A',
-      error: '#FF453A',
-      info: '#5E5CE6',
+      success: '#8FD4A8',
+      warning: '#FFBB5C',
+      error: '#FF6B6B',
+      info: '#C4B5CE',
     },
     action: {
-      primary: '#5E5CE6',
-      primaryPressed: '#7371ED',
+      primary: '#C4B5CE',
+      primaryPressed: '#D5C9DD',
       secondary: 'transparent',
       disabled: '#3A3A3C',
     },

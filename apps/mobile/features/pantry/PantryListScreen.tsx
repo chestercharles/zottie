@@ -19,7 +19,6 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Reanimated, {
   SharedValue,
   useAnimatedStyle,
-  runOnJS,
   useSharedValue,
   withSpring,
   interpolate,
@@ -154,10 +153,9 @@ function PantryItemRow({
     drag: SharedValue<number>
   ) => {
     const checkSwipeThreshold = () => {
-      'worklet'
       if (drag.value < SWIPE_THRESHOLD && !hasTriggeredHaptic.current) {
         hasTriggeredHaptic.current = true
-        runOnJS(handleFullSwipe)()
+        handleFullSwipe()
       }
     }
 
@@ -169,9 +167,7 @@ function PantryItemRow({
           marginBottom: spacing.sm + 4,
           width: actionsWidth,
         }}
-        onLayout={() => {
-          checkSwipeThreshold()
-        }}
+        onLayout={checkSwipeThreshold}
       >
         {isStaple ? (
           <>
@@ -313,25 +309,23 @@ function SearchOverlay({
   const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
+    if (isVisible) {
+      gestureTranslateY.value = 0
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
     animationProgress.value = withSpring(isVisible ? 1 : 0, {
       damping: 28,
       stiffness: 400,
       mass: 0.8,
     })
-    if (isVisible) {
-      setTimeout(() => inputRef.current?.focus(), 100)
-    } else {
-      gestureTranslateY.value = 0
-    }
   }, [isVisible])
 
   const panGesture = Gesture.Pan()
+    .runOnJS(true)
     .activeOffsetY([-8, 8])
     .failOffsetX([-15, 15])
     .onUpdate((event) => {
-      if (event.translationY < 0) {
-        gestureTranslateY.value = event.translationY
-      }
+      gestureTranslateY.value = Math.min(0, event.translationY)
     })
     .onEnd((event) => {
       const hasSignificantDistance = event.translationY < -60
@@ -339,9 +333,8 @@ function SearchOverlay({
       const shouldDismiss = hasSignificantDistance || hasSignificantVelocity
 
       if (shouldDismiss) {
-        runOnJS(Keyboard.dismiss)()
-        runOnJS(onClose)()
-        gestureTranslateY.value = 0
+        Keyboard.dismiss()
+        onClose()
       } else {
         gestureTranslateY.value = withSpring(0, {
           damping: 20,
