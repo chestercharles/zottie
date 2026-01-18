@@ -15,7 +15,12 @@ import * as Haptics from 'expo-haptics'
 import { useTheme } from '../../lib/theme'
 import { Text } from '../../components/ui'
 import { VoiceInput } from '../../components/VoiceInput'
-import { useStreamAssistant, type ProposedActions, type ProposedAction } from './hooks'
+import {
+  useStreamAssistant,
+  type ProposedActions,
+  type ProposedAction,
+  type Message,
+} from './hooks'
 import { executeAssistantActions } from './api'
 import { useAuth } from '../auth'
 import { queryKeys } from '../../lib/query/keys'
@@ -61,9 +66,46 @@ function formatActionDescription(action: ProposedAction): string {
   return `Mark "${action.item}" as ${statusLabels[action.status]}`
 }
 
+function MessageBubble({
+  message,
+  colors,
+  spacing,
+  radius,
+}: {
+  message: Message
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
+}) {
+  const isUser = message.role === 'user'
+
+  return (
+    <View
+      style={[
+        styles.messageContainer,
+        isUser ? styles.userMessage : styles.assistantMessage,
+        {
+          backgroundColor: isUser
+            ? colors.action.primary
+            : colors.surface.grouped,
+          borderRadius: radius.lg,
+          padding: spacing.md,
+          marginBottom: spacing.md,
+        },
+      ]}
+    >
+      <Text
+        variant="body.primary"
+        style={isUser ? { color: colors.text.inverse } : undefined}
+      >
+        {message.content}
+      </Text>
+    </View>
+  )
+}
+
 export function AssistantScreen() {
   const { colors, spacing, radius } = useTheme()
-  const [transcript, setTranscript] = useState<string | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionResult, setExecutionResult] = useState<{
     success: boolean
@@ -73,8 +115,10 @@ export function AssistantScreen() {
   const [showTextInput, setShowTextInput] = useState(false)
   const textInputRef = useRef<TextInput>(null)
   const {
-    response,
+    messages,
+    streamingResponse,
     isStreaming,
+    isLoading,
     error,
     proposedActions,
     streamMessage,
@@ -87,7 +131,6 @@ export function AssistantScreen() {
   const queryClient = useQueryClient()
 
   const handleTranscriptReceived = (text: string) => {
-    setTranscript(text)
     setExecutionResult(null)
     streamMessage(text)
   }
@@ -96,7 +139,6 @@ export function AssistantScreen() {
     const prompt = CANNED_PROMPTS.find((p) => p.id === promptId)
     if (!prompt) return
 
-    setTranscript(prompt.label)
     setExecutionResult(null)
     streamMessage(prompt.label)
   }
@@ -106,7 +148,6 @@ export function AssistantScreen() {
     if (!text) return
 
     Keyboard.dismiss()
-    setTranscript(text)
     setTextInputValue('')
     setExecutionResult(null)
     streamMessage(text)
@@ -120,7 +161,6 @@ export function AssistantScreen() {
   }, [])
 
   const handleNewConversation = () => {
-    setTranscript(null)
     setExecutionResult(null)
     reset()
   }
@@ -174,12 +214,26 @@ export function AssistantScreen() {
   }, [clearProposedActions])
 
   useEffect(() => {
-    if (response || proposedActions) {
+    if (messages.length > 0 || streamingResponse || proposedActions) {
       scrollViewRef.current?.scrollToEnd({ animated: true })
     }
-  }, [response, proposedActions])
+  }, [messages, streamingResponse, proposedActions])
 
-  const showConversation = transcript || response || isStreaming
+  const showConversation = messages.length > 0 || isStreaming
+
+  if (isLoading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.loadingContainer,
+          { backgroundColor: colors.surface.background },
+        ]}
+      >
+        <ActivityIndicator size="large" color={colors.text.secondary} />
+      </View>
+    )
+  }
 
   return (
     <View
@@ -331,26 +385,17 @@ export function AssistantScreen() {
 
         {showConversation && (
           <View style={styles.conversationContainer}>
-            {transcript && (
-              <View
-                style={[
-                  styles.messageContainer,
-                  styles.userMessage,
-                  {
-                    backgroundColor: colors.action.primary,
-                    borderRadius: radius.lg,
-                    padding: spacing.md,
-                    marginBottom: spacing.md,
-                  },
-                ]}
-              >
-                <Text variant="body.primary" style={{ color: colors.text.inverse }}>
-                  {transcript}
-                </Text>
-              </View>
-            )}
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                colors={colors}
+                spacing={spacing}
+                radius={radius}
+              />
+            ))}
 
-            {(response || isStreaming) && (
+            {isStreaming && (
               <View
                 style={[
                   styles.messageContainer,
@@ -359,11 +404,12 @@ export function AssistantScreen() {
                     backgroundColor: colors.surface.grouped,
                     borderRadius: radius.lg,
                     padding: spacing.md,
+                    marginBottom: spacing.md,
                   },
                 ]}
               >
-                {response ? (
-                  <Text variant="body.primary">{response}</Text>
+                {streamingResponse ? (
+                  <Text variant="body.primary">{streamingResponse}</Text>
                 ) : (
                   <View style={styles.streamingIndicator}>
                     <ActivityIndicator
@@ -540,7 +586,7 @@ export function AssistantScreen() {
 
             {!isStreaming &&
               !proposedActions &&
-              (response || error || executionResult) && (
+              messages.length > 0 && (
                 <View style={[styles.conversationActionsContainer, { marginTop: spacing.xl, gap: spacing.md }]}>
                   <View
                     style={[
@@ -641,6 +687,10 @@ export function AssistantScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

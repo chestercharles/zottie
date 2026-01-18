@@ -1,5 +1,84 @@
 # zottie Development Progress
 
+## 2026-01-17: Add conversation persistence to Assistant tab
+
+**Feature:** Save conversation history so users can return to previous conversations. Conversations automatically clear after being inactive for a day.
+
+**Changes:**
+
+Backend (apps/api):
+- Added database tables in `apps/api/src/db/schema.ts`:
+  - `assistantConversations` table with id, householdId, userId, createdAt, updatedAt
+  - `assistantMessages` table with id, conversationId, householdId, role, content, proposedActions, createdAt
+- Created migration `0001_secret_wolverine.sql` for the new tables
+- Created `apps/api/src/endpoints/assistantConversation.ts`:
+  - `GET /api/assistant/conversation` - Get current active conversation for the user (if exists and < 24 hours old)
+  - `DELETE /api/assistant/conversation` - Delete current conversation (for "New conversation" button)
+- Updated `apps/api/src/endpoints/assistantChat.ts`:
+  - Accepts optional `conversationId` in request body
+  - Creates new conversation if none provided or expired
+  - Stores user message before sending to OpenAI
+  - Stores assistant response after streaming completes
+  - Builds message history from conversation for OpenAI context
+  - Sends `[CONVERSATION_ID]` marker at the start of the stream
+  - 24-hour TTL check for conversation validity
+- Updated `apps/api/src/index.ts` to register new endpoints
+
+Mobile (apps/mobile):
+- Updated `apps/mobile/features/assistant/api.ts`:
+  - Added `getAssistantConversation` function
+  - Added `deleteAssistantConversation` function
+  - Updated `streamAssistantChat` to accept `conversationId` and parse `[CONVERSATION_ID]` marker
+  - Added `Conversation` and `ConversationMessage` types
+- Updated `apps/mobile/features/assistant/hooks/useStreamAssistant.ts`:
+  - Tracks `conversationId` state
+  - Stores full message history in `messages` array
+  - Loads existing conversation on mount (if < 24 hours old)
+  - Adds user message to local state immediately when sending
+  - Appends assistant message to history when stream completes
+  - Deletes conversation when "New conversation" is tapped
+  - Added `Message` type export
+- Updated `apps/mobile/features/assistant/hooks/index.ts`:
+  - Exported `Message` type
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Displays all messages from conversation history using `MessageBubble` component
+  - Shows loading state while fetching existing conversation
+  - Removed single `transcript`/`response` state in favor of `messages` array
+  - Conversation persists when navigating away and returning
+
+**Technical Details:**
+
+1. Conversation persistence flow:
+   - On mount, hook calls `GET /api/assistant/conversation` to load any recent conversation
+   - If conversation exists and is < 24 hours old, messages are displayed
+   - New messages are sent with `conversationId` to continue the conversation
+   - Backend stores both user and assistant messages in the database
+   - OpenAI receives full conversation history for context-aware responses
+
+2. Privacy and multi-user support:
+   - Conversations are scoped to both `householdId` AND `userId`
+   - Each user in a household has their own private conversations
+   - Conversations don't mix between household members
+
+3. Auto-clear mechanism:
+   - 24-hour TTL implemented via `CONVERSATION_TTL_MS` constant
+   - Both GET endpoint and chat endpoint check `updatedAt > cutoff`
+   - Old conversations are simply ignored (not physically deleted)
+   - When user taps "New conversation", the conversation is deleted from the database
+
+4. Message history in OpenAI context:
+   - System prompt is sent first
+   - Pantry context is included only with the first user message
+   - Full conversation history is passed to maintain context
+   - LLM can reference previous messages in the conversation
+
+**Verification:**
+
+- ✅ API TypeScript type checking passed
+- ✅ Mobile linting passed
+- ✅ Mobile TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Add text input option to Assistant tab
 
 **Feature:** Added a secondary text input field to the Assistant tab for when voice isn't convenient

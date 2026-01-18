@@ -69,3 +69,36 @@ export const pantryItems = sqliteTable('pantry_items', {
 
 export type PantryItem = typeof pantryItems.$inferSelect
 export type NewPantryItem = typeof pantryItems.$inferInsert
+
+export const assistantMessageRole = ['user', 'assistant'] as const
+export type AssistantMessageRole = (typeof assistantMessageRole)[number]
+
+export const assistantConversations = sqliteTable('assistant_conversations', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
+  userId: text('user_id').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type AssistantConversation = typeof assistantConversations.$inferSelect
+export type NewAssistantConversation = typeof assistantConversations.$inferInsert
+
+export const assistantMessages = sqliteTable('assistant_messages', {
+  id: text('id').primaryKey(),
+  conversationId: text('conversation_id')
+    .notNull()
+    .references(() => assistantConversations.id),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id),
+  role: text('role', { enum: assistantMessageRole }).notNull(),
+  content: text('content').notNull(),
+  proposedActions: text('proposed_actions'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+})
+
+export type AssistantMessage = typeof assistantMessages.$inferSelect
+export type NewAssistantMessage = typeof assistantMessages.$inferInsert
