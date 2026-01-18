@@ -114,7 +114,7 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
     const openai = new OpenAI({ apiKey: openaiApiKey })
 
     const stream = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-5.2-chat-latest',
       messages: [
         { role: 'system', content: systemPrompt },
         {
@@ -123,7 +123,6 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
         },
       ],
       stream: true,
-      temperature: 0.7,
     })
 
     return new Response(
