@@ -120,12 +120,74 @@ function SwipeActionButton({
   )
 }
 
+function LeftSwipeActionButton({
+  label,
+  icon,
+  color,
+  onPress,
+  drag,
+  textColor,
+}: {
+  label: string
+  icon: keyof typeof Ionicons.glyphMap
+  color: string
+  onPress: () => void
+  drag: SharedValue<number>
+  textColor: string
+}) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const dragValue = Math.abs(drag.value)
+    const scale = Math.min(1, dragValue / 60)
+
+    return {
+      transform: [{ scale }],
+      opacity: scale,
+    }
+  })
+
+  return (
+    <Reanimated.View
+      style={[
+        {
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: 70,
+        },
+        animatedStyle,
+      ]}
+    >
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 8,
+          marginHorizontal: 2,
+          gap: 4,
+          backgroundColor: color,
+        }}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+      >
+        <Ionicons name={icon} size={22} color={textColor} />
+        <Text variant="caption" color="inverse" style={{ fontWeight: '600' }}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    </Reanimated.View>
+  )
+}
+
 function PantryItemRow({
   item,
   onPress,
   onMarkLow,
   onMarkOut,
   onMore,
+  onToggleDormancy,
   colors,
   spacing,
   radius,
@@ -135,6 +197,7 @@ function PantryItemRow({
   onMarkLow: () => void
   onMarkOut: () => void
   onMore: () => void
+  onToggleDormancy: () => void
   colors: ReturnType<typeof useTheme>['colors']
   spacing: ReturnType<typeof useTheme>['spacing']
   radius: ReturnType<typeof useTheme>['radius']
@@ -145,6 +208,7 @@ function PantryItemRow({
     item.itemType === 'planned' && item.status !== 'planned'
 
   const isStaple = item.itemType === 'staple'
+  const isDormant = item.status === 'dormant'
   const actionsWidth = isStaple ? 120 : 60
 
   const handleFullSwipe = useCallback(() => {
@@ -152,6 +216,35 @@ function PantryItemRow({
     onMarkLow()
     swipeableRef.current?.close()
   }, [onMarkLow])
+
+  const renderLeftActions = (
+    _progress: SharedValue<number>,
+    drag: SharedValue<number>
+  ) => {
+    return (
+      <Reanimated.View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.sm + 4,
+          width: 70,
+        }}
+      >
+        <LeftSwipeActionButton
+          label={isDormant ? 'Activate' : 'Dormant'}
+          icon={isDormant ? 'refresh' : 'archive-outline'}
+          color={isDormant ? colors.action.primary : colors.text.tertiary}
+          textColor={colors.text.inverse}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+            onToggleDormancy()
+            swipeableRef.current?.close()
+          }}
+          drag={drag}
+        />
+      </Reanimated.View>
+    )
+  }
 
   const renderRightActions = (
     _progress: SharedValue<number>,
@@ -231,9 +324,12 @@ function PantryItemRow({
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
+      renderLeftActions={renderLeftActions}
       renderRightActions={renderRightActions}
       overshootRight={false}
+      overshootLeft={false}
       rightThreshold={40}
+      leftThreshold={40}
       onSwipeableWillOpen={() => {
         hasTriggeredHaptic.current = false
       }}
@@ -514,6 +610,14 @@ export function PantryListScreen() {
     [updatePantryItem, triggerEducation]
   )
 
+  const handleToggleDormancy = useCallback(
+    (item: PantryItem) => {
+      const newStatus = item.status === 'dormant' ? 'in_stock' : 'dormant'
+      updatePantryItem.mutate({ itemId: item.id, status: newStatus })
+    },
+    [updatePantryItem]
+  )
+
   const [newItemName, setNewItemName] = useState('')
   const [newItemStatus, setNewItemStatus] =
     useState<PantryItemStatus>('in_stock')
@@ -669,12 +773,13 @@ export function PantryListScreen() {
             ? showPlannedActionSheet(item)
             : showStapleActionSheet(item)
         }
+        onToggleDormancy={() => handleToggleDormancy(item)}
         colors={colors}
         spacing={spacing}
         radius={radius}
       />
     ),
-    [handleStatusChange, colors, spacing, radius]
+    [handleStatusChange, handleToggleDormancy, colors, spacing, radius]
   )
 
   const renderListHeader = useCallback(() => {
@@ -756,6 +861,7 @@ export function PantryListScreen() {
                       handleStatusChange(item.id, 'out_of_stock')
                     }
                     onMore={() => showPlannedActionSheet(item)}
+                    onToggleDormancy={() => handleToggleDormancy(item)}
                     colors={colors}
                     spacing={spacing}
                     radius={radius}
@@ -771,6 +877,7 @@ export function PantryListScreen() {
     plannedItems,
     isPlannedExpanded,
     handleStatusChange,
+    handleToggleDormancy,
     colors,
     spacing,
     radius,
@@ -854,6 +961,7 @@ export function PantryListScreen() {
                     ? showPlannedActionSheet(item)
                     : showStapleActionSheet(item)
                 }
+                onToggleDormancy={() => handleToggleDormancy(item)}
                 colors={colors}
                 spacing={spacing}
                 radius={radius}
@@ -867,6 +975,7 @@ export function PantryListScreen() {
     dormantItems,
     isDormantExpanded,
     handleStatusChange,
+    handleToggleDormancy,
     colors,
     spacing,
     radius,

@@ -1,5 +1,35 @@
 # zottie Development Progress
 
+## 2026-01-18: Swipe to toggle dormancy on pantry items
+
+Implemented the "Swipe to toggle dormancy on pantry items" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/pantry/PantryListScreen.tsx`:
+  - Added `LeftSwipeActionButton` component for rendering left-swipe actions with animated appearance
+  - Added `renderLeftActions` function to `PantryItemRow` that renders the dormancy toggle action
+  - Added `onToggleDormancy` prop to `PantryItemRow` component
+  - For non-dormant items: shows "Dormant" action with archive icon and muted tertiary color
+  - For dormant items: shows "Activate" action with refresh icon and primary action color
+  - Added `handleToggleDormancy` callback that toggles between `dormant` and `in_stock` status
+  - Updated all three `PantryItemRow` usages (main list, planned items, dormant items) with the new prop
+  - Enabled left swipe on `ReanimatedSwipeable` with `leftThreshold={40}` and `overshootLeft={false}`
+
+### How it works
+
+Users can now swipe left on any pantry item to toggle its dormancy:
+
+1. **Non-dormant items**: Swiping left reveals a "Dormant" button with an archive icon in a muted gray color. Tapping it marks the item as dormant, moving it to the Dormant Items section at the bottom.
+
+2. **Dormant items**: Swiping left on items in the Dormant Items section reveals an "Activate" button with a refresh icon in the primary action color. Tapping it reactivates the item by setting its status to `in_stock`, moving it back to the main pantry list.
+
+The swipe action:
+- Uses medium haptic feedback when triggered
+- Animates smoothly with scale and opacity based on drag distance
+- Follows the same visual pattern as existing right-swipe actions
+- Works consistently across main list, planned items section, and dormant items section
+
 ## 2026-01-17: Display dormant items in separate section at bottom of pantry
 
 Implemented the "Display dormant items in separate section at bottom of pantry" feature.

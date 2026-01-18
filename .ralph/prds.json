@@ -62,7 +62,7 @@
   {
     "name": "Swipe to toggle dormancy on pantry items",
     "description": "Add a swipe gesture on pantry list items to toggle dormancy. When swiping on a non-dormant item, the action should mark it as dormant. When swiping on a dormant item (in the dormant section), the action should reactivate it (remove dormancy). This provides a quick way to manage dormancy without opening the item detail screen. The swipe action should be visually distinct from any existing swipe actions and clearly communicate what will happen.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Add dormancy toggle to item detail screen",
