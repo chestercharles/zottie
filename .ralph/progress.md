@@ -1,5 +1,26 @@
 # zottie Development Progress
 
+## 2026-01-17: Remove iOS auth permission prompt on sign-in/sign-out
+
+Implemented the "Remove iOS auth permission prompt on sign-in/sign-out" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/auth/useAuth.ts`:
+  - Changed from using `clearSession()` to `clearCredentials()` for the `signOut` function
+  - `clearCredentials()` clears locally stored credentials without opening a browser, avoiding the iOS permission prompt during logout
+  - The sign-in flow already had `ephemeralSession: true` configured, which bypasses the permission prompt during sign-in
+
+### How it works
+
+The iOS authentication permission prompt ("zottie wants to use auth0.com to Sign In") appears when the app uses Safari's shared cookie storage. Two changes eliminate this prompt:
+
+1. **Sign-in**: Using `ephemeralSession: true` (already implemented) tells iOS to use a private browser session instead of the shared Safari cookie jar
+
+2. **Sign-out**: Using `clearCredentials()` instead of `clearSession()` clears only the locally stored credentials without opening a browser to clear the web session. Since we use ephemeral sessions, there's no persistent web session to clear anyway.
+
+Trade-off: SSO across apps won't work, but this is acceptable for a standalone mobile app. The benefit is a smoother authentication experience without system permission prompts.
+
 ## 2026-01-17: Dismiss settings modal on logout
 
 Implemented the "Dismiss settings modal on logout" feature.

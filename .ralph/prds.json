@@ -57,6 +57,6 @@
   {
     "name": "Remove iOS auth permission prompt on sign-in/sign-out",
     "description": "On iOS, users currently see a system prompt saying 'zottie wants to use auth0.com to Sign In' with Cancel and Continue buttons every time they sign in or sign out. This prompt should be eliminated to create a smoother authentication experience. The solution is to enable ephemeral sessions in the Auth0 configuration by passing ephemeralSession: true to the authorize call. This tells iOS to use a private browser session instead of the shared Safari cookie jar, which bypasses the permission prompt. Trade-off: SSO across apps will not work, but this is acceptable for a standalone mobile app. For logout on iOS, use clearCredentials() instead of clearSession() to avoid the prompt appearing during sign-out as well.",
-    "completed": false
+    "completed": true
   }
 ]

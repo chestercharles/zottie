@@ -5,7 +5,7 @@ import Constants from 'expo-constants'
 const auth0Audience = Constants.expoConfig?.extra?.auth0Audience
 
 export function useAuth() {
-  const { authorize, clearSession, user, isLoading, error } = useAuth0()
+  const { authorize, clearCredentials, user, isLoading, error } = useAuth0()
 
   const signIn = useCallback(async () => {
     await authorize(
@@ -20,8 +20,8 @@ export function useAuth() {
   }, [authorize])
 
   const signOut = useCallback(async () => {
-    await clearSession()
-  }, [clearSession])
+    await clearCredentials()
+  }, [clearCredentials])
 
   return {
     user: user
