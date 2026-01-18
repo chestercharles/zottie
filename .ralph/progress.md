@@ -1,5 +1,25 @@
 # zottie Development Progress
 
+## 2026-01-17: Dismiss settings modal on logout
+
+Implemented the "Dismiss settings modal on logout" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/settings/SettingsScreen.tsx`:
+  - Added `router.back()` call before clearing the query client and signing out
+  - The modal now dismisses immediately when the user confirms logout, providing a seamless transition to the sign-in screen
+
+### How it works
+
+When the user taps "Log Out" from the settings screen and confirms in the alert dialog:
+1. The settings modal dismisses via `router.back()`
+2. The query cache is cleared
+3. The sign-out process completes
+4. The user lands on the sign-in screen without needing to manually dismiss the modal
+
+This creates a smooth, expected user experience where the logout action transitions the user directly from settings to the sign-in screen.
+
 ## 2026-01-17: Add new conversation button to header
 
 Implemented the "(Assistant Epic) Add new conversation button to header" feature.

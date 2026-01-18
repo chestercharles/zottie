@@ -70,6 +70,7 @@ export function SettingsScreen() {
         style: 'destructive',
         onPress: async () => {
           setIsLoggingOut(true)
+          router.back()
           queryClient.clear()
           await signOut()
         },

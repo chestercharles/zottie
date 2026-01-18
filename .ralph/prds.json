@@ -52,7 +52,7 @@
   {
     "name": "Dismiss settings modal on logout",
     "description": "When the user taps the logout button from the settings screen, the settings modal should automatically dismiss as part of the logout flow. Currently, the logout action completes but the settings modal stays open, requiring the user to manually dismiss it before seeing the sign-in screen. The modal should close seamlessly so the user transitions directly from the settings screen to the sign-in screen without any extra interaction.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Remove iOS auth permission prompt on sign-in/sign-out",
