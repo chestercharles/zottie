@@ -7,6 +7,7 @@ import {
   Alert,
   TextInput as RNTextInput,
   ActionSheetIOS,
+  Switch,
 } from 'react-native'
 import Animated, {
   useSharedValue,
@@ -305,8 +306,17 @@ export function PantryItemDetailScreen() {
     'in_stock',
     'running_low',
     'out_of_stock',
-    'dormant',
   ]
+
+  const isDormant = currentStatus === 'dormant'
+
+  const handleDormancyToggle = (value: boolean) => {
+    if (value) {
+      handleStatusChange('dormant')
+    } else {
+      handleStatusChange('in_stock')
+    }
+  }
 
   return (
     <View
@@ -386,7 +396,8 @@ export function PantryItemDetailScreen() {
             <View style={[styles.statusButtons, { gap: spacing.sm }]}>
               {statuses.map((status) => {
                 const isActive =
-                  currentStatus === status || pendingStatus === status
+                  !isDormant &&
+                  (currentStatus === status || pendingStatus === status)
                 const isPulsing = pendingStatus === status
                 return (
                   <StatusButton
@@ -395,13 +406,39 @@ export function PantryItemDetailScreen() {
                     isActive={isActive}
                     isPulsing={isPulsing}
                     onPress={() => handleStatusChange(status)}
-                    disabled={isActive || pendingStatus !== null}
+                    disabled={isActive || pendingStatus !== null || isDormant}
                     colors={colors}
                     spacing={spacing}
                     radius={radius}
                   />
                 )
               })}
+            </View>
+          </Card>
+
+          <Card style={[styles.section, { marginBottom: spacing.md }]}>
+            <View style={styles.dormancyRow}>
+              <View style={styles.dormancyTextContainer}>
+                <Text variant="title.small">Dormant</Text>
+                <Text
+                  variant="body.secondary"
+                  color="secondary"
+                  style={{ marginTop: spacing.xs }}
+                >
+                  Hide from active pantry. Use for items you have but don't plan
+                  to repurchase.
+                </Text>
+              </View>
+              <Switch
+                value={isDormant}
+                onValueChange={handleDormancyToggle}
+                disabled={pendingStatus !== null}
+                trackColor={{
+                  false: colors.surface.grouped,
+                  true: colors.action.primary,
+                }}
+                ios_backgroundColor={colors.surface.grouped}
+              />
             </View>
           </Card>
 
@@ -508,6 +545,15 @@ const styles = StyleSheet.create({
   },
   statusButtonText: {
     fontWeight: '600',
+  },
+  dormancyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dormancyTextContainer: {
+    flex: 1,
+    marginRight: 16,
   },
   detailRow: {
     flexDirection: 'row',

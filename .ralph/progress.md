@@ -1,5 +1,35 @@
 # zottie Development Progress
 
+## 2026-01-18: Add dormancy toggle to item detail screen
+
+Implemented the "Add dormancy toggle to item detail screen" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added `Switch` import from react-native
+  - Removed `dormant` from the status picker - now only shows `in_stock`, `running_low`, `out_of_stock`
+  - Added `isDormant` computed value based on current status
+  - Added `handleDormancyToggle` function that toggles between `dormant` and `in_stock` status
+  - Added a new Card section with a Switch toggle for dormancy, positioned between the status picker and details section
+  - The dormancy toggle includes explanatory text: "Hide from active pantry. Use for items you have but don't plan to repurchase."
+  - Status picker buttons are disabled when the item is dormant (since dormancy is a separate concern)
+  - Added `dormancyRow` and `dormancyTextContainer` styles
+
+### How it works
+
+Users can now toggle an item's dormancy from the item detail screen:
+
+1. **Dormancy toggle**: A separate Switch control appears below the status picker with a clear label and description explaining what dormancy means.
+
+2. **When dormant**: The status picker buttons are all disabled and none are highlighted, since dormancy is an independent attribute. The switch shows as "on" (toggled right).
+
+3. **Toggling off dormancy**: When the user turns off the dormancy switch, the item is set to `in_stock` status and moves back to the main pantry list.
+
+4. **Visual separation**: The dormancy control is in its own Card section, making it visually distinct from the stock status picker. This reinforces that dormancy is a different concept from stock status.
+
+This completes the dormancy feature set alongside the existing swipe-to-toggle and separate dormant items section.
+
 ## 2026-01-18: Swipe to toggle dormancy on pantry items
 
 Implemented the "Swipe to toggle dormancy on pantry items" feature.

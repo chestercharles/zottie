@@ -67,7 +67,7 @@
   {
     "name": "Add dormancy toggle to item detail screen",
     "description": "Add a way to toggle an item's dormancy from the item detail bottom sheet. This should be separate from the status picker (in-stock, running low, out of stock) since dormancy is an independent attribute - an item can be both 'running low' AND dormant. Users should be able to mark any item as dormant regardless of its current stock status, and should be able to reactivate dormant items from this screen as well.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Dismiss settings modal on logout",
