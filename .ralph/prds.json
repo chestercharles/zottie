@@ -17,7 +17,7 @@
   {
     "name": "(Assistant Epic) Anchor input at bottom of chat",
     "description": "Move the Assistant's input controls to the bottom of the screen following standard chat app conventions. The input area should contain a text field and a microphone button to the right of it. Tapping the text field lets users type their message. Tapping the microphone button starts voice recording; tapping it again stops recording and inserts the transcription into the input. This replaces the current inline 'type a follow-up' element that appears after messages in the middle of the chat.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Standard chat scroll behavior",
