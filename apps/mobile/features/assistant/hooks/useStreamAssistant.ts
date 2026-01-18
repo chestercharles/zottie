@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import { useAuth } from '@/features/auth'
 import { streamAssistantChat } from '../api'
@@ -11,6 +11,13 @@ export function useStreamAssistant() {
   const [response, setResponse] = useState('')
   const [streamState, setStreamState] = useState<StreamState>('idle')
   const [error, setError] = useState<string | null>(null)
+  const abortRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.()
+    }
+  }, [])
 
   const streamMessage = useCallback(
     async (message: string) => {
@@ -19,6 +26,8 @@ export function useStreamAssistant() {
         setStreamState('error')
         return
       }
+
+      abortRef.current?.()
 
       setStreamState('streaming')
       setResponse('')
@@ -30,14 +39,23 @@ export function useStreamAssistant() {
           throw new Error('No access token available')
         }
 
-        for await (const chunk of streamAssistantChat(
+        abortRef.current = streamAssistantChat(
           message,
           credentials.accessToken,
-          user.id
-        )) {
-          setResponse((prev) => prev + chunk)
-        }
-        setStreamState('idle')
+          user.id,
+          (chunk) => {
+            setResponse((prev) => prev + chunk)
+          },
+          (err) => {
+            setError(err.message)
+            setStreamState('error')
+            abortRef.current = null
+          },
+          () => {
+            setStreamState('idle')
+            abortRef.current = null
+          }
+        )
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Something went wrong'
@@ -49,6 +67,8 @@ export function useStreamAssistant() {
   )
 
   const reset = useCallback(() => {
+    abortRef.current?.()
+    abortRef.current = null
     setResponse('')
     setStreamState('idle')
     setError(null)
