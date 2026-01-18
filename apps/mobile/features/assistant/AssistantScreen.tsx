@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View,
   StyleSheet,
@@ -7,10 +7,16 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useQueryClient } from '@tanstack/react-query'
+import { useAuth0 } from 'react-native-auth0'
+import * as Haptics from 'expo-haptics'
 import { useTheme } from '../../lib/theme'
 import { Text } from '../../components/ui'
 import { VoiceInput } from '../../components/VoiceInput'
-import { useStreamAssistant } from './hooks'
+import { useStreamAssistant, type ProposedActions, type ProposedAction } from './hooks'
+import { executeAssistantActions } from './api'
+import { useAuth } from '../auth'
+import { queryKeys } from '../../lib/query/keys'
 
 const CANNED_PROMPTS = [
   {
@@ -35,15 +41,49 @@ const CANNED_PROMPTS = [
   },
 ]
 
+function formatActionDescription(action: ProposedAction): string {
+  const statusLabels: Record<string, string> = {
+    in_stock: 'in stock',
+    running_low: 'running low',
+    out_of_stock: 'out of stock',
+    planned: 'to shopping list',
+  }
+
+  if (action.type === 'add_to_pantry') {
+    if (action.status === 'planned' || action.status === 'out_of_stock') {
+      return `Add "${action.item}" to shopping list`
+    }
+    return `Add "${action.item}" to pantry (${statusLabels[action.status]})`
+  }
+
+  return `Mark "${action.item}" as ${statusLabels[action.status]}`
+}
+
 export function AssistantScreen() {
   const { colors, spacing, radius } = useTheme()
   const [transcript, setTranscript] = useState<string | null>(null)
-  const { response, isStreaming, error, streamMessage, reset } =
-    useStreamAssistant()
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [executionResult, setExecutionResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
+  const {
+    response,
+    isStreaming,
+    error,
+    proposedActions,
+    streamMessage,
+    reset,
+    clearProposedActions,
+  } = useStreamAssistant()
   const scrollViewRef = useRef<ScrollView>(null)
+  const { user } = useAuth()
+  const { getCredentials } = useAuth0()
+  const queryClient = useQueryClient()
 
   const handleTranscriptReceived = (text: string) => {
     setTranscript(text)
+    setExecutionResult(null)
     streamMessage(text)
   }
 
@@ -52,19 +92,69 @@ export function AssistantScreen() {
     if (!prompt) return
 
     setTranscript(prompt.label)
+    setExecutionResult(null)
     streamMessage(prompt.label)
   }
 
   const handleNewConversation = () => {
     setTranscript(null)
+    setExecutionResult(null)
     reset()
   }
 
+  const handleApproveActions = useCallback(async () => {
+    if (!proposedActions || !user?.id) return
+
+    setIsExecuting(true)
+    setExecutionResult(null)
+
+    try {
+      const credentials = await getCredentials()
+      if (!credentials?.accessToken) {
+        throw new Error('No access token available')
+      }
+
+      const result = await executeAssistantActions(
+        proposedActions.actions,
+        credentials.accessToken,
+        user.id
+      )
+
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+
+      queryClient.invalidateQueries({ queryKey: queryKeys.pantryItems(user.id) })
+
+      const itemCount = result.executed
+      setExecutionResult({
+        success: true,
+        message:
+          itemCount === 1
+            ? 'Done! 1 item updated.'
+            : `Done! ${itemCount} items updated.`,
+      })
+      clearProposedActions()
+    } catch (err) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      setExecutionResult({
+        success: false,
+        message:
+          err instanceof Error ? err.message : 'Something went wrong',
+      })
+    } finally {
+      setIsExecuting(false)
+    }
+  }, [proposedActions, user?.id, getCredentials, queryClient, clearProposedActions])
+
+  const handleRejectActions = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    clearProposedActions()
+  }, [clearProposedActions])
+
   useEffect(() => {
-    if (response) {
+    if (response || proposedActions) {
       scrollViewRef.current?.scrollToEnd({ animated: true })
     }
-  }, [response])
+  }, [response, proposedActions])
 
   const showConversation = transcript || response || isStreaming
 
@@ -211,45 +301,185 @@ export function AssistantScreen() {
               </View>
             )}
 
-            {!isStreaming && (response || error) && (
-              <View style={[styles.actionsContainer, { marginTop: spacing.xl }]}>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: colors.surface.grouped,
-                      padding: spacing.md,
-                      borderRadius: radius.md,
-                    },
-                  ]}
-                  onPress={handleNewConversation}
-                  activeOpacity={0.7}
+            {proposedActions && (
+              <View
+                style={[
+                  styles.proposedActionsCard,
+                  {
+                    backgroundColor: colors.surface.grouped,
+                    borderRadius: radius.lg,
+                    padding: spacing.md,
+                    marginTop: spacing.md,
+                  },
+                ]}
+              >
+                <Text
+                  variant="body.primary"
+                  style={{ fontWeight: '600', marginBottom: spacing.sm }}
                 >
-                  <Ionicons
-                    name="add-circle-outline"
-                    size={20}
-                    color={colors.action.primary}
-                    style={{ marginRight: spacing.sm }}
-                  />
-                  <Text variant="body.primary" color="primary">
-                    New conversation
-                  </Text>
-                </TouchableOpacity>
+                  {proposedActions.summary}
+                </Text>
 
-                <VoiceInput
-                  onTranscriptReceived={handleTranscriptReceived}
-                  buttonSize={56}
-                  showStatusText={false}
-                  contextualStrings={[
-                    'pantry',
-                    'shopping',
-                    'in stock',
-                    'running low',
-                    'out of stock',
+                <View style={[styles.actionsList, { gap: spacing.xs }]}>
+                  {proposedActions.actions.map((action, index) => (
+                    <View
+                      key={`${action.item}-${index}`}
+                      style={[styles.actionItem, { gap: spacing.sm }]}
+                    >
+                      <Ionicons
+                        name={
+                          action.status === 'out_of_stock' ||
+                          action.status === 'planned'
+                            ? 'cart-outline'
+                            : 'checkmark-circle-outline'
+                        }
+                        size={16}
+                        color={colors.text.secondary}
+                      />
+                      <Text variant="body.secondary" color="secondary">
+                        {formatActionDescription(action)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                <View
+                  style={[
+                    styles.actionButtonsRow,
+                    { marginTop: spacing.md, gap: spacing.sm },
                   ]}
-                />
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.rejectButton,
+                      {
+                        borderColor: colors.border.subtle,
+                        borderRadius: radius.md,
+                        paddingVertical: spacing.sm,
+                        paddingHorizontal: spacing.md,
+                      },
+                    ]}
+                    onPress={handleRejectActions}
+                    disabled={isExecuting}
+                    activeOpacity={0.7}
+                  >
+                    <Text variant="body.primary" color="secondary">
+                      Not now
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.approveButton,
+                      {
+                        backgroundColor: colors.action.primary,
+                        borderRadius: radius.md,
+                        paddingVertical: spacing.sm,
+                        paddingHorizontal: spacing.md,
+                      },
+                    ]}
+                    onPress={handleApproveActions}
+                    disabled={isExecuting}
+                    activeOpacity={0.7}
+                  >
+                    {isExecuting ? (
+                      <ActivityIndicator size="small" color={colors.text.inverse} />
+                    ) : (
+                      <Text
+                        variant="body.primary"
+                        style={{ color: colors.text.inverse, fontWeight: '600' }}
+                      >
+                        Do it
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
+
+            {executionResult && (
+              <View
+                style={[
+                  styles.resultContainer,
+                  {
+                    backgroundColor: executionResult.success
+                      ? colors.feedback.success + '15'
+                      : colors.feedback.error + '15',
+                    borderRadius: radius.md,
+                    padding: spacing.md,
+                    marginTop: spacing.md,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={
+                    executionResult.success
+                      ? 'checkmark-circle-outline'
+                      : 'alert-circle-outline'
+                  }
+                  size={18}
+                  color={
+                    executionResult.success
+                      ? colors.feedback.success
+                      : colors.feedback.error
+                  }
+                  style={{ marginRight: spacing.sm }}
+                />
+                <Text
+                  variant="body.secondary"
+                  style={{
+                    color: executionResult.success
+                      ? colors.feedback.success
+                      : colors.feedback.error,
+                    flex: 1,
+                  }}
+                >
+                  {executionResult.message}
+                </Text>
+              </View>
+            )}
+
+            {!isStreaming &&
+              !proposedActions &&
+              (response || error || executionResult) && (
+                <View style={[styles.actionsContainer, { marginTop: spacing.xl }]}>
+                  <TouchableOpacity
+                    style={[
+                      styles.actionButton,
+                      {
+                        backgroundColor: colors.surface.grouped,
+                        padding: spacing.md,
+                        borderRadius: radius.md,
+                      },
+                    ]}
+                    onPress={handleNewConversation}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="add-circle-outline"
+                      size={20}
+                      color={colors.action.primary}
+                      style={{ marginRight: spacing.sm }}
+                    />
+                    <Text variant="body.primary" color="primary">
+                      New conversation
+                    </Text>
+                  </TouchableOpacity>
+
+                  <VoiceInput
+                    onTranscriptReceived={handleTranscriptReceived}
+                    buttonSize={56}
+                    showStatusText={false}
+                    contextualStrings={[
+                      'pantry',
+                      'shopping',
+                      'in stock',
+                      'running low',
+                      'out of stock',
+                    ]}
+                  />
+                </View>
+              )}
           </View>
         )}
       </ScrollView>
@@ -309,5 +539,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginRight: 12,
+  },
+  proposedActionsCard: {
+    width: '100%',
+  },
+  actionsList: {
+    width: '100%',
+  },
+  actionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  rejectButton: {
+    borderWidth: 1,
+  },
+  approveButton: {
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resultContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
 })

@@ -5,12 +5,50 @@ import { streamAssistantChat } from '../api'
 
 type StreamState = 'idle' | 'streaming' | 'error'
 
+export type ProposedAction = {
+  type: 'add_to_pantry' | 'update_pantry_status'
+  item: string
+  status: 'in_stock' | 'running_low' | 'out_of_stock' | 'planned'
+}
+
+export type ProposedActions = {
+  actions: ProposedAction[]
+  summary: string
+}
+
+const PROPOSED_ACTIONS_MARKER = '[PROPOSED_ACTIONS]'
+
+function parseStreamResponse(fullResponse: string): {
+  textResponse: string
+  proposedActions: ProposedActions | null
+} {
+  const markerIndex = fullResponse.indexOf(PROPOSED_ACTIONS_MARKER)
+
+  if (markerIndex === -1) {
+    return { textResponse: fullResponse, proposedActions: null }
+  }
+
+  const textResponse = fullResponse.slice(0, markerIndex).trim()
+  const actionsJson = fullResponse.slice(
+    markerIndex + PROPOSED_ACTIONS_MARKER.length
+  )
+
+  try {
+    const proposedActions = JSON.parse(actionsJson) as ProposedActions
+    return { textResponse, proposedActions }
+  } catch {
+    return { textResponse: fullResponse, proposedActions: null }
+  }
+}
+
 export function useStreamAssistant() {
   const { user } = useAuth()
   const { getCredentials } = useAuth0()
-  const [response, setResponse] = useState('')
+  const [rawResponse, setRawResponse] = useState('')
   const [streamState, setStreamState] = useState<StreamState>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [proposedActions, setProposedActions] =
+    useState<ProposedActions | null>(null)
   const abortRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
@@ -18,6 +56,8 @@ export function useStreamAssistant() {
       abortRef.current?.()
     }
   }, [])
+
+  const { textResponse } = parseStreamResponse(rawResponse)
 
   const streamMessage = useCallback(
     async (message: string) => {
@@ -30,8 +70,9 @@ export function useStreamAssistant() {
       abortRef.current?.()
 
       setStreamState('streaming')
-      setResponse('')
+      setRawResponse('')
       setError(null)
+      setProposedActions(null)
 
       try {
         const credentials = await getCredentials()
@@ -44,7 +85,7 @@ export function useStreamAssistant() {
           credentials.accessToken,
           user.id,
           (chunk) => {
-            setResponse((prev) => prev + chunk)
+            setRawResponse((prev) => prev + chunk)
           },
           (err) => {
             setError(err.message)
@@ -66,19 +107,35 @@ export function useStreamAssistant() {
     [user?.id, getCredentials]
   )
 
+  useEffect(() => {
+    if (streamState === 'idle' && rawResponse) {
+      const { proposedActions: parsed } = parseStreamResponse(rawResponse)
+      if (parsed) {
+        setProposedActions(parsed)
+      }
+    }
+  }, [streamState, rawResponse])
+
   const reset = useCallback(() => {
     abortRef.current?.()
     abortRef.current = null
-    setResponse('')
+    setRawResponse('')
     setStreamState('idle')
     setError(null)
+    setProposedActions(null)
+  }, [])
+
+  const clearProposedActions = useCallback(() => {
+    setProposedActions(null)
   }, [])
 
   return {
-    response,
+    response: textResponse,
     isStreaming: streamState === 'streaming',
     error,
+    proposedActions,
     streamMessage,
     reset,
+    clearProposedActions,
   }
 }

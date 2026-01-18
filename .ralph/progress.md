@@ -1,5 +1,66 @@
 # zottie Development Progress
 
+## 2026-01-17: Add human-in-the-loop tool calling to Assistant
+
+**Feature:** The Assistant can now propose actions like adding items or updating statuses, and users can approve or reject changes before they're executed
+
+**Changes:**
+
+Backend (apps/api):
+- Updated `apps/api/src/endpoints/assistantChat.ts`:
+  - Added OpenAI function calling with `propose_pantry_actions` tool
+  - Tool allows proposing add/update actions for pantry items
+  - Streaming response includes proposed actions appended after text content
+  - Uses `[PROPOSED_ACTIONS]` marker to delineate actions JSON from text
+  - Updated system prompt to be proactive about suggesting actions
+
+Mobile (apps/mobile):
+- Updated `apps/mobile/features/assistant/hooks/useStreamAssistant.ts`:
+  - Added `ProposedAction` and `ProposedActions` types
+  - Parses stream response to extract proposed actions from marker
+  - Added `proposedActions` state and `clearProposedActions` function
+  - Separates text response from actions JSON during parsing
+- Updated `apps/mobile/features/assistant/hooks/index.ts`:
+  - Exported new types
+- Updated `apps/mobile/features/assistant/api.ts`:
+  - Added `executeAssistantActions` function to call `/api/commands/execute`
+- Updated `apps/mobile/features/assistant/AssistantScreen.tsx`:
+  - Added confirmation card UI for proposed actions
+  - Shows summary and list of actions with icons
+  - "Do it" button to approve, "Not now" to reject
+  - Loading state while executing
+  - Success/error feedback after execution
+  - Haptic feedback on approve/reject
+  - Invalidates pantry queries after successful execution
+
+**Technical Details:**
+
+1. Tool calling flow:
+   - User speaks request like "add milk and eggs to shopping list"
+   - LLM receives request with pantry context and available tools
+   - If LLM wants to take action, it calls `propose_pantry_actions` tool
+   - Tool arguments are streamed back with `[PROPOSED_ACTIONS]` marker
+   - Frontend parses the marker and displays confirmation UI
+
+2. Action execution:
+   - Uses existing `/api/commands/execute` endpoint
+   - Reuses `CommandAction` types for compatibility
+   - Invalidates `pantryItems` query to refresh all views
+
+3. UX considerations:
+   - Actions show icons: cart for shopping list, checkmark for pantry updates
+   - Brief summary from LLM explains what will happen
+   - User always has clear approve/reject choice
+   - Success notification with item count
+   - Haptic feedback for both approve and reject actions
+
+**Verification:**
+
+- ✅ API TypeScript type checking passed
+- ✅ Mobile linting passed
+- ✅ Mobile TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Enable canned prompt buttons on Assistant tab
 
 **Feature:** Made the canned prompt buttons functional so they trigger LLM conversations

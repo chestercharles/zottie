@@ -2,7 +2,7 @@ import { Bool, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import OpenAI from 'openai'
 import { z } from 'zod'
-import { type AppContext } from '../types'
+import { type AppContext, PantryItemStatusEnum } from '../types'
 import { getDb, pantryItems, getHouseholdId } from '../db'
 
 const systemPrompt = `You are a helpful kitchen assistant for the zottie app. You help users manage their pantry inventory, plan meals, and organize their shopping.
@@ -14,7 +14,72 @@ You have access to the user's current pantry inventory. When answering questions
 - For meal planning, suggest recipes based on items they have in stock
 - Keep suggestions practical and achievable
 
-Remember: This is a read-only conversation. You can answer questions and give suggestions, but you cannot take actions like adding items or changing statuses. If users want to make changes, guide them to use voice commands or the app's direct controls.`
+When users want to make changes to their pantry or shopping list, use the available tools to propose actions. You can:
+- Add items to the pantry (they'll start as in stock)
+- Mark items as running low, out of stock, or in stock
+- Add items to the shopping list (by setting status to "planned" or "out_of_stock")
+
+Always be proactive about helping users take action. If someone says "we're out of milk", propose marking milk as out of stock. If they say "add eggs", propose adding eggs to the pantry.`
+
+const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'propose_pantry_actions',
+      description:
+        'Propose actions to modify the pantry. Use this when the user wants to add items, update statuses, or manage their shopping list. The user will see a preview and can approve or reject the changes.',
+      parameters: {
+        type: 'object',
+        properties: {
+          actions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                  enum: ['add_to_pantry', 'update_pantry_status'],
+                  description:
+                    'add_to_pantry: adds a new item or updates existing. update_pantry_status: changes the status of an existing item.',
+                },
+                item: {
+                  type: 'string',
+                  description:
+                    'The name of the item (lowercase, e.g. "milk", "eggs")',
+                },
+                status: {
+                  type: 'string',
+                  enum: ['in_stock', 'running_low', 'out_of_stock', 'planned'],
+                  description:
+                    'The status to set. Use "out_of_stock" or "planned" to add to shopping list.',
+                },
+              },
+              required: ['type', 'item', 'status'],
+            },
+            description: 'List of actions to propose',
+          },
+          summary: {
+            type: 'string',
+            description:
+              'A brief, friendly summary of what changes will be made (e.g. "I\'ll add milk and eggs to your shopping list")',
+          },
+        },
+        required: ['actions', 'summary'],
+      },
+    },
+  },
+]
+
+const ProposedAction = z.object({
+  type: z.enum(['add_to_pantry', 'update_pantry_status']),
+  item: z.string(),
+  status: PantryItemStatusEnum,
+})
+
+const ToolCallResult = z.object({
+  actions: z.array(ProposedAction),
+  summary: z.string(),
+})
 
 const AssistantChatRequest = z.object({
   message: z.string().min(1),
@@ -122,6 +187,7 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
           content: `${pantryContext}\n\nUser message: "${message}"`,
         },
       ],
+      tools,
       stream: true,
     })
 
@@ -129,11 +195,35 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
       new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder()
+          let toolCallBuffer = ''
+          let isToolCall = false
+
           try {
             for await (const chunk of stream) {
-              const content = chunk.choices[0]?.delta?.content
-              if (content) {
-                controller.enqueue(encoder.encode(content))
+              const choice = chunk.choices[0]
+
+              if (choice?.delta?.tool_calls) {
+                isToolCall = true
+                const toolCall = choice.delta.tool_calls[0]
+                if (toolCall?.function?.arguments) {
+                  toolCallBuffer += toolCall.function.arguments
+                }
+              } else if (choice?.delta?.content) {
+                controller.enqueue(encoder.encode(choice.delta.content))
+              }
+
+              if (choice?.finish_reason === 'tool_calls' && toolCallBuffer) {
+                try {
+                  const parsed = JSON.parse(toolCallBuffer)
+                  const validated = ToolCallResult.parse(parsed)
+                  controller.enqueue(
+                    encoder.encode(
+                      `\n[PROPOSED_ACTIONS]${JSON.stringify(validated)}`
+                    )
+                  )
+                } catch {
+                  // If parsing fails, just ignore the tool call
+                }
               }
             }
             controller.close()

@@ -53,7 +53,7 @@
   {
     "name": "(Assistant Epic) Add human-in-the-loop tool calling to Assistant",
     "description": "Allow the Assistant to propose actions like adding items, marking things out of stock, or updating the shopping list. When the assistant wants to take an action, it shows the user what it plans to do and asks for confirmation before executing. User can approve or reject the proposed actions.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Assistant Epic) Add text input option to Assistant tab",

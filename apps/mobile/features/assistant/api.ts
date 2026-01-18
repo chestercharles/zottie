@@ -1,4 +1,35 @@
+import type { ProposedAction } from './hooks'
+
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787'
+
+export async function executeAssistantActions(
+  actions: ProposedAction[],
+  authToken: string,
+  userId: string
+): Promise<{ executed: number; failed: number }> {
+  const response = await fetch(`${API_BASE_URL}/api/commands/execute`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'X-User-Id': userId,
+    },
+    body: JSON.stringify({ actions }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(
+      (errorData as { error?: string }).error || 'Failed to execute actions'
+    )
+  }
+
+  const data = (await response.json()) as {
+    success: boolean
+    result: { executed: number; failed: number }
+  }
+  return data.result
+}
 
 export function streamAssistantChat(
   message: string,
