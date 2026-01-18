@@ -13,11 +13,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { Text } from '@/components'
 import { useTheme } from '@/lib/theme'
 
-interface NewProcessingScreenProps {
-  step: 'pantry' | 'shopping' | 'both'
-}
-
-export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
+export function NewProcessingScreen() {
   const { colors, spacing } = useTheme()
   const scale = useSharedValue(1)
   const opacity = useSharedValue(0.6)
@@ -59,16 +55,6 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
     opacity: opacity.value,
   }))
 
-  const getMessage = () => {
-    switch (step) {
-      case 'pantry':
-        return 'Adding your pantry items...'
-      case 'shopping':
-        return 'Getting your shopping list ready...'
-      case 'both':
-        return 'Setting up your kitchen...'
-    }
-  }
 
   return (
     <View
@@ -90,7 +76,7 @@ export function NewProcessingScreen({ step }: NewProcessingScreenProps) {
         </Animated.View>
 
         <Text variant="title.medium" style={styles.message}>
-          {getMessage()}
+          Getting your shopping list ready...
         </Text>
 
         <Text

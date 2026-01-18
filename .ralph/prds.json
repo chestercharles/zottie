@@ -2,7 +2,7 @@
   {
     "name": "(Onboarding Epic) Simplify onboarding to shopping list only",
     "description": "Streamline the onboarding flow to focus solely on the shopping list, removing both the pantry input step and the household invitation step. The new flow: user is asked 'What do you need from the store?', speaks their shopping list items via voice input, sees a brief processing screen, then lands directly in the app. This gets users to value faster - they can immediately use their shopping list without the upfront friction of documenting their entire pantry. The pantry setup becomes a separate, contextual experience (see companion PRD). The household invite feature remains accessible from settings for users who want to share lists later.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Onboarding Epic) Pantry contextual onboarding card",

@@ -1,5 +1,38 @@
 # zottie Development Progress
 
+## 2026-01-17: Simplify onboarding to shopping list only
+
+Implemented the "(Onboarding Epic) Simplify onboarding to shopping list only" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/onboarding/ConversationalOnboarding.tsx`:
+  - Removed the pantry input step - onboarding now starts directly with the shopping list
+  - Removed the household invitation step - after processing, users go directly to the app
+  - Simplified the `OnboardingStep` type from `'pantry' | 'shopping' | 'processing' | 'invitation'` to just `'shopping' | 'processing'`
+  - Removed pantry-related state and handlers
+  - Skip button now navigates directly to the app instead of going to processing
+  - "Continue anyway" on error now goes directly to the app instead of the invitation step
+
+- Modified `apps/mobile/features/onboarding/NewProcessingScreen.tsx`:
+  - Removed the `step` prop since we only process shopping items now
+  - Simplified the message to always show "Getting your shopping list ready..."
+
+### How it works
+
+The new onboarding flow is:
+1. User is asked "What do you need from the store?"
+2. User speaks their shopping list items via voice input (or skips)
+3. If items provided, a brief processing screen appears while items are added
+4. User lands directly in the app
+
+This gets users to value faster by:
+- Eliminating upfront friction of documenting their entire pantry
+- Removing the household invitation step (still accessible from settings)
+- Focusing on immediate utility (shopping list) rather than setup
+
+The pantry setup will become a separate, contextual experience via an onboarding card (see companion PRD).
+
 ## 2026-01-17: Remove iOS auth permission prompt on sign-in/sign-out
 
 Implemented the "Remove iOS auth permission prompt on sign-in/sign-out" feature.

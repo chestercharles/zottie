@@ -5,20 +5,16 @@ import {
   useHouseholdMembership,
   useCreateHousehold,
 } from '@/features/household'
-import { NewPantryInputScreen } from './NewPantryInputScreen'
 import { NewShoppingListInputScreen } from './NewShoppingListInputScreen'
 import { NewProcessingScreen } from './NewProcessingScreen'
-import { NewHouseholdInvitationScreen } from './NewHouseholdInvitationScreen'
 import { useOnboardingItemParsing } from './hooks'
 import { Text, Button } from '@/components'
 import { useTheme } from '@/lib/theme'
 
-type OnboardingStep = 'pantry' | 'shopping' | 'processing' | 'invitation'
+type OnboardingStep = 'shopping' | 'processing'
 
 interface ProcessingState {
-  pantryText: string
   shoppingText: string
-  pantryError?: string
   shoppingError?: string
 }
 
@@ -33,9 +29,8 @@ export function ConversationalOnboarding() {
   const [householdCreationError, setHouseholdCreationError] = useState<
     string | null
   >(null)
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('pantry')
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>('shopping')
   const [processingState, setProcessingState] = useState<ProcessingState>({
-    pantryText: '',
     shoppingText: '',
   })
 
@@ -66,24 +61,13 @@ export function ConversationalOnboarding() {
     hasInitiatedCreation.current = false
   }
 
-  const handlePantrySubmit = (text: string) => {
-    setProcessingState((prev) => ({ ...prev, pantryText: text }))
-    setCurrentStep('shopping')
-  }
-
-  const handlePantrySkip = () => {
-    setProcessingState((prev) => ({ ...prev, pantryText: '' }))
-    setCurrentStep('shopping')
-  }
-
   const handleShoppingSubmit = (text: string) => {
     setProcessingState((prev) => ({ ...prev, shoppingText: text }))
     setCurrentStep('processing')
   }
 
   const handleShoppingSkip = () => {
-    setProcessingState((prev) => ({ ...prev, shoppingText: '' }))
-    setCurrentStep('processing')
+    router.replace('/(authenticated)/pantry')
   }
 
   useEffect(() => {
@@ -91,49 +75,24 @@ export function ConversationalOnboarding() {
 
     const processItems = async () => {
       try {
-        const promises: Promise<unknown>[] = []
-
-        if (processingState.pantryText) {
-          promises.push(
-            parseItems
-              .mutateAsync({
-                text: processingState.pantryText,
-                context: 'pantry',
-              })
-              .catch((error) => {
-                setProcessingState((prev) => ({
-                  ...prev,
-                  pantryError: error.message || 'Failed to add pantry items',
-                }))
-                throw error
-              })
-          )
-        }
-
         if (processingState.shoppingText) {
-          promises.push(
-            parseItems
-              .mutateAsync({
-                text: processingState.shoppingText,
-                context: 'shopping',
-              })
-              .catch((error) => {
-                setProcessingState((prev) => ({
-                  ...prev,
-                  shoppingError:
-                    error.message || 'Failed to add shopping list items',
-                }))
-                throw error
-              })
-          )
+          await parseItems
+            .mutateAsync({
+              text: processingState.shoppingText,
+              context: 'shopping',
+            })
+            .catch((error) => {
+              setProcessingState((prev) => ({
+                ...prev,
+                shoppingError:
+                  error.message || 'Failed to add shopping list items',
+              }))
+              throw error
+            })
         }
 
-        if (promises.length > 0) {
-          await Promise.allSettled(promises)
-        }
-
-        if (!processingState.pantryError && !processingState.shoppingError) {
-          setCurrentStep('invitation')
+        if (!processingState.shoppingError) {
+          router.replace('/(authenticated)/pantry')
         }
       } catch (error) {
         console.error('Error processing items:', error)
@@ -142,11 +101,6 @@ export function ConversationalOnboarding() {
 
     processItems()
   }, [currentStep])
-
-  const handleRetryPantry = () => {
-    setProcessingState((prev) => ({ ...prev, pantryError: undefined }))
-    setCurrentStep('pantry')
-  }
 
   const handleRetryShopping = () => {
     setProcessingState((prev) => ({ ...prev, shoppingError: undefined }))
@@ -196,15 +150,6 @@ export function ConversationalOnboarding() {
     )
   }
 
-  if (currentStep === 'pantry') {
-    return (
-      <NewPantryInputScreen
-        onSubmit={handlePantrySubmit}
-        onSkip={handlePantrySkip}
-      />
-    )
-  }
-
   if (currentStep === 'shopping') {
     return (
       <NewShoppingListInputScreen
@@ -215,7 +160,7 @@ export function ConversationalOnboarding() {
   }
 
   if (currentStep === 'processing') {
-    if (processingState.pantryError || processingState.shoppingError) {
+    if (processingState.shoppingError) {
       return (
         <View
           style={[
@@ -235,24 +180,15 @@ export function ConversationalOnboarding() {
             color="secondary"
             style={styles.errorMessage}
           >
-            {processingState.pantryError ||
-              processingState.shoppingError ||
+            {processingState.shoppingError ||
               'Something went wrong. Please try again.'}
           </Text>
           <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
-            {processingState.pantryError && (
-              <Button title="Retry pantry items" onPress={handleRetryPantry} />
-            )}
-            {processingState.shoppingError && (
-              <Button
-                title="Retry shopping items"
-                onPress={handleRetryShopping}
-              />
-            )}
+            <Button title="Try again" onPress={handleRetryShopping} />
             <Button
               variant="secondary"
               title="Continue anyway"
-              onPress={() => setCurrentStep('invitation')}
+              onPress={() => router.replace('/(authenticated)/pantry')}
               style={{
                 borderWidth: 1,
                 borderColor: colors.border.subtle,
@@ -264,23 +200,7 @@ export function ConversationalOnboarding() {
       )
     }
 
-    const step =
-      processingState.pantryText && processingState.shoppingText
-        ? 'both'
-        : processingState.pantryText
-          ? 'pantry'
-          : 'shopping'
-
-    return <NewProcessingScreen step={step} />
-  }
-
-  if (currentStep === 'invitation') {
-    return (
-      <NewHouseholdInvitationScreen
-        onContinue={() => router.replace('/(authenticated)/pantry')}
-        onSkip={() => router.replace('/(authenticated)/pantry')}
-      />
-    )
+    return <NewProcessingScreen />
   }
 
   return null
