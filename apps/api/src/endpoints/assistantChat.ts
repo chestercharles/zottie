@@ -3,15 +3,21 @@ import { eq } from 'drizzle-orm'
 import OpenAI from 'openai'
 import { z } from 'zod'
 import { type AppContext, PantryItemStatusEnum } from '../types'
-import { getDb, pantryItems, getHouseholdId } from '../db'
+import { getDb, pantryItems, gotos, getHouseholdId } from '../db'
 
 const systemPrompt = `You are a friendly kitchen assistant for zottie.
 
 Keep responses SHORT - just 1-2 sentences max. Be warm and helpful but brief. Never use markdown formatting (no asterisks, bullet points, headers, or code blocks). Write in plain conversational text only.
 
-You know the user's pantry inventory. Reference what they have when relevant. For meal ideas, suggest simple options based on their items.
+You know the user's pantry inventory and their saved go-to meals. Reference what they have when relevant. For meal ideas, suggest their go-tos or simple options based on their pantry items.
 
-When users want changes, use the propose_pantry_actions tool. Be proactive - if they mention being out of something, propose marking it. If they want to add items, propose adding them.`
+Go-tos are saved meals the user knows how to make. Each has a name and a "needs" description of ingredients. The needs text is freeform - interpret it contextually for things like "lots of butter" or "some protein".
+
+When users want pantry changes, use the propose_pantry_actions tool. Be proactive - if they mention being out of something, propose marking it. If they want to add items, propose adding them.
+
+When users mention making one of their go-to meals, check the pantry and use propose_pantry_actions to add any missing ingredients to their shopping list. Skip items already in stock. If a go-to needs "a lot" of something that's running low, mention it.
+
+To create, edit, or delete go-to meals, guide users to the Go-tos tab.`
 
 const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   {
@@ -158,12 +164,16 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
     const data = await this.getValidatedData<typeof this.schema>()
     const { message, history = [] } = data.body
 
-    const items = await db
-      .select()
-      .from(pantryItems)
-      .where(eq(pantryItems.householdId, householdId))
+    const [items, gotosList] = await Promise.all([
+      db
+        .select()
+        .from(pantryItems)
+        .where(eq(pantryItems.householdId, householdId)),
+      db.select().from(gotos).where(eq(gotos.householdId, householdId)),
+    ])
 
     const pantryContext = buildPantryContext(items)
+    const gotosContext = buildGotosContext(gotosList)
 
     const openaiApiKey = c.env.OPENAI_API_KEY
 
@@ -178,7 +188,7 @@ export class AssistantChatEndpoint extends OpenAPIRoute {
       [
         {
           role: 'system',
-          content: `${systemPrompt}\n\n${pantryContext}`,
+          content: `${systemPrompt}\n\n${pantryContext}\n\n${gotosContext}`,
         },
       ]
 
@@ -320,4 +330,21 @@ function buildPantryContext(
   }
 
   return `Current pantry inventory:\n${sections.join('\n')}`
+}
+
+function buildGotosContext(
+  gotosList: Array<{
+    name: string
+    needs: string
+  }>
+): string {
+  if (gotosList.length === 0) {
+    return 'Saved go-to meals: The user has not saved any go-to meals yet.'
+  }
+
+  const gotoDescriptions = gotosList
+    .map((g) => `- ${g.name}: needs ${g.needs}`)
+    .join('\n')
+
+  return `Saved go-to meals (${gotosList.length}):\n${gotoDescriptions}`
 }
