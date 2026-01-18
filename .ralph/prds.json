@@ -12,7 +12,7 @@
   {
     "name": "(Onboarding Epic) Land users on Shopping tab after onboarding",
     "description": "After completing the onboarding voice input flow, land users on the Shopping tab instead of the Pantry tab. Users just told us what they need from the store - they should immediately see those items on their shopping list where they expect them. This creates a clear mental model: 'I said what I need to buy, and here's my list.' The Pantry tab remains accessible via navigation for users who want to explore it.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Onboarding Epic) Clarify onboarding prompt language",

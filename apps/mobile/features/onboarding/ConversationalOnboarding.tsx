@@ -67,7 +67,7 @@ export function ConversationalOnboarding() {
   }
 
   const handleShoppingSkip = () => {
-    router.replace('/(authenticated)/pantry')
+    router.replace('/(authenticated)/shopping')
   }
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export function ConversationalOnboarding() {
         }
 
         if (!processingState.shoppingError) {
-          router.replace('/(authenticated)/pantry')
+          router.replace('/(authenticated)/shopping')
         }
       } catch (error) {
         console.error('Error processing items:', error)
@@ -188,7 +188,7 @@ export function ConversationalOnboarding() {
             <Button
               variant="secondary"
               title="Continue anyway"
-              onPress={() => router.replace('/(authenticated)/pantry')}
+              onPress={() => router.replace('/(authenticated)/shopping')}
               style={{
                 borderWidth: 1,
                 borderColor: colors.border.subtle,

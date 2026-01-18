@@ -1,5 +1,26 @@
 # zottie Development Progress
 
+## 2026-01-17: Land users on Shopping tab after onboarding
+
+Implemented the "(Onboarding Epic) Land users on Shopping tab after onboarding" feature.
+
+### Changes
+
+- Modified `apps/mobile/features/onboarding/ConversationalOnboarding.tsx`:
+  - Changed `handleShoppingSkip` to navigate to `/(authenticated)/shopping` instead of `/(authenticated)/pantry`
+  - Changed successful processing completion to navigate to `/(authenticated)/shopping`
+  - Changed "Continue anyway" error recovery button to navigate to `/(authenticated)/shopping`
+
+### How it works
+
+After completing the onboarding voice input flow, users now land on the Shopping tab instead of the Pantry tab. This applies to all three exit paths from onboarding:
+
+1. **Skip**: User skips voice input → lands on Shopping tab
+2. **Success**: User speaks items, they're processed successfully → lands on Shopping tab
+3. **Error recovery**: User encounters an error and taps "Continue anyway" → lands on Shopping tab
+
+This creates a clear mental model: users just told us what they need from the store, and they immediately see those items on their shopping list where they expect them. The Pantry tab remains accessible via navigation for users who want to explore it.
+
 ## 2026-01-17: Lightweight command parse endpoint
 
 Implemented the "Lightweight command parse endpoint" feature.
