@@ -1,5 +1,41 @@
 # zottie Development Progress
 
+## 2026-01-17: Pulsing loading state for status change buttons
+
+**Feature:** Added a subtle pulsing animation to status buttons during API updates instead of hiding all buttons and showing a loader
+
+**Changes:**
+
+- Updated `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added `StatusButton` component with animated pulsing effect using react-native-reanimated
+  - Added `pendingStatus` state to track which status is being updated
+  - Status buttons now remain visible during updates
+  - The clicked button shows a subtle opacity pulsing animation until the API confirms the change
+  - Disabled all status buttons during pending state to prevent double-clicks
+
+**Technical Details:**
+
+1. Problem: The previous implementation replaced all status buttons with an ActivityIndicator + "Updating..." text during mutations. This caused a jarring flash and layout shift.
+
+2. Solution:
+   - Created a `StatusButton` component that accepts an `isPulsing` prop
+   - When pulsing, the button's opacity animates between 1.0 and 0.5 using `withRepeat` + `withSequence` + `withTiming`
+   - Animation uses 600ms duration with `Easing.inOut(Easing.ease)` for a smooth, breathing effect
+   - When the mutation completes (success or error), `pendingStatus` is cleared and the animation stops
+   - The clicked button immediately appears as "active" (highlighted) while pulsing to show the intended selection
+
+3. UX improvements:
+   - No layout shift during loading
+   - User sees immediate visual feedback on their selection
+   - Subtle breathing animation feels warm and engaging per design system guidelines
+   - All buttons remain visible so users maintain spatial context
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Remove Edit Item header title and fix Settings header spacing
 
 **Feature:** Two header adjustments for bottom sheet modals to improve visual consistency

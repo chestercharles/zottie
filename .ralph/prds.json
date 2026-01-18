@@ -77,7 +77,7 @@
   {
     "name": "Pulsing loading state for status change buttons",
     "description": "When the user changes an item's status on the edit item screen, the current behavior replaces all status buttons with a loader, causing a jarring flash. Instead, keep all buttons visible and show a subtle pulsing/breathing animation on the selected button until the API confirms the change. This provides feedback that the action is in progress without hiding the interface or causing visual disruption.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Fix item name alignment on edit item screen",

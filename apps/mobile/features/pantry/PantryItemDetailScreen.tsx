@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View,
   StyleSheet,
@@ -8,6 +8,14 @@ import {
   ActivityIndicator,
   TextInput as RNTextInput,
 } from 'react-native'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import type { PantryItemStatus, ItemType } from './types'
@@ -33,6 +41,86 @@ function formatDate(timestamp: number): string {
   })
 }
 
+interface StatusButtonProps {
+  status: PantryItemStatus
+  isActive: boolean
+  isPulsing: boolean
+  onPress: () => void
+  disabled: boolean
+  colors: ReturnType<typeof useTheme>['colors']
+  spacing: ReturnType<typeof useTheme>['spacing']
+  radius: ReturnType<typeof useTheme>['radius']
+}
+
+function StatusButton({
+  status,
+  isActive,
+  isPulsing,
+  onPress,
+  disabled,
+  colors,
+  spacing,
+  radius,
+}: StatusButtonProps) {
+  const opacity = useSharedValue(1)
+
+  useEffect(() => {
+    if (isPulsing) {
+      opacity.value = withRepeat(
+        withSequence(
+          withTiming(0.5, {
+            duration: 600,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          withTiming(1, {
+            duration: 600,
+            easing: Easing.inOut(Easing.ease),
+          })
+        ),
+        -1,
+        false
+      )
+    } else {
+      opacity.value = withTiming(1, { duration: 150 })
+    }
+  }, [isPulsing, opacity])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }))
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <TouchableOpacity
+        style={[
+          styles.statusButton,
+          {
+            backgroundColor: isActive
+              ? colors.action.primary
+              : colors.surface.background,
+            borderColor: colors.action.primary,
+            borderRadius: radius.sm,
+            paddingVertical: spacing.sm,
+            paddingHorizontal: spacing.md,
+          },
+        ]}
+        onPress={onPress}
+        disabled={disabled}
+      >
+        <Text
+          variant="body.primary"
+          style={[
+            styles.statusButtonText,
+            { color: isActive ? colors.text.inverse : colors.action.primary },
+          ]}
+        >
+          {statusLabels[status]}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
+  )
+}
+
 export function PantryItemDetailScreen() {
   const params = useLocalSearchParams<{
     id: string
@@ -51,6 +139,7 @@ export function PantryItemDetailScreen() {
   const [currentStatus, setCurrentStatus] = useState<PantryItemStatus>(
     params.status
   )
+  const [pendingStatus, setPendingStatus] = useState<PantryItemStatus | null>(null)
   const [currentName, setCurrentName] = useState(params.name)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState(params.name)
@@ -125,17 +214,23 @@ export function PantryItemDetailScreen() {
       return
     }
 
+    setPendingStatus(newStatus)
     updateMutation.mutate(
       { itemId: params.id, status: newStatus },
       {
-        onSuccess: () => setCurrentStatus(newStatus),
-        onError: (error) =>
+        onSuccess: () => {
+          setCurrentStatus(newStatus)
+          setPendingStatus(null)
+        },
+        onError: (error) => {
+          setPendingStatus(null)
           Alert.alert(
             'Error',
             error instanceof Error
               ? error.message
               : 'Failed to update pantry item status'
-          ),
+          )
+        },
       }
     )
   }
@@ -229,53 +324,25 @@ export function PantryItemDetailScreen() {
           <Text variant="title.small" style={{ marginBottom: spacing.md }}>
             Change Status
           </Text>
-          {updateMutation.isPending ? (
-            <View style={[styles.loadingContainer, { paddingVertical: spacing.md }]}>
-              <ActivityIndicator size="small" color={colors.action.primary} />
-              <Text
-                variant="body.secondary"
-                color="secondary"
-                style={{ marginLeft: spacing.sm }}
-              >
-                Updating...
-              </Text>
-            </View>
-          ) : (
-            <View style={[styles.statusButtons, { gap: spacing.sm }]}>
-              {statuses.map((status) => {
-                const isActive = currentStatus === status
-                return (
-                  <TouchableOpacity
-                    key={status}
-                    style={[
-                      styles.statusButton,
-                      {
-                        backgroundColor: isActive
-                          ? colors.action.primary
-                          : colors.surface.background,
-                        borderColor: colors.action.primary,
-                        borderRadius: radius.sm,
-                        paddingVertical: spacing.sm,
-                        paddingHorizontal: spacing.md,
-                      },
-                    ]}
-                    onPress={() => handleStatusChange(status)}
-                    disabled={isActive}
-                  >
-                    <Text
-                      variant="body.primary"
-                      style={[
-                        styles.statusButtonText,
-                        { color: isActive ? colors.text.inverse : colors.action.primary },
-                      ]}
-                    >
-                      {statusLabels[status]}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </View>
-          )}
+          <View style={[styles.statusButtons, { gap: spacing.sm }]}>
+            {statuses.map((status) => {
+              const isActive = currentStatus === status || pendingStatus === status
+              const isPulsing = pendingStatus === status
+              return (
+                <StatusButton
+                  key={status}
+                  status={status}
+                  isActive={isActive}
+                  isPulsing={isPulsing}
+                  onPress={() => handleStatusChange(status)}
+                  disabled={isActive || pendingStatus !== null}
+                  colors={colors}
+                  spacing={spacing}
+                  radius={radius}
+                />
+              )
+            })}
+          </View>
         </Card>
 
         <Card style={[styles.section, { marginBottom: spacing.md }]}>
@@ -380,11 +447,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   section: {},
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   statusButtons: {},
   statusButton: {
     borderWidth: 2,
