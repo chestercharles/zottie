@@ -5,8 +5,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
   TextInput as RNTextInput,
+  ActionSheetIOS,
 } from 'react-native'
 import Animated, {
   useSharedValue,
@@ -261,6 +261,21 @@ export function PantryItemDetailScreen() {
     )
   }
 
+  const showOverflowMenu = () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Delete Item'],
+        cancelButtonIndex: 0,
+        destructiveButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) {
+          handleDelete()
+        }
+      }
+    )
+  }
+
   const statuses: PantryItemStatus[] = [
     'in_stock',
     'running_low',
@@ -269,7 +284,17 @@ export function PantryItemDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface.background }]}>
-      <DragHandle />
+      <View style={styles.sheetHeader}>
+        <View style={styles.headerSpacer} />
+        <DragHandle />
+        <TouchableOpacity
+          style={[styles.overflowButton, { padding: spacing.sm }]}
+          onPress={showOverflowMenu}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="ellipsis-horizontal" size={22} color={colors.text.secondary} />
+        </TouchableOpacity>
+      </View>
       <ScrollView>
         <View style={[styles.content, { padding: spacing.md }]}>
           <View style={[styles.header, { marginBottom: spacing.lg, paddingHorizontal: spacing.md }]}>
@@ -397,28 +422,6 @@ export function PantryItemDetailScreen() {
             <Text variant="body.secondary">{formatDate(updatedAt)}</Text>
           </View>
         </Card>
-
-        <TouchableOpacity
-          style={[
-            styles.deleteButton,
-            {
-              backgroundColor: colors.feedback.error,
-              borderRadius: radius.md,
-              paddingVertical: spacing.sm + spacing.xs,
-              marginTop: spacing.sm,
-            },
-          ]}
-          onPress={handleDelete}
-          disabled={deleteMutation.isPending}
-        >
-          {deleteMutation.isPending ? (
-            <ActivityIndicator size="small" color={colors.text.inverse} />
-          ) : (
-            <Text variant="body.primary" color="inverse" style={styles.deleteButtonText}>
-              Delete Item
-            </Text>
-          )}
-        </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -428,6 +431,20 @@ export function PantryItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerSpacer: {
+    width: 44,
+  },
+  overflowButton: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {},
   header: {},
@@ -462,13 +479,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-  },
-  deleteButton: {
-    alignItems: 'center',
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  deleteButtonText: {
-    fontWeight: '600',
   },
 })

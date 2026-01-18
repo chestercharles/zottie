@@ -98,5 +98,15 @@
     "name": "Add confirmation before marking items as purchased",
     "description": "When the user taps the checkout button in the shopping list header, the app currently marks all checked items as purchased immediately. This is risky - an accidental tap can mark items as purchased before the user is ready. Add a confirmation step that asks the user to confirm before completing the action. The implementer should research iOS Human Interface Guidelines to determine the appropriate confirmation pattern (alert vs action sheet vs other) for this type of important action.",
     "completed": true
+  },
+  {
+    "name": "Move delete action to overflow menu on item detail",
+    "description": "The item detail bottom sheet currently has a large red delete button at the bottom that's visually prominent and takes up significant space. This is unnecessary visual weight since users don't need to see the delete option every time they view item details. Move the delete action into an overflow menu accessible from a button in the header area of the bottom sheet. The implementer should follow iOS Human Interface Guidelines to determine the appropriate icon and placement for the overflow menu (commonly an ellipsis icon in the top-right). The delete action should still show a confirmation before executing.",
+    "completed": true
+  },
+  {
+    "name": "Move edit name action to overflow menu on item detail",
+    "description": "Currently users tap directly on the item name to edit it, which isn't very discoverable. Add an 'Edit Name' option to the overflow menu in the item detail header (same menu where delete lives). The implementer should determine the best UX for what happens when the user taps 'Edit Name' - options include: inline editing where the name becomes editable in place, a separate modal/sheet with a text input, or another pattern that follows iOS conventions. The goal is a clear, intentional way to edit the item name.",
+    "completed": false
   }
 ]

@@ -1,5 +1,41 @@
 # zottie Development Progress
 
+## 2026-01-17: Move delete action to overflow menu on item detail
+
+**Feature:** Moved the delete action from a prominent red button at the bottom of the edit item screen to an overflow menu in the header
+
+**Changes:**
+
+- Updated `apps/mobile/features/pantry/PantryItemDetailScreen.tsx`:
+  - Added ellipsis overflow menu button in the header area next to the drag handle
+  - Removed the large red "Delete Item" button from the bottom of the screen
+  - Added `showOverflowMenu` function using `ActionSheetIOS` with a "Delete Item" option
+  - Delete confirmation alert is preserved - tapping "Delete Item" in the overflow menu still shows the confirmation dialog
+  - Removed unused `ActivityIndicator` import
+
+**Technical Details:**
+
+1. Problem: The delete button was visually prominent (large red button) and took up significant space at the bottom of the screen. This was unnecessary visual weight since users don't need to see the delete option every time they view item details.
+
+2. Solution:
+   - Added an ellipsis icon (`ellipsis-horizontal`) in the top-right of the sheet header
+   - The ellipsis button is balanced by an invisible spacer on the left to keep the drag handle centered
+   - Tapping the ellipsis shows an `ActionSheetIOS` with "Delete Item" marked as destructive
+   - The existing delete confirmation flow is preserved - selecting "Delete Item" triggers the same Alert.alert confirmation
+   - The header layout uses flexbox with `space-between` to position: spacer | drag-handle | overflow-button
+
+3. UX improvements:
+   - Cleaner, less cluttered item detail screen
+   - Delete action is accessible but not prominent
+   - Follows iOS convention of placing overflow/more actions in an ellipsis menu
+   - Maintains 44pt minimum touch target for accessibility
+
+**Verification:**
+
+- ✅ Linting passed
+- ✅ TypeScript type checking passed
+- ✅ Tests passed
+
 ## 2026-01-17: Pulsing loading state for status change buttons
 
 **Feature:** Added a subtle pulsing animation to status buttons during API updates instead of hiding all buttons and showing a loader
