@@ -12,12 +12,12 @@
   {
     "name": "(Shopping List Bugs) Fix swipe action to follow iOS delete pattern",
     "description": "The swipe-left action on shopping list items currently shows a three-dot ellipsis icon with the primary color background, which looks like a generic context menu rather than a remove action. Change this to follow the standard iOS swipe-to-delete pattern: show a trash icon with a danger/red background color. This clearly communicates that the action will remove the item from the shopping list. The existing behavior when tapping the action should remain unchanged - it should still show the action sheet asking 'Already have it' or 'Don't want to buy it'. Only the visual appearance of the revealed swipe action needs to change. Additionally, document this swipe-to-remove pattern in the UX guidelines so future swipe-to-remove interactions across the app stay consistent with iOS conventions.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "(Shopping List Bugs) Reset row state when action sheet is dismissed",
     "description": "When a user swipes left on a shopping list item and taps the action button, an action sheet appears with options like 'Already have it' or 'Don't want to buy it'. If the user dismisses this action sheet (by tapping Cancel or tapping outside), the row gets stuck in the swiped-left position and becomes unresponsive. The row should animate back to its normal closed position when the action sheet is dismissed without taking action. This follows standard iOS patterns where cancelling an action returns the UI to its previous state. The Cancel option in the action sheet should be styled as a non-destructive dismiss action (not a primary or danger color) to clearly communicate it won't change anything.",
-    "completed": false
+    "completed": true
   },
   {
     "name": "Move item detail context menu trigger inline with item name",
